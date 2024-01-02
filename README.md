@@ -1,2 +1,9 @@
-# Osmand-Map
-Recieving Triprecording Webhooks via Osmand App; Displaying GPS Coordinates on a map
+# LOREX
+Leaflet Osmand React ExpressJS Coordinates (X)
+> [!NOTE]
+> Remember an "X" marks the spot.
+
+## Goal
+**Technical:** Recieve and store coordinates via webhook and display them on a map.  
+**Personal:** The intend of this project is to get familiar with the listed technologies.
+
