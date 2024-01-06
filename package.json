@@ -1,0 +1,11 @@
+{
+  "name": "lorex",
+  "version": "0.0.1",
+  "description": "Leaflet Osmand React ExpressJS Coordinates (X)\r > Remember an \"X\" marks the spot.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Type-Style"
+}
