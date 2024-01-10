@@ -5,6 +5,7 @@ const app = express();
 const port = 80;
 
 app.get('/', (req: Request, res: Response) => {
+  var test = "test";
   res.send('Hello World, via TypeScript and Node.js!');
   
 });
