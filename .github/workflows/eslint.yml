@@ -1,23 +1,22 @@
 name: Lint
 
 on:
-  push:
-    branches: [ "dev" ]
   pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ "dev" ]
-  schedule:
-    - cron: '24 2 * * 5'
+  push:
+    branches:
+      - dev
 
 jobs:
   eslint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: mrdivyansh/eslint-action@v1.0.7
-        # GITHUB_TOKEN in forked repositories is read-only
-        # https://help.github.com/en/actions/reference/events-that-trigger-workflows#pull-request-event-pull_request
-        if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository }} 
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          repo-token: ${{secrets.GITHUB_TOKEN}}
-          eslint-rc: .eslintrc.js
+          node-version: 16
+      - run: npm ci # or yarn install
+      - uses: sibiraj-s/action-eslint@v3
+        with:
+          eslint-args: '--ignore-path=.gitignore --quiet'
+          extensions: 'js,jsx,ts,tsx'
+          annotations: true
