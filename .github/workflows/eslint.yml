@@ -2,9 +2,9 @@ name: Lint
 
 on:
   pull_request:
-  push:
-    branches:
-      - dev
+    branches: [ "dev" ]
+  schedule:
+    - cron: '34 10 * * 1'
 
 jobs:
   eslint:
