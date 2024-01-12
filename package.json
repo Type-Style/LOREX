@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "description": "Leaflet Osmand React ExpressJS Coordinates (X)\r > Remember an \"X\" marks the spot.",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "clean": "rm -rf dist/*",
     "build": "rm -rf dist/* && npx tsc && cp -R httpdocs/ dist/",

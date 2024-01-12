@@ -3,11 +3,11 @@
 	"include": ["src/**/*"],
 	"exclude": ["node_modules"],
 	"compilerOptions": {
-		"rootDir": "src",
-		"outDir": "dist",
-		"module": "NodeNext",
-		"moduleResolution": "NodeNext",
-		"target": "ES2022",
-		"sourceMap": true
+			"rootDir": "src",
+			"outDir": "dist",
+			"module": "CommonJS",
+			"moduleResolution": "node",
+			"target": "ES6",
+			"sourceMap": true
 	}
 }
