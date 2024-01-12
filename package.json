@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "npx tsc",
+    "build": "npx tsc && cp -R httpdocs/ dist/",
+    "build:prod": "npx tsc -p ./tsconfig.prod.json && cp -R httpdocs/ dist/",
     "start": "node dist/app.js",
     "dev": "nodemon src/app.ts",
     "lint": "eslint . --fix"
@@ -27,3 +28,5 @@
     "express": "^4.18.2"
   }
 }
+
+ 
