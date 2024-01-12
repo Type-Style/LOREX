@@ -18,23 +18,28 @@
             text-shadow: 0 0 20px #000;
           }
         }
+				@keyframes move-it {				
+					to {
+						background-position: 100px 0px;
+					}
+				}
 				html, body {
 					height: 100%; overflow: hidden;
 				}
         body {
-					background:
-						radial-gradient(black 3px, transparent 4px),
-						radial-gradient(black 3px, transparent 4px),
-						linear-gradient(rgb(0, 82, 20) 4px, transparent 0),
-						linear-gradient(45deg, transparent 74px, transparent 75px, rgb(0, 41, 25) 75px, rgb(0, 41, 25) 76px, transparent 77px, transparent 109px),
-						linear-gradient(-45deg, transparent 75px, transparent 76px, rgb(0, 41, 25) 76px, rgb(0, 41, 25) 77px, transparent 78px, transparent 109px),
-						rgb(0, 82, 20);
-						background-size: 109px 109px, 109px 109px,100% 6px, 109px 109px, 109px 109px;
-						background-position: 54px 55px, 0px 0px, 0px 0px, 0px 0px, 0px 0px;
+						background: repeating-linear-gradient(
+							45deg,
+							#014126,
+							#014126 5%,
+							#025c37 5%,
+							#025c37 10%
+						);
+						background-size: 100px 100px;
+						animation: move-it 2s linear infinite;
             font-family: Arial, sans-serif;						
 						display: flex;
 						justify-content: center;
-						align-items: center;						
+						align-items: center;
         }
         h1 {
             color: rgb(255, 255, 255);
