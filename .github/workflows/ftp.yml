@@ -17,9 +17,9 @@ jobs:
     - name: Build
       run: npm run build:prod
     - name: Upload ftp
-      uses: GenieTim/ftp-action@v4.0.1
+      uses: airvzxf/ftp-deployment-action@latest
       with:
         host: ${{ secrets.FTP_SERVER }}
         user: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        localDir: "dist"
+        local_dir: "dist"
