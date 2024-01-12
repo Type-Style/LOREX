@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Page</title>
+    <style>
+        @keyframes slideInFromLeft {
+          0% {
+            transform: translateX(-10%);
+          }
+          100% {
+            transform: translateX(10%);
+          }
+        }
+        @keyframes textShadow {         
+          50% {
+            text-shadow: 0 0 20px #000;
+          }
+        }
+				html, body {
+					height: 100%; overflow: hidden;
+				}
+        body {
+					background:
+						radial-gradient(black 3px, transparent 4px),
+						radial-gradient(black 3px, transparent 4px),
+						linear-gradient(rgb(0, 82, 20) 4px, transparent 0),
+						linear-gradient(45deg, transparent 74px, transparent 75px, rgb(0, 41, 25) 75px, rgb(0, 41, 25) 76px, transparent 77px, transparent 109px),
+						linear-gradient(-45deg, transparent 75px, transparent 76px, rgb(0, 41, 25) 76px, rgb(0, 41, 25) 77px, transparent 78px, transparent 109px),
+						rgb(0, 82, 20);
+						background-size: 109px 109px, 109px 109px,100% 6px, 109px 109px, 109px 109px;
+						background-position: 54px 55px, 0px 0px, 0px 0px, 0px 0px, 0px 0px;
+            font-family: Arial, sans-serif;						
+						display: flex;
+						justify-content: center;
+						align-items: center;						
+        }
+        h1 {
+            color: rgb(255, 255, 255);
+            text-align: center;
+            animation: 2s ease-in-out 0s infinite slideInFromLeft alternate-reverse, 3s ease-in-out 0s infinite textShadow;
+						filter: drop-shadow(0 0 10px rgb(0, 255, 128));
+						font-size: 40px;
+						font-size: 5dvmax;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome</h1>
+</body>
+</html>
