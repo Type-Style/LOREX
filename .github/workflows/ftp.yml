@@ -1,5 +1,6 @@
 name: Deploy via ftp
 on:
+  workflow_dispatch:
   push:
     branches: [ "main" ]
 jobs:
