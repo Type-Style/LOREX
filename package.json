@@ -4,8 +4,8 @@
   "description": "Leaflet Osmand React ExpressJS Coordinates (X)\r > Remember an \"X\" marks the spot.",
   "main": "index.js",
   "scripts": {
-    "clean": "rm -rf dist/*",
-    "build": "rm -rf dist/* && npx tsc && cp -R httpdocs/ dist/",
+    "prebuild": "rm -rf dist/*",
+    "build": "npx tsc && cp -R httpdocs/ dist/",
     "build:prod": "npx tsc -p ./tsconfig.prod.json && cp -R httpdocs/ dist/",
     "start": "node dist/app.js",
     "dev": "rm -rf dist/* && cp -R httpdocs/ dist/ && nodemon src/app.ts",
