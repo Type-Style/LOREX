@@ -9,5 +9,8 @@
 			"moduleResolution": "node",
 			"target": "ES6",
 			"sourceMap": true
-	}
+	},
+	"files": [
+    "types.d.ts"
+  ]
 }
