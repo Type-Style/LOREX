@@ -8,7 +8,11 @@
 			"module": "CommonJS",
 			"moduleResolution": "node",
 			"target": "ES6",
-			"sourceMap": true
+			"sourceMap": true,
+			"baseUrl": "./src",
+			"paths": {
+				"@src/*": ["./*"],
+			}
 	},
 	"files": [
     "types.d.ts"
