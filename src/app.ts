@@ -1,9 +1,11 @@
 require('module-alias/register');
+import { config } from 'dotenv';
 import express from 'express';
 import fs from 'fs';
 import path  from 'path';
 import writeRouter from '@src/controller/write';
 
+config();
 const app = express();
 
 // routes
