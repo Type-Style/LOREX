@@ -1,12 +1,15 @@
 require('module-alias/register');
 import { config } from 'dotenv';
 import express from 'express';
+import hpp from 'hpp';
 import fs from 'fs';
 import path  from 'path';
 import writeRouter from '@src/controller/write';
 
+// configurations
 config();
 const app = express();
+app.use(hpp());
 
 // routes
 app.get('/', (req, res) => {
@@ -14,7 +17,6 @@ app.get('/', (req, res) => {
 });
 
 app.use('/write', writeRouter);
-
 
 // use httpdocs as static folder
 app.use('/', express.static(path.join(__dirname, 'httpdocs')))
