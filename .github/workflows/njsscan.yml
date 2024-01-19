@@ -9,6 +9,7 @@
 name: njsscan sarif
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "dev" ]
   pull_request:
