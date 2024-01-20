@@ -1,5 +1,4 @@
-import { kMaxLength } from 'buffer';
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response} from 'express';
 import { query } from 'express-validator';
 
 const entry = {
@@ -13,14 +12,19 @@ const entry = {
 		query('lon').custom(checkNumber(-180, 180)),
 		query('timestamp').custom(checkTime),
 		query('hdop').custom(checkNumber(0, 100)),
-		// TODO altitude, speed, heading
+		query('altitude').custom(checkNumber(0, 10000)),
+		query('speed').custom(checkNumber(0, 300)),
+		query('heading').custom(checkNumber(0, 360)),
 	]
 
 }
 
 function checkNumber(min:number, max:number) {
 	return (value:string) => {
-		if (value.length > 11) {
+    if (!value) {
+      throw new Error('is required');
+    }
+		if (value.length > 12) {
 			throw new Error('Should have a maximum of 11 digits');
 		}
 		

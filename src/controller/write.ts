@@ -1,6 +1,7 @@
 import express from 'express';
 import entry from '@src/models/entry';
 import { validationResult } from 'express-validator';
+import logger from '@src/scripts/logger';
 
 
 const router = express.Router();
@@ -10,7 +11,9 @@ router.use(entry.validate);
 router.get('/', (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    res.status(422).json({ errors: errors.array() });
+    const errorAsJson = { errors: errors.array() };
+    logger.log(JSON.stringify(errorAsJson));
+    res.status(422).json(errorAsJson);
     return next();		
   }
 

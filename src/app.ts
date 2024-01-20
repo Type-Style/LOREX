@@ -2,9 +2,9 @@ require('module-alias/register');
 import { config } from 'dotenv';
 import express from 'express';
 import hpp from 'hpp';
-import fs from 'fs';
-import path  from 'path';
 import writeRouter from '@src/controller/write';
+import path  from 'path';
+import logger from '@src/scripts/logger';
 
 // configurations
 config();
@@ -23,9 +23,5 @@ app.use('/', express.static(path.join(__dirname, 'httpdocs')))
 
 // init server
 app.listen(80, () => {
-  const date = new Date().toLocaleString('de-DE', { hour12: false });
-  const logPath = path.join(__dirname, 'httpdocs', 'log.txt');
-  fs.appendFileSync(logPath, `Express Server started:  ${date} \n`);
-  
-  console.log(`Server running //localhost:80`); 
+  logger.log(`Server running //localhost:80`); 
 });
