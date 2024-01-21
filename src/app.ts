@@ -2,14 +2,17 @@ require('module-alias/register');
 import { config } from 'dotenv';
 import express from 'express';
 import hpp from 'hpp';
+import cache from './cache';
 import writeRouter from '@src/controller/write';
 import path  from 'path';
 import logger from '@src/scripts/logger';
+
 
 // configurations
 config();
 const app = express();
 app.use(hpp());
+app.use(cache);
 
 // routes
 app.get('/', (req, res) => {
