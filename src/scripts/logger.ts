@@ -9,6 +9,9 @@ export default {
 	log: (message:string|JSON) => {
 		fs.appendFileSync(logPath, `${date} \t|\t ${message} \n`);
 		console.log(message);
-
-	}
+	},
+	error: (message:string|JSON|Response.Error) => {
+		fs.appendFileSync(logPath, `${date} \t|\t ERROR: ${message} \n`);
+		console.error(message);
+	},
 }

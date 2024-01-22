@@ -1,7 +1,21 @@
+
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 type NumericRange<START extends number, END extends number, ARR extends unknown[] = [], ACC extends number = never> = 
   ARR['length'] extends END ? ACC | START | END : 
   NumericRange<START, END, [...ARR, 1], ARR[START] extends undefined ? ACC : ACC | ARR['length']>;
 
+namespace Response {
+	interface Message {
+		message: string;
+		data?: string|JSON;
+	}
+
+	interface Error extends Response.Message {
+		stack?: string,
+		name?: string
+	}
+}
 namespace Models {
 	interface IEntry {
 		/**
