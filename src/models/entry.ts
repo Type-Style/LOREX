@@ -1,5 +1,5 @@
 import { Request, Response} from 'express';
-import { query } from 'express-validator';
+import { checkExact, query } from 'express-validator';
 
 const entry = {
 	create: (req:Request, res:Response) => {
@@ -15,6 +15,8 @@ const entry = {
 		query('altitude').custom(checkNumber(0, 10000)),
 		query('speed').custom(checkNumber(0, 300)),
 		query('heading').custom(checkNumber(0, 360)),
+		checkExact()
+    // INFO: if message or any string gets added remember to escape
 	]
 
 }

@@ -21,7 +21,7 @@ router.get('/', (req, res, next) => {
   //entry.create(req, res);
   //const test = process.env.TEST;
 
-  res.send(`Write: ${JSON.stringify(req.query)}`);
+  res.json(req.query);
 
   
 
