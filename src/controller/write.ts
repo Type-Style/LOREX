@@ -1,5 +1,5 @@
 import express from 'express';
-import entry from '@src/models/entry';
+import { entry } from '@src/models/entry';
 import { validationResult } from 'express-validator';
 import logger from '@src/scripts/logger';
 
@@ -21,11 +21,7 @@ router.get('/', (req, res, next) => {
   //entry.create(req, res);
   //const test = process.env.TEST;
 
-  res.json(req.query);
-
-  
-
-  
+  res.send(req.query);
 })
 
 

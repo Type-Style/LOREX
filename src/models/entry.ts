@@ -1,7 +1,7 @@
 import { Request, Response} from 'express';
 import { checkExact, query } from 'express-validator';
 
-const entry = {
+export const entry = {
 	create: (req:Request, res:Response) => {
 		console.log(req.query);
 		console.log(res);
@@ -21,7 +21,7 @@ const entry = {
 
 }
 
-function checkNumber(min:number, max:number) {
+export function checkNumber(min:number, max:number) {
 	return (value:string) => {
     if (!value) {
       throw new Error('is required');
@@ -38,8 +38,9 @@ function checkNumber(min:number, max:number) {
   };	
 }
 
-function checkTime(value:string) {
+export function checkTime(value:string) {
   const timestamp = parseFloat(value);
+ 
   
   // Check if it's a number
   if (isNaN(timestamp)) {
@@ -52,7 +53,12 @@ function checkTime(value:string) {
     throw new Error('Timestamp should represent a valid date');
   }
 
-  return true;
+  const now = new Date();
+  const difference = now.getTime() - date.getTime();
+  const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
+  if (Math.abs(difference) >= oneDayInMilliseconds) {
+    throw new Error('Timestamp should represent a date not further from server time than 1 day');
+  }
+  
+  return true
 }
-
-export default entry;
