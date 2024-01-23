@@ -10,6 +10,6 @@ const setCache = function  (req: Request, res: Response, next: NextFunction)  {
 		res.set("Cache-control", 'no-store');
 	}
 
-	next ();
+	next();
 }
 export default setCache;

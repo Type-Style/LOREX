@@ -1,4 +1,4 @@
-import { entry, checkNumber, checkTime } from "./entry";
+import { checkNumber, checkTime } from "./entry";
 
 
 describe("checkNumber", () => {
