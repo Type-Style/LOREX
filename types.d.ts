@@ -13,7 +13,8 @@ namespace Response {
 
 	interface Error extends Response.Message {
 		stack?: string,
-		name?: string
+		name?: string,
+		status?: number
 	}
 }
 namespace Models {
