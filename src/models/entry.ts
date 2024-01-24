@@ -68,10 +68,14 @@ export function checkTime(value:string) {
 }
 
 async function checkKey(value:string) {
-  /* if (process.env.NODE_ENV != "production") {
-    return true; // dev testing convenience 
-  } */
+  if (process.env.NODE_ENV != "production" && value == "test") {
+      return true; // dev testing convenience 
+  }
 
+  if (!value) {
+    throw new Error('Key required');
+  }
+  
   const myEncryptPassword = await crypt.cryptPassword(value);
   console.log("key "  + process.env.KEY + " - " + myEncryptPassword);
 
