@@ -18,11 +18,8 @@ jobs:
     - uses: actions/checkout@v3
     - run: npm ci
     - run: npm run build:prod --if-present
-    - name: Start server and test server response
+    - name: Start server
       run: |
         npm start &
-        sleep 5 # Wait for server to start
-        curl localhost:80 
-        if [ -n "$(jobs -p)" ]; then
-          kill $(jobs -p) # Kill background jobs
-        fi
+        sleep 5 # Give server some time to start
+    - run: npm test

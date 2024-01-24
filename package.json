@@ -4,29 +4,43 @@
   "description": "Leaflet Osmand React ExpressJS Coordinates (X)\r > Remember an \"X\" marks the spot.",
   "main": "index.js",
   "scripts": {
-    "clean": "rm -rf dist/*",
-    "build": "rm -rf dist/* && npx tsc && cp -R httpdocs/ dist/",
+    "prebuild": "rm -rf dist/*",
+    "build": "npx tsc && cp -R httpdocs/ dist/",
     "build:prod": "npx tsc -p ./tsconfig.prod.json && cp -R httpdocs/ dist/",
     "start": "node dist/app.js",
     "dev": "rm -rf dist/* && cp -R httpdocs/ dist/ && nodemon src/app.ts",
-    "lint": "eslint . --fix"
+    "lint": "eslint . --fix",
+    "test": "jest"
   },
   "keywords": [],
   "author": "Type-Style",
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
     "@tsconfig/node20": "^20.1.2",
+    "@types/bcrypt": "^5.0.2",
     "@types/express": "^4.17.21",
+    "@types/hpp": "^0.2.5",
+    "@types/jest": "^29.5.11",
     "@types/node": "^20.10.6",
     "@typescript-eslint/eslint-plugin": "^6.18.1",
     "@typescript-eslint/parser": "^6.18.1",
+    "axios": "^1.6.5",
+    "dotenv": "^16.3.1",
     "eslint": "^8.56.0",
+    "eslint-plugin-jest": "^27.6.3",
+    "jest": "^29.7.0",
     "nodemon": "^3.0.2",
+    "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "hpp": "^0.2.3",
+    "module-alias": "^2.2.3"
+  },
+  "_moduleAliases": {
+    "@src": "dist"
   }
 }
-
- 
