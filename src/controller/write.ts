@@ -10,7 +10,7 @@ function errorChecking (req:Request, res:Response, next:NextFunction) {
     const errorAsString = new Error(JSON.stringify(errorAsJson));
     const hasKeyErrors =  errors.array().some(error => error.msg.includes("Key"));
    
-    res.status(hasKeyErrors ? 403 : 422); // send forbidden or 
+    res.status(hasKeyErrors ? 403 : 422); // send forbidden or unprocessable content
     return next(errorAsString);
   }
 
@@ -23,7 +23,7 @@ function errorChecking (req:Request, res:Response, next:NextFunction) {
     
     //entry.create(req, res);
     //const test = process.env.TEST;
-    res.send(req.query);
+   // res.send(req.query);
   
 }
 

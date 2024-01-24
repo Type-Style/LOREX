@@ -2,7 +2,7 @@ import axios from 'axios';
 
 describe('Server Status', () => {
   it('The server is running', async () => {
-    var serverStatus;
+    let serverStatus;
     try {
       const response = await axios.get('http://localhost');
       serverStatus = response.status;

@@ -1,6 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import logger from '@src/scripts/logger';
-
 
 export function notFound(req: Request, res: Response, next: NextFunction) {
   res.status(404);
@@ -11,11 +9,14 @@ export function notFound(req: Request, res: Response, next: NextFunction) {
 export function handler(err: Error,  req: Request, res: Response<Response.Error>, next: NextFunction) {
   const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
   res.status(statusCode);
-	let message = err.message;
+	
+  let message;
 	try {
-    let jsonMessage = JSON.parse(message);
+    const jsonMessage = JSON.parse(err.message);
     message = jsonMessage;
-  } catch (e) {}
+  } catch (e) {
+    message = err.message;
+  }
 	
   const responseBody = {
 		status: statusCode,
