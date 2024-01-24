@@ -1,10 +1,5 @@
-import * as bcrypt from 'bcrypt';
+const crypto = require('crypto');
 
-export const crypt = {
-
-	cryptPassword: (password: string) => {
-		return bcrypt.genSalt(10)
-			.then((salt => bcrypt.hash(password, salt)))
-			.then(hash => hash);
-	}		
-}
+export const crypt = function (value:string) { 
+	return crypto.createHmac('sha256', process.env.KEYA).update(value).digest("base64");
+};

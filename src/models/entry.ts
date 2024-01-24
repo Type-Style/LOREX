@@ -67,7 +67,7 @@ export function checkTime(value:string) {
   return true
 }
 
-async function checkKey(value:string) {
+function checkKey(value:string) {
   if (process.env.NODE_ENV != "production" && value == "test") {
       return true; // dev testing convenience 
   }
@@ -75,11 +75,15 @@ async function checkKey(value:string) {
   if (!value) {
     throw new Error('Key required');
   }
-  
-  const myEncryptPassword = await crypt.cryptPassword(value);
-  console.log("key "  + process.env.KEY + " - " + myEncryptPassword);
 
-  if (process.env.KEY != myEncryptPassword) {
+  value = decodeURIComponent(value);
+  
+  const hash = crypt(value);
+
+  if (process.env.KEYB != hash) {
+    if (process.env.NODE_ENV == "development") {
+       console.log(hash);
+    } 
     throw new Error('Key does not match');
   }
 
