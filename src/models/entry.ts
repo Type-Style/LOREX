@@ -1,5 +1,6 @@
 import { Request, Response} from 'express';
 import { checkExact, query } from 'express-validator';
+import { crypt } from '@src/scripts/crypt';
 
 export const entry = {
 	create: (req:Request, res:Response) => {
@@ -15,10 +16,10 @@ export const entry = {
 		query('altitude').custom(checkNumber(0, 10000)),
 		query('speed').custom(checkNumber(0, 300)),
 		query('heading').custom(checkNumber(0, 360)),
+    query("key").custom(checkKey),
 		checkExact()
     // INFO: if message or any string gets added remember to escape
 	]
-
 }
 
 export function checkNumber(min:number, max:number) {
@@ -64,4 +65,19 @@ export function checkTime(value:string) {
   }
   
   return true
+}
+
+async function checkKey(value:string) {
+  /* if (process.env.NODE_ENV != "production") {
+    return true; // dev testing convenience 
+  } */
+
+  const myEncryptPassword = await crypt.cryptPassword(value);
+  console.log("key "  + process.env.KEY + " - " + myEncryptPassword);
+
+  if (process.env.KEY != myEncryptPassword) {
+    throw new Error('Key does not match');
+  }
+
+  return true;
 }
