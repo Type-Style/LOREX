@@ -2,5 +2,8 @@
   "watch": ["src"],
   "ext": ".ts",
   "ignore": [],
-  "exec": "tsc && node dist/app.js"
+  "exec": "tsc && node dist/app.js",
+  "events": {
+    "start": "clear"
+  }
 }
