@@ -8,7 +8,6 @@ import writeRouter from '@src/controller/write';
 import path  from 'path';
 import logger from '@src/scripts/logger';
 
-
 // configurations
 config();
 const app = express();
@@ -30,5 +29,5 @@ app.use(error.handler);
 
 // init server
 app.listen(80, () => {
-  logger.log(`Server running //localhost:80`); 
+  logger.log(`Server running //localhost:80`, true); 
 });

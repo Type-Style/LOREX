@@ -1,11 +1,15 @@
-import { Request, Response} from 'express';
+import { NextFunction, Request, Response} from 'express';
 import { checkExact, query } from 'express-validator';
 import { crypt } from '@src/scripts/crypt';
+import * as file from '@src/scripts/file';
+
 
 export const entry = {
-	create: (req:Request, res:Response) => {
-		console.log(req.query);
-		console.log(res);
+	create: async (req:Request, res:Response, next:NextFunction) => {
+    const fileObj:File.Obj= file.createFile(res, next);   
+    fileObj.content = await file.readAsJson(res, fileObj.path, next);
+
+		console.log(fileObj.content);
 	},
 	validate: [
 		query('user').isLength({ min: 2, max: 2 }),

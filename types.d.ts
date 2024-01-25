@@ -1,14 +1,14 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-type NumericRange<START extends number, END extends number, ARR extends unknown[] = [], ACC extends number = never> = 
-  ARR['length'] extends END ? ACC | START | END : 
-  NumericRange<START, END, [...ARR, 1], ARR[START] extends undefined ? ACC : ACC | ARR['length']>;
+type NumericRange<START extends number, END extends number, ARR extends unknown[] = [], ACC extends number = never> =
+	ARR['length'] extends END ? ACC | START | END :
+	NumericRange<START, END, [...ARR, 1], ARR[START] extends undefined ? ACC : ACC | ARR['length']>;
 
 namespace Response {
 	interface Message {
 		message: string;
-		data?: string|JSON;
+		data?: string | JSON;
 	}
 
 	interface Error extends Response.Message {
@@ -17,6 +17,13 @@ namespace Response {
 		status?: number
 	}
 }
+namespace File {
+	interface Obj {
+		path: string
+		content?: JSON | ''
+	}
+}
+
 namespace Models {
 	interface IEntry {
 		/**
@@ -33,9 +40,9 @@ namespace Models {
 		* object containing horizontal vertical and total distance, in meters
 		*/
 		distance: {
-				horizontal: number,
-				vertical: number,
-				total: number
+			horizontal: number,
+			vertical: number,
+			total: number
 		},
 
 		/**
@@ -61,7 +68,7 @@ namespace Models {
 		* lat
 		*/
 		lat: number,
-		
+
 
 		/**
 		* lon
