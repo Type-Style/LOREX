@@ -1,6 +1,7 @@
 require('module-alias/register');
 import { config } from 'dotenv';
 import express from 'express';
+import helmet from 'helmet';
 import hpp from 'hpp';
 import cache from './cache';
 import * as error from "./error";
@@ -11,6 +12,19 @@ import logger from '@src/scripts/logger';
 // configurations
 config();
 const app = express();
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        "default-src": "self",
+        "script-src":  "self",
+        "img-src": "*",
+        "media-src": "self"
+      },
+    },
+  }),
+);
+
 app.use(hpp());
 app.use(cache);
 

@@ -11,19 +11,19 @@ export const createFile = (res: Response, next: NextFunction): File.Obj => {
 	const dirPath = path.resolve(__dirname, '../data');
 	const filePath = path.resolve(dirPath, `data-${formattedDate}.json`);
 
-	if (!fs.existsSync(dirPath)){
-			fs.mkdirSync(dirPath, { recursive: true });
-			logger.log("data folder did not exist, but created now"); 
+	if (!fs.existsSync(dirPath)) {
+		fs.mkdirSync(dirPath, { recursive: true });
+		logger.log("data folder did not exist, but created now");
 	}
 
 	let fileExisted = true;
 	if (!fs.existsSync(filePath)) { // check if file exist
-			fileExisted = false;
-			try {
-					fs.writeFileSync(filePath, '');
-			} catch (err) {
-					createError(res, 500, "File cannot be written to", next);
-			}
+		fileExisted = false;
+		try {
+			fs.writeFileSync(filePath, '');
+		} catch (err) {
+			createError(res, 500, "File cannot be written to", next);
+		}
 	}
 
 	return { path: filePath, content: fileExisted ? undefined : '' }; // if the file did not exist before, the content is emptyString
@@ -36,14 +36,12 @@ const readFileAsync = promisify(fs.readFile);
 
 export async function readAsJson(res: Response, filePath: string, next: NextFunction): Promise<JSON | '' | undefined> {
 	const data = await readFileAsync(filePath, 'utf-8');
-	console.log(data);
 
-	if (data === '') {
-		return '';
-	}
-	try {		
+	if (data === '') {	return ''; }
+
+	try {
 		return JSON.parse(data);
-	} catch (err) {		
+	} catch (err) {
 		createError(res, 500, "File contains wrong content", next);
 		return undefined;
 	}
