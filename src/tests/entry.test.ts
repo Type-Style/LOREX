@@ -1,4 +1,4 @@
-import { checkNumber, checkTime } from "./entry";
+import { checkNumber, checkTime } from "../models/entry";
 
 
 describe("checkNumber", () => {

@@ -24,8 +24,6 @@ function errorChecking (req:Request, res:Response, next:NextFunction) {
   // Regular Save logic from here    
   entry.create(req, res, next);
 
-
-
   res.send(req.query);
 }
 

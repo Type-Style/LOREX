@@ -20,7 +20,6 @@ export const createFile = (res: Response, next: NextFunction): File.Obj => {
 	if (!fs.existsSync(filePath)) { // check if file exist
 			fileExisted = false;
 			try {
-					// fs.appendFileSync(filePath, 'test');
 					fs.writeFileSync(filePath, '');
 			} catch (err) {
 					createError(res, 500, "File cannot be written to", next);
