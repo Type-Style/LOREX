@@ -1,10 +1,6 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-type NumericRange<START extends number, END extends number, ARR extends unknown[] = [], ACC extends number = never> =
-	ARR['length'] extends END ? ACC | START | END :
-	NumericRange<START, END, [...ARR, 1], ARR[START] extends undefined ? ACC : ACC | ARR['length']>;
-
 namespace Response {
 	interface Message {
 		message: string;
@@ -19,12 +15,16 @@ namespace Response {
 }
 namespace File {
 	interface Obj {
-		path: string
-		content?: JSON | ''
+		path: string,
+		content?: Models.IEntries;
 	}
 }
 
 namespace Models {
+	interface IEntries {
+		entries: Models.IEntry[]
+	}
+
 	interface IEntry {
 		/**
 		* height above ground in meters, as received by gps
@@ -34,7 +34,7 @@ namespace Models {
 		/**
 		* Direction in degrees between two coordinate pairs: 0°-360°
 		*/
-		angle: NumericRange<0, 360>,
+		angle: number,
 
 		/**
 		* object containing horizontal vertical and total distance, in meters
@@ -48,7 +48,8 @@ namespace Models {
 		/**
 		* object containing horizontal vertical and total speed, in km/h
 		*/
-		speeed: {
+		speed: {
+			gps: number;
 			horizontal: number,
 			vertical: number,
 			total: number
@@ -62,7 +63,7 @@ namespace Models {
 		/**
 		* Heading or Bearing as recieved from gps
 		*/
-		heading: NumericRange<0, 360>,
+		heading: number,
 
 		/**
 		* lat
