@@ -5,7 +5,7 @@ import { create as createError } from '@src/error';
 
 
 // example call: /write?user=xx&lat=00.000&lon=00.000&timestamp=1704063600000&hdop=0.0&altitude=0.000&speed=0.000&heading=000.0
-function errorChecking (req:Request, res:Response, next:NextFunction) {
+async function errorChecking (req:Request, res:Response, next:NextFunction) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const errorAsJson = { errors: errors.array()};
@@ -22,9 +22,13 @@ function errorChecking (req:Request, res:Response, next:NextFunction) {
   }
 
   // Regular Save logic from here    
-  entry.create(req, res, next);
+  await entry.create(req, res, next);
 
-  res.send(req.query);
+  if (!res.locals.error) {
+    res.send(req.query);
+  } 
+  
+  next();
 }
 
 

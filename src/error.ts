@@ -7,7 +7,8 @@ export function create(res:Response, status:number = 500, message:string, next:N
 		*/
   const error = new Error(message);
   res.status(status);
-  return next(error)
+  res.locals.error = true; // to let other middleware know that an error was called
+  next(error)
 }
 
 export function notFound(req: Request, res: Response, next: NextFunction) {
@@ -17,7 +18,6 @@ export function notFound(req: Request, res: Response, next: NextFunction) {
 }
 
 export function handler(err: Error,  req: Request, res: Response<Response.Error>, next: NextFunction) {
-  
   const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
   res.status(statusCode);
 	
@@ -38,6 +38,5 @@ export function handler(err: Error,  req: Request, res: Response<Response.Error>
 
   logger.error(responseBody);
   res.json(responseBody);
-
 	next();
 }
