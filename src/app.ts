@@ -16,10 +16,8 @@ app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
-        "default-src": "self",
-        "script-src":  "self",
-        "img-src": "*",
-        "media-src": "self"
+        "default-src": "'self'",        
+        "img-src": "*"
       },
     },
   }),
@@ -43,5 +41,5 @@ app.use(error.handler);
 
 // init server
 app.listen(80, () => {
-  logger.log(`Server running //localhost:80`, true); 
+  logger.log(`Server running //localhost:80, ENV: ${process.env.NODE_ENV}`, true); 
 });
