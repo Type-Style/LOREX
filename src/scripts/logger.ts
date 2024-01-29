@@ -10,7 +10,7 @@ export default {
 	log: (message:string|JSON, showDateInConsole:boolean=false, showLogInTest=false) => {
 		fs.appendFileSync(logPath, `${date} \t|\t ${message} \n`);
 		if (showDateInConsole) {
-			message = `${chalk.gray(date + ":")} ${message}`;
+			message = `${chalk.dim(date + ":")} ${message}`;
 		}
 		if (process.env.NODE_ENV == "development" || showLogInTest && process.env.NODE_ENV == "test") {
 			console.log(message);
