@@ -8,6 +8,7 @@ const date = new Date().toLocaleString('de-DE', { hour12: false });
 
 export default {
 	log: (message:string|JSON, showDateInConsole:boolean=false, showLogInTest=false) => {
+		message = JSON.stringify(message);
 		fs.appendFileSync(logPath, `${date} \t|\t ${message} \n`);
 		if (showDateInConsole) {
 			message = `${chalk.dim(date + ":")} ${message}`;
