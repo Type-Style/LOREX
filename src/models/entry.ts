@@ -4,7 +4,8 @@ import { crypt } from '@src/scripts/crypt';
 import { create as createError } from '@src/error';
 import * as file from '@src/scripts/file';
 import { getTime } from '@src/scripts/time';
-import { getSpeed } from '@src/scripts/speed';
+//import { getSpeed } from '@src/scripts/speed';
+import { getDistance } from '@src/scripts/distance';
 
 
 export const entry = {
@@ -16,6 +17,7 @@ export const entry = {
       return createError(res, 500, "File Content unavailable: " + fileObj.path, next);
     }
     const entries = fileObj.content.entries;
+    const lastEntry = fileObj.content.entries.at(-1);
     const entry = {} as Models.IEntry;
 
     entry.altitude = Number(req.query.altitude);
@@ -25,14 +27,15 @@ export const entry = {
     entry.lat = Number(req.query.lat);
     entry.lon = Number(req.query.lon);
     entry.user = req.query.user as string;
-    //entry.speed = getSpeed(Number(req.query.speed))
-    if (entries.length) { // so there is a previous entry
-      entry.time = getTime(Number(req.query.timestamp), entries.at(-1));
+    if (lastEntry) { // so there is a previous entry
+      entry.time = getTime(Number(req.query.timestamp), lastEntry);
       // checkIgnore()
       // newEntry.angle = getAngle();
-      // newEntry.distance = getDistance()
+      entry.distance = getDistance(entry, lastEntry)
+      //entry.speed = getSpeed(Number(req.query.speed) , lastEntry);
     } else {
       entry.time = getTime(Number(req.query.timestamp));
+      //entry.speed = getSpeed(Number(req.query.speed))
     }
 
 

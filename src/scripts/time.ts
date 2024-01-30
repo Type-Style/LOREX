@@ -10,6 +10,7 @@ export function getTime(time: number, entry?: Models.IEntry): Models.ITime {
 		year: "numeric",
 		month: "long",
 		day: "numeric",
+		hour: '2-digit',
 		hour12: false,
 		minute: '2-digit',
 	}) +  ":" + now.getSeconds();
