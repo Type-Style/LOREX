@@ -3,6 +3,8 @@ import { checkExact, query } from 'express-validator';
 import { crypt } from '@src/scripts/crypt';
 import { create as createError } from '@src/error';
 import * as file from '@src/scripts/file';
+import { getTime } from '@src/scripts/time';
+import { getSpeed } from '@src/scripts/speed';
 
 
 export const entry = {
@@ -17,31 +19,26 @@ export const entry = {
     const entry = {} as Models.IEntry;
 
     entry.altitude = Number(req.query.altitude);
-
     entry.hdop = Number(req.query.hdop);
     entry.heading = Number(req.query.heading);
     entry.index = entries.length;
     entry.lat = Number(req.query.lat);
     entry.lon = Number(req.query.lon);
     entry.user = req.query.user as string;
-    // entry.time = getTime();
-    // entry.speed = getSpeed()
+    //entry.speed = getSpeed(Number(req.query.speed))
     if (entries.length) { // so there is a previous entry
+      entry.time = getTime(Number(req.query.timestamp), entries.at(-1));
       // checkIgnore()
       // newEntry.angle = getAngle();
       // newEntry.distance = getDistance()
+    } else {
+      entry.time = getTime(Number(req.query.timestamp));
     }
-
-
-
-
 
 
     entries.push(entry);
 
-
     file.write(res, fileObj, next);
-
 
   },
   validate: [
