@@ -50,7 +50,7 @@ export const write = (res:Response, fileObj:File.Obj, next: NextFunction) => {
 		createError(res, 500, "Can not write to file that does not exist: " + fileObj.path, next);
 	}
 	try {
-		const content = JSON.stringify(fileObj.content);
+		const content = JSON.stringify(fileObj.content, undefined, 2);
 		fs.writeFileSync(fileObj.path, content);
 		fileObj.content = JSON.parse(content);
 		logger.log(`written to file: ${fileObj.path}`);
