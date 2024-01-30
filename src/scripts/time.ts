@@ -1,3 +1,5 @@
+import logger from '@src/scripts/logger';
+
 export function getTime(time: number, entry?: Models.IEntry): Models.ITime {
 	const now = new Date();
 	const created = Number(time);
@@ -10,6 +12,13 @@ export function getTime(time: number, entry?: Models.IEntry): Models.ITime {
 		day: "numeric",
 	});
 	const diff = entry ? created - entry.time.created : -1;
+
+	if (uploadDuration < 0) {
+		logger.error(`upload Duration is negative: ${createdString}, index: ${entry ? entry.index + 1 : 0}`);
+	}
+	if (entry && entry.time.created > created) { // maybe this could happend due to the async nature, but due to uncertainty logging is enabled
+		logger.error(`previous timestamp is more recent: ${createdString}, index: ${entry?.index + 1}`);
+	}
 
 	return {
 		created: created,
