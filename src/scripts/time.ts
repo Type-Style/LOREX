@@ -13,7 +13,8 @@ export function getTime(time: number, entry?: Models.IEntry): Models.ITime {
 		hour: '2-digit',
 		hour12: false,
 		minute: '2-digit',
-	}) +  ":" + now.getSeconds();
+		second: '2-digit'
+	});
 	const diff = entry ? created - entry.time.created : -1;
 
 	if (uploadDuration < 0) {
