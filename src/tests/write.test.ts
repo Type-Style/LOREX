@@ -100,7 +100,7 @@ describe("GET /write", () => {
     return new Promise<void>(done => {
       // Increase the timeout for this test
       setTimeout(async () => {
-        await callServer(undefined, "user=xx&lat=52.51627&lon=13.37770&timestamp=R3Pl4C3&hdop=50.0&altitude=5001.000&speed=150.000&heading=180.0&key=test", 200, "GET");
+        await callServer(undefined, "user=xx&lat=52.51627&lon=13.37770&timestamp=R3Pl4C3&hdop=50.0&altitude=4000.000&speed=150.000&heading=180.0&key=test", 200, "GET");
         const data = fs.readFileSync(filePath);
         const jsonData = JSON.parse(data.toString());
 
@@ -139,8 +139,8 @@ describe("GET /write", () => {
     const lastEntry = jsonData.entries.at(-1)
 
     expect(lastEntry.distance.horizontal).toBeCloseTo(1813.926);
-    expect(lastEntry.distance.vertical).toBe(1);
-    expect(lastEntry.distance.total).toBeCloseTo(1814.926);
+    expect(lastEntry.distance.vertical).toBe(-1000);
+    expect(lastEntry.distance.total).toBeCloseTo(2071.311);
   });
 
 

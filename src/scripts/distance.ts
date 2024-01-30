@@ -1,7 +1,7 @@
 export function getDistance(entry: Models.IEntry, lastEntry: Models.IEntry): Models.IDistance {
 	const horizontal = calculateDistance({ lat: entry.lat, lon: entry.lon }, { lat: lastEntry.lat, lon: lastEntry.lon });
 	const vertical = entry.altitude - lastEntry.altitude;
-	const total = horizontal + Math.abs(vertical);
+	const total = Math.sqrt(horizontal * horizontal + vertical * vertical);
 
 	return {
 		horizontal: horizontal,
