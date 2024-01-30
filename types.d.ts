@@ -39,21 +39,12 @@ namespace Models {
 		/**
 		* object containing horizontal vertical and total distance, in meters
 		*/
-		distance: {
-			horizontal: number,
-			vertical: number,
-			total: number
-		},
+		distance: Models.IDistance,
 
 		/**
 		* object containing horizontal vertical and total speed, in km/h
 		*/
-		speed: {
-			gps: number;
-			horizontal: number,
-			vertical: number,
-			total: number
-		},
+		speed: Models.ISpeed,
 
 		/**
 		* index, position of the entry point in the chain 
@@ -90,17 +81,31 @@ namespace Models {
 		/**
 		* time object containing UNIX timestamps with milliseconds, gps creation time (as recieved via gps), server time (when the server recieved and computed it), differce to last entry (time between waypoints), upload time differnce
 		*/
-		time: {
-			created: number,
-			recieved: number,
-			uploadDuration: number,
-			diff: number
-			createdString: string
-		},
+		time: Models.time,
 
 		/**
 		* user as recieved
 		*/
 		user: string
+	}
+
+	interface ITime {
+		created: number,
+		recieved: number,
+		uploadDuration: number,
+		diff: number
+		createdString: string
+	}
+
+	interface ISpeed {
+		gps: number;
+		horizontal: number,
+		vertical: number,
+		total: number
+	}
+	interface IDistance {
+		horizontal: number,
+		vertical: number,
+		total: number
 	}
 }
