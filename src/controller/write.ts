@@ -24,11 +24,14 @@ async function errorChecking (req:Request, res:Response, next:NextFunction) {
   // Regular Save logic from here    
   await entry.create(req, res, next);
 
-  if (!res.locals.error) {
+  if (!res.locals.error) { 
     res.send(req.query);
-  } 
-  
-  next();
+  } else { 
+    /* at this point error handling already happend,
+    *  or the request has already been send
+    *  therefor there is no need for it again (only middleware to follow at this point) */
+    next();
+  }
 }
 
 
