@@ -27,6 +27,11 @@ async function callServer(timestamp = new Date().getTime(), query: string, expec
   }
 }
 
+function getData(filePath:string) {
+  const data = fs.readFileSync(filePath);
+  return JSON.parse(data.toString());
+}
+
 function isInRange(actual: string | number, expected: number, range: number) {
   return Math.abs(Number(actual) - expected) <= range;
 }
@@ -105,8 +110,7 @@ describe("GET /write", () => {
       // Increase the timeout for this test
       setTimeout(async () => {
         await callServer(undefined, "user=xx&lat=52.51627&lon=13.37770&timestamp=R3Pl4C3&hdop=50&altitude=4000.000&speed=150.000&heading=180.0&key=test", 200, "GET");
-        const data = fs.readFileSync(filePath);
-        const jsonData = JSON.parse(data.toString());
+        const jsonData = getData(filePath);
 
         expect(jsonData.entries.length).toBe(2);
 
@@ -116,8 +120,7 @@ describe("GET /write", () => {
   });
 
   it('the time is correct', () => {
-    const data = fs.readFileSync(filePath);
-    const jsonData = JSON.parse(data.toString());
+    const jsonData = getData(filePath);
     const entry = jsonData.entries.at(-1)
 
     expect(entry.time.created).toBeGreaterThan(date.getTime());
@@ -138,8 +141,7 @@ describe("GET /write", () => {
   });
 
   it('the distance is correct', () => {
-    const data = fs.readFileSync(filePath);
-    const jsonData = JSON.parse(data.toString());
+    const jsonData = getData(filePath);
     const entry = jsonData.entries.at(-1)
 
     expect(entry.distance.horizontal).toBeCloseTo(1813.926);
@@ -147,9 +149,15 @@ describe("GET /write", () => {
     expect(entry.distance.total).toBeCloseTo(2071.311);
   });
 
+  it('the angle is correct', () => {
+    const jsonData = getData(filePath);
+    const entry = jsonData.entries.at(-1)
+
+    expect(entry.angle).toBeCloseTo(83.795775);
+  });
+
   it('the speed is correct', () => {
-    const data = fs.readFileSync(filePath);
-    const jsonData = JSON.parse(data.toString());
+    const jsonData = getData(filePath);
     const entry = jsonData.entries.at(-1)
 
     expect(isInRange(entry.speed.horizontal, 870, 10)).toBe(true);
@@ -158,8 +166,7 @@ describe("GET /write", () => {
   });
 
   it('check ignore', async () => {
-    let data = fs.readFileSync(filePath);
-    let jsonData = JSON.parse(data.toString());
+    let jsonData = getData(filePath);
     let entry = jsonData.entries[1];
     const lastEntry = jsonData.entries[0];
 
@@ -167,8 +174,7 @@ describe("GET /write", () => {
     expect(lastEntry.ignore).toBe(true); // last one to high hdop to be true
 
     await callServer(undefined, "user=xx&lat=52.51627&lon=13.37770&timestamp=R3Pl4C3&hdop=50&altitude=4000.000&speed=150.000&heading=180.0&key=test", 200, "GET");
-    data = fs.readFileSync(filePath); // rereading the data
-    jsonData = JSON.parse(data.toString());
+    jsonData = getData(filePath);
     entry = jsonData.entries[1]; // same data point, but not last now therefore ignore true
     expect(entry.ignore).toBe(true);
   });
