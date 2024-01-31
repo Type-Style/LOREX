@@ -34,7 +34,7 @@ namespace Models {
 		/**
 		* Direction in degrees between two coordinate pairs: 0°-360°
 		*/
-		angle: number,
+		angle?: number,
 
 		/**
 		* object containing horizontal vertical and total distance, in meters
