@@ -4,7 +4,7 @@ export function getTime(time: number, entry?: Models.IEntry): Models.ITime {
 	const now = new Date();
 	const created = Number(time);
 	const recieved = now.getTime();
-	const uploadDuration = recieved - created;
+	const uploadDuration = (recieved - created) / 1000;
 	const createdString = now.toLocaleString("de-DE", {
 		weekday: "long",
 		year: "numeric",
@@ -15,7 +15,7 @@ export function getTime(time: number, entry?: Models.IEntry): Models.ITime {
 		minute: '2-digit',
 		second: '2-digit'
 	});
-	const diff = entry ? created - entry.time.created : -1;
+	const diff = entry ? (created - entry.time.created) / 1000 : undefined;
 
 	if (uploadDuration < 0) {
 		logger.error(`upload Duration is negative: ${createdString}, index: ${entry ? entry.index + 1 : 0}`);
