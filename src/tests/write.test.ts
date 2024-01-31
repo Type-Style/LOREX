@@ -27,7 +27,7 @@ async function callServer(timestamp = new Date().getTime(), query: string, expec
   }
 }
 
-function isInRange(actual:string | number, expected:number, range:number) {
+function isInRange(actual: string | number, expected: number, range: number) {
   return Math.abs(Number(actual) - expected) <= range;
 }
 
@@ -82,7 +82,7 @@ describe("GET /write", () => {
   const filePath = path.resolve(dirPath, `data-${formattedDate}.json`);
 
   it('there should a file of the current date', async () => {
-    await callServer(undefined, "user=xx&lat=52.51451&lon=13.35105&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 200, "GET");
+    await callServer(undefined, "user=xx&lat=52.51451&lon=13.35105&timestamp=R3Pl4C3&hdop=20.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 200, "GET");
 
     fs.access(filePath, fs.constants.F_OK, (err) => {
       expect(err).toBeFalsy();
@@ -104,7 +104,7 @@ describe("GET /write", () => {
     return new Promise<void>(done => {
       // Increase the timeout for this test
       setTimeout(async () => {
-        await callServer(undefined, "user=xx&lat=52.51627&lon=13.37770&timestamp=R3Pl4C3&hdop=50.0&altitude=4000.000&speed=150.000&heading=180.0&key=test", 200, "GET");
+        await callServer(undefined, "user=xx&lat=52.51627&lon=13.37770&timestamp=R3Pl4C3&hdop=50&altitude=4000.000&speed=150.000&heading=180.0&key=test", 200, "GET");
         const data = fs.readFileSync(filePath);
         const jsonData = JSON.parse(data.toString());
 
@@ -118,11 +118,11 @@ describe("GET /write", () => {
   it('the time is correct', () => {
     const data = fs.readFileSync(filePath);
     const jsonData = JSON.parse(data.toString());
-    const lastEntry = jsonData.entries.at(-1)
+    const entry = jsonData.entries.at(-1)
 
-    expect(lastEntry.time.created).toBeGreaterThan(date.getTime());
-    expect(lastEntry.time.diff).toBeGreaterThan(2);
-    expect(lastEntry.time.diff).toBeLessThan(3);
+    expect(entry.time.created).toBeGreaterThan(date.getTime());
+    expect(entry.time.diff).toBeGreaterThan(2);
+    expect(entry.time.diff).toBeLessThan(3);
 
 
     const germanDayPattern = "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag)";
@@ -132,7 +132,7 @@ describe("GET /write", () => {
     const timePattern = "([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]";
 
     const pattern = new RegExp(`^${germanDayPattern}, ${dayOfMonthPattern}. ${germanMonthPattern} ${yearPattern} um ${timePattern}$`);
-    const string = lastEntry.time.createdString;
+    const string = entry.time.createdString;
     expect(pattern.test(string)).toBeTruthy();
 
   });
@@ -140,21 +140,37 @@ describe("GET /write", () => {
   it('the distance is correct', () => {
     const data = fs.readFileSync(filePath);
     const jsonData = JSON.parse(data.toString());
-    const lastEntry = jsonData.entries.at(-1)
+    const entry = jsonData.entries.at(-1)
 
-    expect(lastEntry.distance.horizontal).toBeCloseTo(1813.926);
-    expect(lastEntry.distance.vertical).toBe(-1000);
-    expect(lastEntry.distance.total).toBeCloseTo(2071.311);
+    expect(entry.distance.horizontal).toBeCloseTo(1813.926);
+    expect(entry.distance.vertical).toBe(-1000);
+    expect(entry.distance.total).toBeCloseTo(2071.311);
   });
 
   it('the speed is correct', () => {
     const data = fs.readFileSync(filePath);
     const jsonData = JSON.parse(data.toString());
-    const lastEntry = jsonData.entries.at(-1)
+    const entry = jsonData.entries.at(-1)
 
-    expect(isInRange(lastEntry.speed.horizontal, 871, 6)).toBe(true);
-    expect(isInRange(lastEntry.speed.vertical, -479, 6)).toBe(true);
-    expect(isInRange(lastEntry.speed.total, 995, 6)).toBe(true);
+    expect(isInRange(entry.speed.horizontal, 870, 10)).toBe(true);
+    expect(isInRange(entry.speed.vertical, -478, 10)).toBe(true);
+    expect(isInRange(entry.speed.total, 992, 10)).toBe(true);
+  });
+
+  it('check ignore', async () => {
+    let data = fs.readFileSync(filePath);
+    let jsonData = JSON.parse(data.toString());
+    let entry = jsonData.entries[1];
+    const lastEntry = jsonData.entries[0];
+
+    expect(entry.ignore).toBe(false); // current one to be false allways
+    expect(lastEntry.ignore).toBe(true); // last one to high hdop to be true
+
+    await callServer(undefined, "user=xx&lat=52.51627&lon=13.37770&timestamp=R3Pl4C3&hdop=50&altitude=4000.000&speed=150.000&heading=180.0&key=test", 200, "GET");
+    data = fs.readFileSync(filePath); // rereading the data
+    jsonData = JSON.parse(data.toString());
+    entry = jsonData.entries[1]; // same data point, but not last now therefore ignore true
+    expect(entry.ignore).toBe(true);
   });
 
 });

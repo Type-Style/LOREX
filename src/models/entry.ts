@@ -30,7 +30,7 @@ export const entry = {
     entry.ignore = false;
     if (lastEntry) { // so there is a previous entry
       entry.time = getTime(Number(req.query.timestamp), lastEntry);
-      entry.ignore = checkIgnore(lastEntry);
+      lastEntry.ignore = checkIgnore(lastEntry, entry);
       // newEntry.angle = getAngle();
       entry.distance = getDistance(entry, lastEntry)
       entry.speed = getSpeed(Number(req.query.speed), entry);
@@ -106,12 +106,14 @@ export function checkTime(value: string) {
   return true
 }
 
-function checkIgnore(lastEntry: Models.IEntry): boolean {
+function checkIgnore(lastEntry: Models.IEntry, entry:Models.IEntry): boolean {
   let threshold = 6; // hdop not allowed to be higher
   const maxThreshold = 25;
 
-  // if older the previous entry the higher the threshold
-  if (lastEntry.time.diff && lastEntry.time.diff > 32) {
+  const timing = Math.max(lastEntry.time.diff, entry.time.diff)
+
+  // Threshold increases with older previous entries or farther future entries.
+  if (timing > 32 ) {
       threshold += Math.min(lastEntry.time.diff / 60, maxThreshold);
   }
 
