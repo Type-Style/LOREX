@@ -93,15 +93,15 @@ namespace Models {
 		created: number,
 		recieved: number,
 		uploadDuration: number,
-		diff: number
+		diff?: number
 		createdString: string
 	}
 
 	interface ISpeed {
 		gps: number;
-		horizontal: number,
-		vertical: number,
-		total: number
+		horizontal?: number,
+		vertical?: number,
+		total?: number
 	}
 	interface IDistance {
 		horizontal: number,

@@ -117,8 +117,8 @@ describe("GET /write", () => {
     const lastEntry = jsonData.entries.at(-1)
 
     expect(lastEntry.time.created).toBeGreaterThan(date.getTime());
-    expect(lastEntry.time.diff).toBeGreaterThan(2000);
-    expect(lastEntry.time.diff).toBeLessThan(3000);
+    expect(lastEntry.time.diff).toBeGreaterThan(2);
+       expect(lastEntry.time.diff).toBeLessThan(3);
 
 
     const germanDayPattern = "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag)";
@@ -143,6 +143,15 @@ describe("GET /write", () => {
     expect(lastEntry.distance.total).toBeCloseTo(2071.311);
   });
 
+  it('the speed is correct', () => {
+    const data = fs.readFileSync(filePath);
+    const jsonData = JSON.parse(data.toString());
+    const lastEntry = jsonData.entries.at(-1)
 
+    expect(lastEntry.speed.gps).toBe(150);
+    expect(lastEntry.speed.horizontal).toBeCloseTo(865.836);
+    expect(lastEntry.speed.vertical).toBeCloseTo(-477.326);
+    expect(lastEntry.speed.total).toBeCloseTo(988.69);
+  });
 
 });

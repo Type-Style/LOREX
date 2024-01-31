@@ -4,7 +4,7 @@ import { crypt } from '@src/scripts/crypt';
 import { create as createError } from '@src/error';
 import * as file from '@src/scripts/file';
 import { getTime } from '@src/scripts/time';
-//import { getSpeed } from '@src/scripts/speed';
+import { getSpeed } from '@src/scripts/speed';
 import { getDistance } from '@src/scripts/distance';
 
 
@@ -32,10 +32,11 @@ export const entry = {
       // checkIgnore()
       // newEntry.angle = getAngle();
       entry.distance = getDistance(entry, lastEntry)
-      //entry.speed = getSpeed(Number(req.query.speed) , lastEntry);
+      entry.speed = getSpeed(Number(req.query.speed), entry);
+
     } else {
       entry.time = getTime(Number(req.query.timestamp));
-      //entry.speed = getSpeed(Number(req.query.speed))
+      entry.speed = getSpeed(Number(req.query.speed))
     }
 
 
