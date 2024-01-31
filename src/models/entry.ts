@@ -27,9 +27,10 @@ export const entry = {
     entry.lat = Number(req.query.lat);
     entry.lon = Number(req.query.lon);
     entry.user = req.query.user as string;
+    entry.ignore = false;
     if (lastEntry) { // so there is a previous entry
       entry.time = getTime(Number(req.query.timestamp), lastEntry);
-      // checkIgnore()
+      entry.ignore = checkIgnore(lastEntry);
       // newEntry.angle = getAngle();
       entry.distance = getDistance(entry, lastEntry)
       entry.speed = getSpeed(Number(req.query.speed), entry);
@@ -104,6 +105,19 @@ export function checkTime(value: string) {
 
   return true
 }
+
+function checkIgnore(lastEntry: Models.IEntry): boolean {
+  let threshold = 6; // hdop not allowed to be higher
+  const maxThreshold = 25;
+
+  // if older the previous entry the higher the threshold
+  if (lastEntry.time.diff && lastEntry.time.diff > 32) {
+      threshold += Math.min(lastEntry.time.diff / 60, maxThreshold);
+  }
+
+  return lastEntry.hdop > threshold;
+}
+
 
 function checkKey(value: string) {
   if (process.env.NODE_ENV != "production" && value == "test") {
