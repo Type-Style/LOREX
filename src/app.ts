@@ -43,3 +43,9 @@ app.use(error.handler);
 app.listen(80, () => {
   logger.log(`Server running //localhost:80, ENV: ${process.env.NODE_ENV}`, true); 
 });
+
+process.on('uncaughtException', function(err) {
+  console.error('Caught exception:', err);
+  logger.error(err);
+  process.exit(1);
+});
