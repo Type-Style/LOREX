@@ -27,7 +27,7 @@ async function callServer(timestamp = new Date().getTime(), query: string, expec
   }
 }
 
-function getData(filePath:string) {
+function getData(filePath: string) {
   const data = fs.readFileSync(filePath);
   return JSON.parse(data.toString());
 }
@@ -129,11 +129,10 @@ describe("GET /write", () => {
 
 
     const germanDayPattern = "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag)";
-    const dayOfMonthPattern = "(0[1-9]|[12][0-9]|3[01])";
+    const dayOfMonthPattern = "(0?[1-9]|[12][0-9]|3[01])";
     const germanMonthPattern = "(Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember)";
     const yearPattern = "(\\d{4})";
     const timePattern = "([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]";
-
     const pattern = new RegExp(`^${germanDayPattern}, ${dayOfMonthPattern}. ${germanMonthPattern} ${yearPattern} um ${timePattern}$`);
     const string = entry.time.createdString;
     expect(pattern.test(string)).toBeTruthy();
@@ -178,5 +177,12 @@ describe("GET /write", () => {
     entry = jsonData.entries[1]; // same data point, but not last now therefore ignore true
     expect(entry.ignore).toBe(true);
   });
+
+ /*  it('can handle up to 500 lines', async () => {
+    for (let i = 0; i <= 500; i++) {
+      await callServer(undefined, `user=xx&lat=${52 + Math.random()}&lon=${13 + Math.random()}&timestamp=R3Pl4C3&hdop=${25 * Math.random()}&altitude=${i}&speed=150.000&heading=${360 * Math.random()}&key=test`, 200, "GET");
+
+    }
+  }); */
 
 });
