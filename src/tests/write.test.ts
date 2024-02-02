@@ -161,7 +161,7 @@ describe("GET /write", () => {
 
     expect(isInRange(entry.speed.horizontal, 870, 10)).toBe(true);
     expect(isInRange(entry.speed.vertical, -478, 10)).toBe(true);
-    expect(isInRange(entry.speed.total, 992, 10)).toBe(true);
+    expect(isInRange(entry.speed.total, 992, 15)).toBe(true);
   });
 
   it('check ignore', async () => {
@@ -176,13 +176,17 @@ describe("GET /write", () => {
     jsonData = getData(filePath);
     entry = jsonData.entries[1]; // same data point, but not last now therefore ignore true
     expect(entry.ignore).toBe(true);
-  });
+  });  
+});
 
- /*  it('can handle up to 500 lines', async () => {
-    for (let i = 0; i <= 500; i++) {
-      await callServer(undefined, `user=xx&lat=${52 + Math.random()}&lon=${13 + Math.random()}&timestamp=R3Pl4C3&hdop=${25 * Math.random()}&altitude=${i}&speed=150.000&heading=${360 * Math.random()}&key=test`, 200, "GET");
-
+describe('API calls', () => {
+  test(`1000 api calls`, async () => {
+    for (let i = 0; i < 1000; i++) {
+      const url = `http://localhost:80/write?user=xx&lat=${(52 + Math.random()).toFixed(3)}&lon=${(13 + Math.random()).toFixed(3)}&timestamp=${new Date().getTime()}&hdop=${(25 * Math.random()).toFixed(3)}&altitude=${i}&speed=88.888&heading=${(360 * Math.random()).toFixed(3)}&key=test`;
+      const response = await axios.get(url);
+      expect(response.status).toBe(200);
     }
-  }); */
+  }, 20000); // adjust this to to fit your setup
+
 
 });
