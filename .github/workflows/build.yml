@@ -4,6 +4,7 @@
 name: Node.js CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "main", "dev" ]
   pull_request:
@@ -21,5 +22,5 @@ jobs:
     - name: Start server
       run: |
         npm start &
-        sleep 10 # Give server some time to start
+        sleep 6 # Give server some time to start
     - run: npm test
