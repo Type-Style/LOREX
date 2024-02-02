@@ -7,6 +7,7 @@ import { getTime } from '@src/scripts/time';
 import { getSpeed } from '@src/scripts/speed';
 import { getDistance } from '@src/scripts/distance';
 import { getAngle } from '@src/scripts/angle';
+import logger from '@src/scripts/logger';
 
 
 export const entry = {
@@ -42,8 +43,13 @@ export const entry = {
       entry.speed = getSpeed(Number(req.query.speed))
     }
 
-
-    entries.push(entry);
+    if (entries.length >= 1000) {
+      logger.log(`File over 1000 lines: ${fileObj.path}`);
+      entries[entries.length - 1] = entry; // replace last entry
+    } else {
+      entries.push(entry);
+    }
+    
 
     file.write(res, fileObj, next);
 

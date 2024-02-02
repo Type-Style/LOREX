@@ -188,5 +188,13 @@ describe('API calls', () => {
     }
   }, 20000); // adjust this to to fit your setup
 
+  test(`length of json should not exceed 1000`, async () => {
+    const date = new Date();
+    const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    const dirPath = path.resolve(__dirname, '../../dist/data/');
+    const filePath = path.resolve(dirPath, `data-${formattedDate}.json`);
+    const jsonData = getData(filePath);
+    expect(jsonData.entries.length).toBeLessThanOrEqual(1000);
+  });
 
 });
