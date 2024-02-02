@@ -53,7 +53,7 @@ export const write = (res:Response, fileObj:File.Obj, next: NextFunction) => {
 		const content = JSON.stringify(fileObj.content, undefined, 2);
 		fs.writeFileSync(fileObj.path, content);
 		fileObj.content = JSON.parse(content);
-		logger.log(`written to file: ${fileObj.path}`);
+		logger.log(`written to file: ${fileObj.path} ${fileObj.content ? fileObj.content?.entries.length - 1 : ''}`);
 	} catch (err) {
 		createError(res, 500, `File (${fileObj.path}) cannot be written to`, next);
 	}	
