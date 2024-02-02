@@ -10,7 +10,7 @@
     "start": "node dist/app.js",
     "dev": "rm -rf dist/* && cp -R httpdocs/ dist/ && nodemon src/app.ts",
     "lint": "eslint . --fix",
-    "test": "jest"
+    "test": "jest --runInBand"
   },
   "keywords": [],
   "author": "Type-Style",
