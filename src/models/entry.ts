@@ -45,11 +45,12 @@ export const entry = {
 
     if (entries.length >= 1000) {
       logger.log(`File over 1000 lines: ${fileObj.path}`);
-      entries[entries.length - 1] = entry; // replace last entry
+      if (entry.hdop < 12 || (lastEntry && entry.hdop < lastEntry.hdop)) {
+        entries[entries.length - 1] = entry; // replace last entry
+      }
     } else {
       entries.push(entry);
-    }
-    
+    }    
 
     file.write(res, fileObj, next);
 
