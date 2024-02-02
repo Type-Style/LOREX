@@ -18,9 +18,9 @@ app.use(
       directives: {
         "default-src": "'self'",        
         "img-src": "*"
-      },
-    },
-  }),
+      }
+    }
+  })
 );
 
 app.use(hpp());
@@ -33,7 +33,10 @@ app.get('/', (req, res) => {
 app.use('/write', writeRouter);
 
 // use httpdocs as static folder
-app.use('/', express.static(path.join(__dirname, 'httpdocs')))
+app.use('/', express.static(path.join(__dirname, 'httpdocs'), {
+  extensions: ['html', 'txt', "pdf"],
+  index: "start.html", 
+}))
 
 // error handling
 app.use(error.notFound);
