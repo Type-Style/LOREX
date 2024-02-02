@@ -36,9 +36,7 @@ async function errorChecking (req:Request, res:Response, next:NextFunction) {
 
 
 const router = express.Router();
-router.use(entry.validate);
-
-router.get('/', errorChecking);
-router.head('/', errorChecking);
+router.get('/', entry.validate, errorChecking);
+router.head('/', entry.validate, errorChecking);
 
 export default router;
