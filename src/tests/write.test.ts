@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
-//import fs from "fs";
-// import path from "path";
+import fs from "fs";
+import path from "path";
 
 async function callServer(timestamp = new Date().getTime(), query: string, expectStatus: number = 200, method: string = "HEAD") {
   const url = new URL("http://localhost:80/write?");
@@ -32,59 +32,59 @@ async function callServer(timestamp = new Date().getTime(), query: string, expec
 }
 
 
-    /* function getData(filePath: string) {
+    function getData(filePath: string) {
       const data = fs.readFileSync(filePath);
       return JSON.parse(data.toString());
     }
     
     function isInRange(actual: string | number, expected: number, range: number) {
       return Math.abs(Number(actual) - expected) <= range;
-    } */
+    }
 
     describe('HEAD /write', () => {
       it('with all parameters correctly set it should succeed', async () => {
         await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 200);
       });
 
-      // it('without key it sends 403', async () => {
-      //   await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0", 403);
-      // });
+      it('without key it sends 403', async () => {
+        await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0", 403);
+      });
 
       it('with user length not equal to 2 it sends 422', async () => {
         await callServer(undefined, "user=x&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 422);
       });
 
-      // it('with lat not between -90 and 90 it sends 422', async () => {
-      //   await callServer(undefined, "user=xx&lat=91.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 422);
-      // });
+      it('with lat not between -90 and 90 it sends 422', async () => {
+        await callServer(undefined, "user=xx&lat=91.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 422);
+      });
 
-      // it('with lon not between -180 and 180 it sends 422', async () => {
-      //   await callServer(undefined, "user=xx&lat=45.000&lon=181.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 422);
-      // });
+      it('with lon not between -180 and 180 it sends 422', async () => {
+        await callServer(undefined, "user=xx&lat=45.000&lon=181.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 422);
+      });
 
-      // it('with timestamp to old sends 422', async () => {
-      //   const timestamp = new Date().getTime() - 24 * 60 * 60 * 1000 * 2; // two days ago
-      //   await callServer(timestamp, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 422);
-      // })
+      it('with timestamp to old sends 422', async () => {
+        const timestamp = new Date().getTime() - 24 * 60 * 60 * 1000 * 2; // two days ago
+        await callServer(timestamp, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 422);
+      })
 
-      // it('with hdop not between 0 and 100 it sends 422', async () => {
-      //   await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=101.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 422);
-      // });
+      it('with hdop not between 0 and 100 it sends 422', async () => {
+        await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=101.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 422);
+      });
 
-      // it('with altitude not between 0 and 10000 it sends 422', async () => {
-      //   await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=10001.000&speed=150.000&heading=180.0&key=test", 422);
-      // });
+      it('with altitude not between 0 and 10000 it sends 422', async () => {
+        await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=10001.000&speed=150.000&heading=180.0&key=test", 422);
+      });
 
-      // it('with speed not between 0 and 300 it sends 422', async () => {
-      //   await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=301.000&heading=180.0&key=test", 422);
-      // });
+      it('with speed not between 0 and 300 it sends 422', async () => {
+        await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=301.000&heading=180.0&key=test", 422);
+      });
 
-      // it('with heading not between 0 and 360 it sends 422', async () => {
-      //   await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=361.0&key=test", 422);
-      // });
+      it('with heading not between 0 and 360 it sends 422', async () => {
+        await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=361.0&key=test", 422);
+      });
     });
 
-/* 
+
 describe("GET /write", () => {
   const date = new Date();
   const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
@@ -112,7 +112,6 @@ describe("GET /write", () => {
 
   it('after second call and the JSON entries length is 2', () => {
     return new Promise<void>(done => {
-      // Increase the timeout for this test
       setTimeout(async () => {
         await await callServer(undefined, "user=xx&lat=52.51627&lon=13.37770&timestamp=R3Pl4C3&hdop=50&altitude=4000.000&speed=150.000&heading=180.0&key=test", 200, "GET");
         const jsonData = getData(filePath);
@@ -120,7 +119,7 @@ describe("GET /write", () => {
         expect(jsonData.entries.length).toBe(2);
 
         done();
-      }, 2000);
+      }, 3500);
     })
   });
 
@@ -129,8 +128,8 @@ describe("GET /write", () => {
     const entry = jsonData.entries.at(-1)
 
     expect(entry.time.created).toBeGreaterThan(date.getTime());
-    expect(entry.time.diff).toBeGreaterThan(2);
-    expect(entry.time.diff).toBeLessThan(3);
+    expect(entry.time.diff).toBeGreaterThan(3.5);
+    expect(entry.time.diff).toBeLessThan(4);
 
 
     const germanDayPattern = "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag)";
@@ -164,9 +163,9 @@ describe("GET /write", () => {
     const jsonData = getData(filePath);
     const entry = jsonData.entries.at(-1)
 
-    expect(isInRange(entry.speed.horizontal, 870, 10)).toBe(true);
-    expect(isInRange(entry.speed.vertical, -478, 10)).toBe(true);
-    expect(isInRange(entry.speed.total, 992, 15)).toBe(true);
+    expect(isInRange(entry.speed.horizontal, 515, 10)).toBe(true);
+    expect(isInRange(entry.speed.vertical, -284, 10)).toBe(true);
+    expect(isInRange(entry.speed.total, 588, 15)).toBe(true);
   });
 
   it('check ignore', async () => {
@@ -182,9 +181,9 @@ describe("GET /write", () => {
     entry = jsonData.entries[1]; // same data point, but not last now therefore ignore true
     expect(entry.ignore).toBe(true);
   });  
-}); */
+});
 
-/* describe('API calls', () => {
+describe('API calls', () => {
   test(`1000 api calls`, async () => {
     for (let i = 0; i < 1000; i++) {
       const url = `http://localhost:80/write?user=xx&lat=${(52 + Math.random()).toFixed(3)}&lon=${(13 + Math.random()).toFixed(3)}&timestamp=${new Date().getTime()}&hdop=${(25 * Math.random()).toFixed(3)}&altitude=${i}&speed=88.888&heading=${(360 * Math.random()).toFixed(3)}&key=test`;
@@ -201,4 +200,4 @@ describe("GET /write", () => {
     const jsonData = getData(filePath);
     expect(jsonData.entries.length).toBeLessThanOrEqual(1000);
   });
-}); */
+});
