@@ -6,6 +6,7 @@ import hpp from 'hpp';
 import cache from './cache';
 import * as error from "./error";
 import writeRouter from '@src/controller/write';
+import readRouter from '@src/controller/read';
 import path  from 'path';
 import logger from '@src/scripts/logger';
 
@@ -31,11 +32,9 @@ app.get('/', (req, res) => {
   res.send('Hello World, via TypeScript and Node.js!');  
 });
 
-app.get('/test', (req, res) => {
-  process.exit(1);
-  res.send('Hello World 2, via TypeScript and Node.js!');  
-});
+
 app.use('/write', writeRouter);
+app.use('/read', readRouter);
 
 // use httpdocs as static folder
 app.use('/', express.static(path.join(__dirname, 'httpdocs'), {
