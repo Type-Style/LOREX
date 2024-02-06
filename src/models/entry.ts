@@ -7,6 +7,7 @@ import { getTime } from '@src/scripts/time';
 import { getSpeed } from '@src/scripts/speed';
 import { getDistance } from '@src/scripts/distance';
 import { getAngle } from '@src/scripts/angle';
+import { getIgnore } from '@src/scripts/ignore';
 import logger from '@src/scripts/logger';
 
 
@@ -33,7 +34,7 @@ export const entry = {
 
     if (lastEntry) { // so there is a previous entry
       entry.time = getTime(Number(req.query.timestamp), lastEntry);
-      lastEntry.ignore = checkIgnore(lastEntry, entry);
+      lastEntry.ignore = getIgnore(lastEntry, entry);
       entry.angle = getAngle(lastEntry, entry);
       entry.distance = getDistance(entry, lastEntry)
       entry.speed = getSpeed(Number(req.query.speed), entry);
@@ -113,20 +114,6 @@ export function checkTime(value: string) {
   }
 
   return true
-}
-
-function checkIgnore(lastEntry: Models.IEntry, entry: Models.IEntry): boolean {
-  let threshold = 6; // hdop not allowed to be higher
-  const maxThreshold = 25;
-
-  const timing = Math.max(lastEntry.time.diff, entry.time.diff)
-
-  // Threshold increases with older previous entries or farther future entries.
-  if (timing > 32) {
-    threshold += Math.min(lastEntry.time.diff / 60, maxThreshold);
-  }
-
-  return lastEntry.hdop > threshold;
 }
 
 
