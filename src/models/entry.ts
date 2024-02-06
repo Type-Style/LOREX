@@ -43,7 +43,7 @@ export const entry = {
       entry.speed = getSpeed(Number(req.query.speed))
     }
 
-    if (entries.length > 1000) {
+    if (entries.length >= 1000) {
       logger.log(`File over 1000 lines: ${fileObj.path}`);
       if (entry.hdop < 12 || (lastEntry && entry.hdop < lastEntry.hdop)) {
         entries[entries.length - 1] = entry; // replace last entry
