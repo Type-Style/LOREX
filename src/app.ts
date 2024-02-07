@@ -9,7 +9,7 @@ import cache from './cache';
 import * as error from "./error";
 import writeRouter from '@src/controller/write';
 import readRouter from '@src/controller/read';
-import path  from 'path';
+import path from 'path';
 import logger from '@src/scripts/logger';
 
 // configurations
@@ -19,7 +19,7 @@ app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
-        "default-src": "'self'",        
+        "default-src": "'self'",
         "img-src": "*"
       }
     }
@@ -45,7 +45,12 @@ app.use(function (req, res, next) {
 
 // routes
 app.get('/', (req, res) => {
-  res.send('Hello World, via TypeScript and Node.js!');  
+  res.send('Hello World, via TypeScript and Node.js!');
+});
+
+app.get('/test', (req, res) => {
+  res.send('Hello Test!');
+  process.exit();
 });
 
 
@@ -55,7 +60,7 @@ app.use('/read', readRouter);
 // use httpdocs as static folder
 app.use('/', express.static(path.join(__dirname, 'httpdocs'), {
   extensions: ['html', 'txt', "pdf"],
-  index: "start.html", 
+  index: ["start.html", "start.txt"]  ,
 }));
 
 // error handling
@@ -63,12 +68,31 @@ app.use(error.notFound);
 app.use(error.handler);
 
 // init server
-app.listen(80, () => {
-  logger.log(`Server running //localhost:80, ENV: ${process.env.NODE_ENV}`, true); 
+const server = app.listen(80, () => {
+  logger.log(`Server running //localhost:80, ENV: ${process.env.NODE_ENV}`, true);
 });
 
-process.on('uncaughtException', function(err) {
+// catching shutdowns
+['SIGINT', 'SIGTERM', 'exit'].forEach((signal) => {
+  process.on(signal, () => {
+    function logAndExit() {
+      // calling .shutdown allows your process to exit normally
+      // toobusy.shutdown();
+      logger.log(`Server shutdown on signal: ${signal} //localhost:80`, true);
+      process.exit();
+    }
+    if (signal != "exit") { // give the server time to shutdown before closing
+      server.close(logAndExit);
+    } else {
+      logger.log(`Server shutdown immediate: ${signal} //localhost:80`, true);
+    }
+  });
+});
+
+// last resort error handling
+process.on('uncaughtException', function (err) {
   console.error('Caught exception:', err);
   logger.error(err);
+  server.close();
   process.exit(1);
 });
