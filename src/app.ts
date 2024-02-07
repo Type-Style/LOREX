@@ -25,25 +25,18 @@ app.use(helmet({
     }
   }
 }));
-app.use((req, res, next) => {
-  if (toobusy()) { 
-    res.status(503).send("I'm busy right now, sorry.");
-   // todo add headers retry after and no cache
-  } else { next(); }
+app.use((req, res, next) => { // monitor eventloop to block requests if busy
+  if (toobusy()) { res.status(503).set({ 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Retry-After': '60' }).send("I'm busy right now, sorry."); }
+  else { next(); }
 });
 app.use(cache);
 app.use(compression())
 app.use(hpp());
 
-app.use(function (req, res, next) {
-  if (!['POST', 'PUT', 'DELETE'].includes(req.method)) {
-    return next()
-  }
-  getRawBody(req, {
-    length: req.headers['content-length'],
-    limit: '1mb',
-    encoding: true
-  }, function (err) {
+app.use(function (req, res, next) { // limit request size limit when recieving data
+  if (!['POST', 'PUT', 'DELETE'].includes(req.method)) { return next(); }
+  getRawBody(req, { length: req.headers['content-length'], limit: '1mb', encoding: true }, 
+  function (err) {
     if (err) { return next(err) }
     next()
   })
@@ -53,14 +46,6 @@ app.use(function (req, res, next) {
 app.get('/', (req, res) => {
   res.send('Hello World, via TypeScript and Node.js!');
 });
-
-app.get('/test', function (req, res) {
-  // processing the request requires some work!
-  let i = 0;
-  while (i < 1e10) i++;
-  res.send("I counted to " + i);
-});
-
 
 app.use('/write', writeRouter);
 app.use('/read', readRouter);
