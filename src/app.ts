@@ -1,6 +1,7 @@
 require('module-alias/register');
 import { config } from 'dotenv';
 import express from 'express';
+import compression from 'compression';
 import helmet from 'helmet';
 import hpp from 'hpp';
 import getRawBody from 'raw-body';
@@ -24,7 +25,7 @@ app.use(
     }
   })
 );
-
+app.use(compression())
 app.use(hpp());
 app.use(cache);
 
