@@ -9,7 +9,6 @@ const logPath = path.resolve(dirPath, 'start.txt');
 
 if (!fs.existsSync(dirPath)) {
 	fs.mkdirSync(dirPath, { recursive: true });
-	console.log("path created")
 }
 
 // const logPath = path.resolve(__dirname, '../httpdocs/log', 'start.txt');

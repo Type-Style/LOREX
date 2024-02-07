@@ -1,6 +1,7 @@
 require('module-alias/register');
 import { config } from 'dotenv';
 import express from 'express';
+import toobusy from 'toobusy-js';
 import compression from 'compression';
 import helmet from 'helmet';
 import hpp from 'hpp';
@@ -13,21 +14,26 @@ import path from 'path';
 import logger from '@src/scripts/logger';
 
 // configurations
-config();
+config(); // dotenv
+
 const app = express();
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        "default-src": "'self'",
-        "img-src": "*"
-      }
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      "default-src": "'self'",
+      "img-src": "*"
     }
-  })
-);
+  }
+}));
+app.use((req, res, next) => {
+  if (toobusy()) { 
+    res.status(503).send("I'm busy right now, sorry.");
+   // todo add headers retry after and no cache
+  } else { next(); }
+});
+app.use(cache);
 app.use(compression())
 app.use(hpp());
-app.use(cache);
 
 app.use(function (req, res, next) {
   if (!['POST', 'PUT', 'DELETE'].includes(req.method)) {
@@ -48,9 +54,11 @@ app.get('/', (req, res) => {
   res.send('Hello World, via TypeScript and Node.js!');
 });
 
-app.get('/test', (req, res) => {
-  res.send('Hello Test!');
-  process.exit();
+app.get('/test', function (req, res) {
+  // processing the request requires some work!
+  let i = 0;
+  while (i < 1e10) i++;
+  res.send("I counted to " + i);
 });
 
 
@@ -60,7 +68,7 @@ app.use('/read', readRouter);
 // use httpdocs as static folder
 app.use('/', express.static(path.join(__dirname, 'httpdocs'), {
   extensions: ['html', 'txt', "pdf"],
-  index: ["start.html", "start.txt"]  ,
+  index: ["start.html", "start.txt"],
 }));
 
 // error handling
@@ -77,7 +85,7 @@ const server = app.listen(80, () => {
   process.on(signal, () => {
     function logAndExit() {
       // calling .shutdown allows your process to exit normally
-      // toobusy.shutdown();
+      toobusy.shutdown();
       logger.log(`Server shutdown on signal: ${signal} //localhost:80`, true);
       process.exit();
     }
