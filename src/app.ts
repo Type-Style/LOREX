@@ -3,6 +3,7 @@ import { config } from 'dotenv';
 import express from 'express';
 import helmet from 'helmet';
 import hpp from 'hpp';
+import getRawBody from 'raw-body';
 import cache from './cache';
 import * as error from "./error";
 import writeRouter from '@src/controller/write';
@@ -27,6 +28,20 @@ app.use(
 app.use(hpp());
 app.use(cache);
 
+app.use(function (req, res, next) {
+  if (!['POST', 'PUT', 'DELETE'].includes(req.method)) {
+    return next()
+  }
+  getRawBody(req, {
+    length: req.headers['content-length'],
+    limit: '1mb',
+    encoding: true
+  }, function (err) {
+    if (err) { return next(err) }
+    next()
+  })
+})
+
 // routes
 app.get('/', (req, res) => {
   res.send('Hello World, via TypeScript and Node.js!');  
@@ -40,7 +55,7 @@ app.use('/read', readRouter);
 app.use('/', express.static(path.join(__dirname, 'httpdocs'), {
   extensions: ['html', 'txt', "pdf"],
   index: "start.html", 
-}))
+}));
 
 // error handling
 app.use(error.notFound);
