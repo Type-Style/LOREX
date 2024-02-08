@@ -2,6 +2,8 @@ require('module-alias/register');
 import { config } from 'dotenv';
 import express from 'express';
 import toobusy from 'toobusy-js';
+// import { rateLimit } from 'express-rate-limit';
+// import { slowDown } from 'express-slow-down';
 import compression from 'compression';
 import helmet from 'helmet';
 import hpp from 'hpp';
@@ -17,29 +19,37 @@ import logger from '@src/scripts/logger';
 config(); // dotenv
 
 const app = express();
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      "default-src": "'self'",
-      "img-src": "*"
-    }
-  }
-}));
+
 app.use((req, res, next) => { // monitor eventloop to block requests if busy
   if (toobusy()) { res.status(503).set({ 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Retry-After': '60' }).send("I'm busy right now, sorry."); }
   else { next(); }
 });
+
+// const slowDownLimiter = slowDown({
+// 	windowMs: 1 * 60 * 1000,
+// 	delayAfter: 5, // Allow 5 requests per 15 minutes.
+// 	delayMs: (used) => (used - 5) * 1000, // Add delay after delayAfter is reached
+// })
+
+// const rateLimiter = rateLimit({
+//   windowMs: 1 * 60 * 1000,
+//   max: 10, // Limit each IP per `window`
+//   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+//   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+// })
+
+app.use(helmet({ contentSecurityPolicy: { directives: { "default-src": "'self'", "img-src": "*" } } }));
 app.use(cache);
 app.use(compression())
 app.use(hpp());
-
 app.use(function (req, res, next) { // limit request size limit when recieving data
   if (!['POST', 'PUT', 'DELETE'].includes(req.method)) { return next(); }
-  getRawBody(req, { length: req.headers['content-length'], limit: '1mb', encoding: true }, 
-  function (err) {
-    if (err) { return next(err) }
-    next()
-  })
+  getRawBody(req, { length: req.headers['content-length'], limit: '1mb', encoding: true },
+    function (err) {
+      if (err) { return next(err) }
+      next()
+    }
+  )
 })
 
 // routes
