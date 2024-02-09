@@ -29,14 +29,14 @@ export function handler(err: Error,  req: Request, res: Response<Response.Error>
     message = err.message;
   }
 	
-  const responseBody = {
+  const responseBody:Response.Error = {
 		status: statusCode,
 		name: err.name,
     message: message,
     stack: process.env.NODE_ENV === "development" ? err.stack : "---"
   };
 
-  logger.error(JSON.stringify(responseBody));
+  logger.error(responseBody);
   res.json(responseBody);
 	next();
 }
