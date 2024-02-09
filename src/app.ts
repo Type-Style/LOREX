@@ -21,9 +21,14 @@ config(); // dotenv
 const app = express();
 
 app.use((req, res, next) => { // monitor eventloop to block requests if busy
-  if (toobusy()) { res.status(503).set({ 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Retry-After': '60' }).send("I'm busy right now, sorry."); }
-  else { next(); }
+  if (toobusy()) {
+    res.status(503).set({ 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Retry-After': '60' }).send("I'm busy right now, sorry.");
+  } else { next(); }
 });
+app.use((req, res, next) => { // clean up IPv6 Addresses
+  if (req.ip) { res.locals.ip = req.ip.startsWith('::ffff:') ? req.ip.substring(7) : req.ip; }
+  next();
+})
 
 // const slowDownLimiter = slowDown({
 // 	windowMs: 1 * 60 * 1000,
@@ -33,7 +38,7 @@ app.use((req, res, next) => { // monitor eventloop to block requests if busy
 
 // const rateLimiter = rateLimit({
 //   windowMs: 1 * 60 * 1000,
-//   max: 10, // Limit each IP per `window`
+//   limit: 10, // Limit each IP per `window`
 //   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
 //   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 // })
@@ -54,7 +59,7 @@ app.use(function (req, res, next) { // limit request size limit when recieving d
 
 // routes
 app.get('/', (req, res) => {
-  res.send('Hello World, via TypeScript and Node.js!');
+  res.send('Hello World, via TypeScript and Node.js! ' + res.locals.ip);
 });
 
 app.use('/write', writeRouter);
