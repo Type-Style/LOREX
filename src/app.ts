@@ -15,6 +15,9 @@ import readRouter from '@src/controller/read';
 import path from 'path';
 import logger from '@src/scripts/logger';
 
+// console.log({ "status": 403, "name": "Error", "message": { "errors": [{ "type": "field", "msg": "Invalid value", "path": "user", "location": "query" }, { "type": "field", "msg": "is required", "path": "lat", "location": "query" }]}});
+// console.log(JSON.stringify({ "status": 403, "name": "Error", "message": { "errors": [{ "type": "field", "msg": "Invalid value", "path": "user", "location": "query" }, { "type": "field", "msg": "is required", "path": "lat", "location": "query" }]}}, null, 2));
+
 // configurations
 config(); // dotenv
 
@@ -26,8 +29,15 @@ app.use((req, res, next) => { // monitor eventloop to block requests if busy
   } else { next(); }
 });
 app.use((req, res, next) => { // clean up IPv6 Addresses
-  if (req.ip) { res.locals.ip = req.ip.startsWith('::ffff:') ? req.ip.substring(7) : req.ip; }
-  next();
+  if (req.ip) {
+    res.locals.ip = req.ip.startsWith('::ffff:') ? req.ip.substring(7) : req.ip;
+    next();
+  } else {
+    const message = "No IP provided"
+    logger.error(message);
+    res.status(400).send(message);
+  }
+
 })
 
 // const slowDownLimiter = slowDown({

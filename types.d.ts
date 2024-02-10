@@ -1,6 +1,14 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
+namespace RateLimit {
+	interface obj {
+		[key: string]: {
+			limitReachedOnError: boolean
+		}
+	}
+}
+
 namespace Response {
 	interface Message {
 		message: string;
