@@ -24,7 +24,7 @@ jobs:
     - name: Start server
       run: |
         sudo npm start &
-        sleep 6 # Give server some time to start
+        sleep 8 # Give server some time to start
     - name: Check if server is running
       run: |
         curl --fail http://localhost:80 || exit 1

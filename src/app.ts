@@ -69,6 +69,7 @@ app.use(function (req, res, next) { // limit request size limit when recieving d
 
 // routes
 app.get('/', (req, res) => {
+  console.log(req.ip + " - " + res.locals.ip);
   res.send('Hello World, via TypeScript and Node.js! ' + res.locals.ip);
 });
 

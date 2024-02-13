@@ -10,7 +10,7 @@ import logger from '@src/scripts/logger';
 
 const baseOptions: Partial<rateLimiterOptions & slowDownOptions> = {
   windowMs: 30 * 60 * 1000,
-  skip: (req, res) => (res.locals.ip == process.env.LOCALHOST)
+  skip: (req, res) => (res.locals.ip == "127.0.0.1" || res.locals.ip == "::1")
 }
 
 const baseSlowDownOptions: Partial<slowDownOptions> = {
