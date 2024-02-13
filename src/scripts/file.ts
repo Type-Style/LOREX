@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
-import { create as createError } from '@src/error';
+import { create as createError } from '@src/middleware/error';
 import { NextFunction, Response } from 'express';
 import logger from '@src/scripts/logger';
 

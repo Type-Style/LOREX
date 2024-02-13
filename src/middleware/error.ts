@@ -29,7 +29,7 @@ export function handler(err: Error,  req: Request, res: Response<Response.Error>
     message = err.message;
   }
 	
-  const responseBody = {
+  const responseBody:Response.Error = {
 		status: statusCode,
 		name: err.name,
     message: message,

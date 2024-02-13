@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { checkExact, query } from 'express-validator';
 import { crypt } from '@src/scripts/crypt';
-import { create as createError } from '@src/error';
+import { create as createError } from '@src/middleware/error';
 import * as file from '@src/scripts/file';
 import { getTime } from '@src/scripts/time';
 import { getSpeed } from '@src/scripts/speed';

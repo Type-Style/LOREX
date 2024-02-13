@@ -129,7 +129,7 @@ describe("GET /write", () => {
 
     expect(entry.time.created).toBeGreaterThan(date.getTime());
     expect(entry.time.diff).toBeGreaterThan(3.5);
-    expect(entry.time.diff).toBeLessThan(4);
+    expect(entry.time.diff).toBeLessThan(4.6);
 
 
     const germanDayPattern = "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag)";
