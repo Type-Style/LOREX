@@ -40,6 +40,11 @@ export default {
 			const consoleMessage = structuredClone(content); // create clone so response output is not "further" affected
 			consoleMessage.message = messageAsString; // gitbash output improvement (w/o objects in arrays appear as [Object])
 			content = consoleMessage;
+		} else if (typeof content == "string") {
+			const prefix = content.match(/^\[\w+\]/);
+			if (prefix?.length) {
+				content = content.replace(prefix[0], chalk.red(prefix[0]));
+			}
 		}
 		console.error(content); // log string right away or processed Object
 
