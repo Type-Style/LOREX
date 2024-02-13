@@ -4,12 +4,13 @@ import { slowDown, Options as slowDownOptions } from 'express-slow-down';
 import logger from '@src/scripts/logger';
 
 
-// TODO clean up after 1 day?
-const ipsThatReachedLimit: RateLimit.obj = {};
+/* 
+** configurations
+*/
 
 const baseOptions: Partial<rateLimiterOptions & slowDownOptions> = {
-  windowMs: 5 * 60 * 1000,
-  //skip: (req, res) => (res.locals.ip == process.env.LOCALHOST)
+  windowMs: 30 * 60 * 1000,
+  skip: (req, res) => (res.locals.ip == process.env.LOCALHOST)
 }
 
 const baseSlowDownOptions: Partial<slowDownOptions> = {
@@ -27,6 +28,20 @@ const baseRateLimitOptions: Partial<rateLimiterOptions> = {
 
 
 /*
+** cleanup
+*/
+const ipsThatReachedLimit: RateLimit.obj = {}; // prevent logs from flooding
+setInterval(() => {
+  const oneHourAgo = Date.now() - 60 * 60 * 1000;
+  for (const ip in ipsThatReachedLimit) {
+    if (ipsThatReachedLimit[ip].time < oneHourAgo) {
+      delete ipsThatReachedLimit[ip];
+    }
+  }
+}, 60 * 60 * 1000);
+
+
+/*
 ** exported section
 */
 export const baseSlowDown = slowDown(baseSlowDownOptions);
@@ -37,7 +52,7 @@ export const errorRateLimiter = rateLimit({
   handler: (req: Request, res: Response, next: NextFunction, options: rateLimiterOptions) => {
     if (!Object.prototype.hasOwnProperty.call(ipsThatReachedLimit, res.locals.ip)) {
       logger.error(`[RateLimit] for invalid requests reached ${res.locals.ip}, ${req.get('User-Agent')}`);
-      ipsThatReachedLimit[res.locals.ip] = { limitReachedOnError: true };
+      ipsThatReachedLimit[res.locals.ip] = { limitReachedOnError: true, time: Date.now() };
     }
     res.status(options.statusCode).send(options.message);
   }

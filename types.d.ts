@@ -4,7 +4,8 @@
 namespace RateLimit {
 	interface obj {
 		[key: string]: {
-			limitReachedOnError: boolean
+			limitReachedOnError: boolean,
+			time: number
 		}
 	}
 }
