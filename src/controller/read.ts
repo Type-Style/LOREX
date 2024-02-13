@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import * as file from '@src/scripts/file';
-import { create as createError } from '@src/error';
+import { create as createError } from '@src/middleware/error';
 import { validationResult, query } from 'express-validator';
 
 const router = express.Router();
