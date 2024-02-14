@@ -1,48 +1,56 @@
 /*
 created by atmos https://app.atmos.style/65cc9eaec76d443c0a796d4b
+
+** base configuration colors **
+Main: #f90
+Info: #231aee
+Danger: #ff0000
+Success: #59ec04
+Neutral: #131211
 */
-
-/* main */
---main-900: oklch(10% 0.02 64.55);
---main-750: oklch(25% 0.056 64.55);
---main-625: oklch(37.5% 0.085 64.55);
---main-500: oklch(50% 0.114 64.55);
---main-375: oklch(62.5% 0.142 64.55);
---main-250: oklch(77.2% 0.1738 64.55); /* base */
---main-100: oklch(90% 0.06 64.55);
-
-/* info */
---info-900: oklch(10% 0.055 268.01);
---info-750: oklch(25% 0.158 268.01);
---info-625: oklch(37.5% 0.237 268.01);
---info-500: oklch(44.87% 0.2838 268.01); /* base */
---info-375: oklch(62.5% 0.19 268.01);
---info-250: oklch(77.2% 0.109 268.01);
---info-100: oklch(90% 0.04 268.01);
-
-/* alert */
---alert-900: oklch(10% 0.036 29.23);
---alert-750: oklch(25% 0.103 29.23);
---alert-625: oklch(37.5% 0.154 29.23);
---alert-500: oklch(47.4% 0.195 29.23);
---alert-375: oklch(62.8% 0.2577 29.23); /* base */
---alert-250: oklch(77.2% 0.133 29.23);
---alert-100: oklch(90% 0.045 29.23);
-
-/* success */
---success-900: oklch(10% 0.029 138.96);
---success-750: oklch(25% 0.083 138.96);
---success-625: oklch(37.5% 0.124 138.96);
---success-500: oklch(47.4% 0.157 138.96);
---success-375: oklch(62.5% 0.208 138.96);
---success-250: oklch(83% 0.2607 138.96); /* base */
---success-100: oklch(90% 0.201 138.96);
-
-/* neutral */
---neutral-900: oklch(10% 0.001 67.66);
---neutral-750: oklch(18.3% 0.0026 67.66); /* base */
---neutral-625: oklch(37.5% 0.006 67.66);
---neutral-500: oklch(47.4% 0.007 67.66);
---neutral-375: oklch(62.5% 0.009 67.66);
---neutral-250: oklch(77.2% 0.011 67.66);
---neutral-100: oklch(90% 0.004 67.66);
+:root {	
+	/* main */
+	--main-900: oklch(10% 0.02 64.55);
+	--main-750: oklch(25% 0.056 64.55);
+	--main-625: oklch(37.5% 0.085 64.55);
+	--main-500: oklch(50% 0.114 64.55);
+	--main-375: oklch(62.5% 0.142 64.55);
+	--main-250: oklch(77.2% 0.1738 64.55); /* base */
+	--main-100: oklch(90% 0.06 64.55);
+	
+	/* info */
+	--info-900: oklch(10% 0.055 268.01);
+	--info-750: oklch(25% 0.158 268.01);
+	--info-625: oklch(37.5% 0.237 268.01);
+	--info-500: oklch(44.87% 0.2838 268.01); /* base */
+	--info-375: oklch(62.5% 0.19 268.01);
+	--info-250: oklch(77.2% 0.109 268.01);
+	--info-100: oklch(90% 0.04 268.01);
+	
+	/* alert */
+	--alert-900: oklch(10% 0.036 29.23);
+	--alert-750: oklch(25% 0.103 29.23);
+	--alert-625: oklch(37.5% 0.154 29.23);
+	--alert-500: oklch(47.4% 0.195 29.23);
+	--alert-375: oklch(62.8% 0.2577 29.23); /* base */
+	--alert-250: oklch(77.2% 0.133 29.23);
+	--alert-100: oklch(90% 0.045 29.23);
+	
+	/* success */
+	--success-900: oklch(10% 0.029 138.96);
+	--success-750: oklch(25% 0.083 138.96);
+	--success-625: oklch(37.5% 0.124 138.96);
+	--success-500: oklch(47.4% 0.157 138.96);
+	--success-375: oklch(62.5% 0.208 138.96);
+	--success-250: oklch(83% 0.2607 138.96); /* base */
+	--success-100: oklch(90% 0.201 138.96);
+	
+	/* neutral */
+	--neutral-900: oklch(10% 0.001 67.66);
+	--neutral-750: oklch(18.3% 0.0026 67.66); /* base */
+	--neutral-625: oklch(37.5% 0.006 67.66);
+	--neutral-500: oklch(47.4% 0.007 67.66);
+	--neutral-375: oklch(62.5% 0.009 67.66);
+	--neutral-250: oklch(77.2% 0.011 67.66);
+	--neutral-100: oklch(90% 0.004 67.66);
+	}
