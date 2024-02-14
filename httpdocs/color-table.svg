@@ -1,0 +1,104 @@
+<!-- created by atmos https://app.atmos.style/65cc9eaec76d443c0a796d4b -->
+<svg xmlns="http://www.w3.org/2000/svg" width="346" height="302" viewBox="0 0 346 302">
+	<g class="visx-group" transform="translate(0, 40)">
+		<svg x="0" y="0" font-size="12" style="overflow:visible">
+			<text transform="" y="26" x="0" height="52" fill="#6D6781" font-size="12" text-anchor="start">
+				<tspan x="0" dy="0.355em">main</tspan>
+			</text>
+		</svg>
+		<svg x="0" y="0" font-size="12" style="overflow:visible">
+			<text transform="" y="78" x="0" height="52" fill="#6D6781" font-size="12" text-anchor="start">
+				<tspan x="0" dy="0.355em">info</tspan>
+			</text>
+		</svg>
+		<svg x="0" y="0" font-size="12" style="overflow:visible">
+			<text transform="" y="130" x="0" height="52" fill="#6D6781" font-size="12" text-anchor="start">
+				<tspan x="0" dy="0.355em">alert</tspan>
+			</text>
+		</svg>
+		<svg x="0" y="0" font-size="12" style="overflow:visible">
+			<text transform="" y="182" x="0" height="52" fill="#6D6781" font-size="12" text-anchor="start">
+				<tspan x="0" dy="0.355em">success</tspan>
+			</text>
+		</svg>
+		<svg x="0" y="0" font-size="12" style="overflow:visible">
+			<text transform="" y="234" x="0" height="52" fill="#6D6781" font-size="12" text-anchor="start">
+				<tspan x="0" dy="0.355em">neutral</tspan>
+			</text>
+		</svg>
+	</g>
+	<g class="visx-group" transform="translate(64, 0)">
+		<svg x="0" y="0" font-size="12px" style="overflow:visible">
+			<text transform="" y="20" x="20" height="40" fill="#6D6781" font-size="12px" text-anchor="middle">
+				<tspan x="20" dy="0.355em">900</tspan>
+			</text>
+		</svg>
+		<svg x="0" y="0" font-size="12px" style="overflow:visible">
+			<text transform="" y="20" x="60" height="40" fill="#6D6781" font-size="12px" text-anchor="middle">
+				<tspan x="60" dy="0.355em">750</tspan>
+			</text>
+		</svg>
+		<svg x="0" y="0" font-size="12px" style="overflow:visible">
+			<text transform="" y="20" x="100" height="40" fill="#6D6781" font-size="12px" text-anchor="middle">
+				<tspan x="100" dy="0.355em">625</tspan>
+			</text>
+		</svg>
+		<svg x="0" y="0" font-size="12px" style="overflow:visible">
+			<text transform="" y="20" x="140" height="40" fill="#6D6781" font-size="12px" text-anchor="middle">
+				<tspan x="140" dy="0.355em">500</tspan>
+			</text>
+		</svg>
+		<svg x="0" y="0" font-size="12px" style="overflow:visible">
+			<text transform="" y="20" x="180" height="40" fill="#6D6781" font-size="12px" text-anchor="middle">
+				<tspan x="180" dy="0.355em">375</tspan>
+			</text>
+		</svg>
+		<svg x="0" y="0" font-size="12px" style="overflow:visible">
+			<text transform="" y="20" x="220" height="40" fill="#6D6781" font-size="12px" text-anchor="middle">
+				<tspan x="220" dy="0.355em">250</tspan>
+			</text>
+		</svg>
+		<svg x="0" y="0" font-size="12px" style="overflow:visible">
+			<text transform="" y="20" x="260" height="40" fill="#6D6781" font-size="12px" text-anchor="middle">
+				<tspan x="260" dy="0.355em">100</tspan>
+			</text>
+		</svg>
+	</g>
+	<g class="visx-group" transform="translate(64, 40)">
+		<rect id="main/900" fill="#070200" y="0" x="0" width="40" height="52"></rect>
+		<rect id="info/900" fill="#010116" y="52" x="0" width="40" height="52"></rect>
+		<rect id="alert/900" fill="#0c0000" y="104" x="0" width="40" height="52"></rect>
+		<rect id="success/900" fill="#010500" y="156" x="0" width="40" height="52"></rect>
+		<rect id="neutral/900" fill="#030303" y="208" x="0" width="40" height="52"></rect>
+		<rect id="main/750" fill="#341b00" y="0" x="40" width="40" height="52"></rect>
+		<rect id="info/750" fill="#0a066b" y="52" x="40" width="40" height="52"></rect>
+		<rect id="alert/750" fill="#470000" y="104" x="40" width="40" height="52"></rect>
+		<rect id="success/750" fill="#072a00" y="156" x="40" width="40" height="52"></rect>
+		<rect id="neutral/750" fill="#131211" y="208" x="40" width="40" height="52"></rect>
+		<rect id="main/625" fill="#5f3600" y="0" x="80" width="40" height="52"></rect>
+		<rect id="info/625" fill="#1912bb" y="52" x="80" width="40" height="52"></rect>
+		<rect id="alert/625" fill="#7f0000" y="104" x="80" width="40" height="52"></rect>
+		<rect id="success/625" fill="#144f00" y="156" x="80" width="40" height="52"></rect>
+		<rect id="neutral/625" fill="#43403e" y="208" x="80" width="40" height="52"></rect>
+		<rect id="main/500" fill="#8f5300" y="0" x="120" width="40" height="52"></rect>
+		<rect id="info/500" fill="#231aee" y="52" x="120" width="40" height="52"></rect>
+		<rect id="alert/500" fill="#af0000" y="104" x="120" width="40" height="52"></rect>
+		<rect id="success/500" fill="#206f00" y="156" x="120" width="40" height="52"></rect>
+		<rect id="neutral/500" fill="#5f5b58" y="208" x="120" width="40" height="52"></rect>
+		<rect id="main/375" fill="#c17200" y="0" x="160" width="40" height="52"></rect>
+		<rect id="info/375" fill="#577cf9" y="52" x="160" width="40" height="52"></rect>
+		<rect id="alert/375" fill="#ff0000" y="104" x="160" width="40" height="52"></rect>
+		<rect id="success/375" fill="#32a300" y="156" x="160" width="40" height="52"></rect>
+		<rect id="neutral/375" fill="#8b8782" y="208" x="160" width="40" height="52"></rect>
+		<rect id="main/250" fill="#ff9900" y="0" x="200" width="40" height="52"></rect>
+		<rect id="info/250" fill="#97b2fb" y="52" x="200" width="40" height="52"></rect>
+		<rect id="alert/250" fill="#fe9283" y="104" x="200" width="40" height="52"></rect>
+		<rect id="success/250" fill="#59ec04" y="156" x="200" width="40" height="52"></rect>
+		<rect id="neutral/250" fill="#bab4ae" y="208" x="200" width="40" height="52"></rect>
+		<rect id="main/100" fill="#fbd7b5" y="0" x="240" width="40" height="52"></rect>
+		<rect id="info/100" fill="#d3defa" y="52" x="240" width="40" height="52"></rect>
+		<rect id="alert/100" fill="#fbd4cd" y="104" x="240" width="40" height="52"></rect>
+		<rect id="success/100" fill="#93fd73" y="156" x="240" width="40" height="52"></rect>
+		<rect id="neutral/100" fill="#e0dddb" y="208" x="240" width="40" height="52"></rect>
+	</g>
+</svg>
