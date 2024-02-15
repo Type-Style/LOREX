@@ -3,11 +3,9 @@ import { rateLimit, Options as rateLimiterOptions } from 'express-rate-limit';
 import { slowDown, Options as slowDownOptions } from 'express-slow-down';
 import logger from '@src/scripts/logger';
 
-
 /* 
 ** configurations
 */
-
 const baseOptions: Partial<rateLimiterOptions & slowDownOptions> = {
   windowMs: 30 * 60 * 1000,
   skip: (req, res) => (res.locals.ip == "127.0.0.1" || res.locals.ip == "::1")
