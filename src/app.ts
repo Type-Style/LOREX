@@ -5,7 +5,6 @@ import toobusy from 'toobusy-js';
 import compression from 'compression';
 import helmet from 'helmet';
 import hpp from 'hpp';
-import getRawBody from 'raw-body';
 import cache from './middleware/cache';
 import * as error from "./middleware/error";
 import writeRouter from '@src/controller/write';
@@ -18,6 +17,8 @@ config(); // dotenv
 
 const app = express();
 
+app.set('view engine', 'ejs');
+
 app.use((req, res, next) => { // monitor eventloop to block requests if busy
   if (toobusy()) {
     res.status(503).set({ 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Retry-After': '60' }).send("I'm busy right now, sorry.");
@@ -28,7 +29,7 @@ app.use((req, res, next) => { // clean up IPv6 Addresses
     res.locals.ip = req.ip.startsWith('::ffff:') ? req.ip.substring(7) : req.ip;
     next();
   } else {
-    const message = "No IP provided"
+    const message = "No IP provided";
     logger.error(message);
     res.status(400).send(message);
   }
@@ -38,16 +39,12 @@ app.use(helmet({ contentSecurityPolicy: { directives: { "default-src": "'self'",
 app.use(cache);
 app.use(compression())
 app.use(hpp());
-app.use(function (req, res, next) { // limit request size limit when recieving data
-  if (!['POST', 'PUT', 'DELETE'].includes(req.method)) { return next(); }
-  getRawBody(req, { length: req.headers['content-length'], limit: '1mb', encoding: true },
-    function (err) { if (err) { return next(err) } next() }
-  )
-})
+app.use(express.urlencoded({ limit: '0.5kb', extended: true }));
+
 
 // routes
 app.get('/', (req, res) => {
-  console.log(req.ip + " - " + res.locals.ip);
+  logger.log(req.ip + " - " + res.locals.ip, true);
   res.send('Hello World, via TypeScript and Node.js! ' + res.locals.ip);
 });
 
