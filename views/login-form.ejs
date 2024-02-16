@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset='utf-8'>
+	<title>Login Form - Lorex</title>
+	<meta name='viewport' content='width=device-width, initial-scale=1'>
+	<link rel='stylesheet' type='text/css' href='/css/login.css'>
+</head>
+
+<body>
+	<form class="login" action="/read/login/" method="post">
+		<h1>Text: <%= locals.text %></h1>
+		<input name="user" class="login__input" placeholder="User name / Email">
+		<input name="password" type="password" class="login__input" placeholder="Password">
+		<button type="submit">Submit</button>
+		<textarea name="text"></textarea>
+	</form>
+</body>
+
+</html>
