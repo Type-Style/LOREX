@@ -118,13 +118,12 @@ export function checkTime(value: string) {
 
 
 function checkKey(value: string) {
-  if (process.env.NODE_ENV != "production" && value == "test") {
-    return true; // dev testing convenience 
-  }
-
   if (!value) {
     throw new Error('Key required');
   }
+  if (process.env.NODE_ENV != "production" && value == "test") {
+    return true; // dev testing convenience 
+  }  
 
   value = decodeURIComponent(value);
 
