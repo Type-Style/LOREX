@@ -43,7 +43,7 @@ async function writeData(req: Request, res: Response, next: NextFunction) {
 
 
 const router = express.Router();
- router.get('/', baseSlowDown, entry.validate, errorChecking, writeData);
+router.get('/', baseSlowDown, entry.validate, errorChecking, writeData);
 router.head('/', baseSlowDown, entry.validate, errorChecking);
 
 export default router;

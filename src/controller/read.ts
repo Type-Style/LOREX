@@ -4,7 +4,8 @@ import { create as createError } from '@src/middleware/error';
 import { validationResult, query } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import logger from '@src/scripts/logger';
-import { create } from 'domain';
+import { crypt } from '@src/scripts/crypt';
+import { loginSlowDown, loginLimiter } from '@src/middleware/limit';
 
 const router = express.Router();
 
@@ -43,28 +44,40 @@ router.get("/login/", async function login(req: Request, res: Response) {
   res.render("login-form");
 });
 
-router.post("/login/", async function postLogin(req: Request, res: Response) {
+router.post("/login/", loginSlowDown, async function postLogin(req: Request, res: Response, next: NextFunction) {
   logger.log("post login was called");
   logger.log(req.body);
   res.locals.text = "post recieved";
-
-  // TODO login authentication here
-  const validLogin = true;
-  if (!validLogin) {
-    return res.redirect("/read/login");
-  } else {
-    createToken(req, res);
-    res.render("login-form");   // TODO Send Token only
-  }
+  loginLimiter(req, res, () => {
+    let validLogin = false;
+    const password = crypt(req.body.password);
+    // Loop through all environment variables
+    for (const key in process.env) {
+      if (!key.startsWith('USER')) { continue; }
+      if (key.substring(5) == req.body.user &&
+        process.env[key] == password) {
+        validLogin = true;
+        break;
+      }
+    }
+    if (validLogin) {
+      const token = createToken(req, res);
+      res.json({ "token": token });
+    } else {
+      res.redirect("/read/login");
+    }
+  });
 });
 
 function isLoggedIn(req: Request, res: Response) {
+  console.log("login check");
   const result = validateToken(req, res);
   if (!result) {
-    return res.redirect("/read/login");
+    loginLimiter(req, res, () => {
+      res.redirect("/read/login");
+    });
   }
 }
-
 
 function validateToken(req: Request, res: Response) {
   const key = process.env.KEYB;
@@ -85,7 +98,6 @@ function validateToken(req: Request, res: Response) {
   }
 }
 
-
 function createToken(req: Request, res: Response) {
   const key = process.env.KEYB;
   if (!key) { throw new Error('KEYA is not defined in the environment variables'); }
@@ -95,6 +107,7 @@ function createToken(req: Request, res: Response) {
   };
   const token = jwt.sign(payload, key, { expiresIn: 60 * 1 });
   res.locals.token = token;
+  return token;
 }
 
 export default router;
