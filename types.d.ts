@@ -1,6 +1,11 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
+interface HttpError extends Error {
+  status?: number;
+  statusCode?: number;
+}
+
 namespace RateLimit {
 	interface obj {
 		[key: string]: {

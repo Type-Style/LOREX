@@ -17,8 +17,11 @@ export function notFound(req: Request, res: Response, next: NextFunction) {
   next(error);
 }
 
-export function handler(err: Error,  req: Request, res: Response<Response.Error>, next: NextFunction) {
-  const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
+export function handler(err: HttpError,  req: Request, res: Response<Response.Error>, next: NextFunction) {
+  let statusCode = res.statusCode;
+  if (statusCode == 200) {
+    statusCode = err.statusCode || err.status || 500
+  }
   res.status(statusCode);
 	
   let message;
