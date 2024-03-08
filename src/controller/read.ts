@@ -5,7 +5,7 @@ import { validationResult, query } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import logger from '@src/scripts/logger';
 import { crypt } from '@src/scripts/crypt';
-import { loginSlowDown, loginLimiter } from '@src/middleware/limit';
+import { loginSlowDown, loginLimiter, baseSlowDown, baseRateLimiter } from '@src/middleware/limit';
 
 const router = express.Router();
 
@@ -37,7 +37,7 @@ router.get('/',
 
 
 // TODO write test for checking the limit on request body
-router.get("/login/", async function login(req: Request, res: Response) {
+router.get("/login/", baseSlowDown, baseRateLimiter, async function login(req: Request, res: Response) {
   logger.log("login was called");
   res.locals.text = "start";
 

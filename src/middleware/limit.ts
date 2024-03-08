@@ -8,7 +8,7 @@ import logger from '@src/scripts/logger';
 */
 const baseOptions: Partial<rateLimiterOptions & slowDownOptions> = {
   windowMs: 30 * 60 * 1000,
-  //skip: (req, res) => (res.locals.ip == "127.0.0.1" || res.locals.ip == "::1")
+  skip: (req, res) => (res.locals.ip == "127.0.0.1" || res.locals.ip == "::1")
 }
 
 const baseSlowDownOptions: Partial<slowDownOptions> = {
@@ -28,8 +28,8 @@ const baseRateLimitOptions: Partial<rateLimiterOptions> = {
       ipsThatReachedLimit[res.locals.ip] = { limitReachedOnError: true, time: Date.now() };
     }
     res.status(options.statusCode).send(options.message);
-  }
-
+  },
+  message: "Too many attempts"
 }
 
 
@@ -58,6 +58,7 @@ export const loginSlowDown = slowDown({
     delayMs: (used: number) => (used - 1) * 250, // Add delay after delayAfter is reached
   });
 
+export const baseRateLimiter = rateLimit(baseRateLimitOptions);
 
 export const errorRateLimiter = rateLimit({
   ...baseRateLimitOptions,
@@ -68,5 +69,5 @@ export const loginLimiter = rateLimit({
   ...baseRateLimitOptions,
   windowMs: 3 * 60 * 1000,
   limit: 3,
-  message: 'Too many failed login attempts',
+  message: 'Too many attempts without valid login',
 });
