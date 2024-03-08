@@ -44,7 +44,7 @@ router.get("/login/", baseSlowDown, baseRateLimiter, async function login(req: R
   res.render("login-form");
 });
 
-router.post("/login/", loginSlowDown, async function postLogin(req: Request, res: Response, next: NextFunction) {
+router.post("/login/", loginSlowDown, async function postLogin(req: Request, res: Response) {
   logger.log("post login was called");
   logger.log(req.body);
   res.locals.text = "post recieved";

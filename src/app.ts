@@ -11,6 +11,7 @@ import writeRouter from '@src/controller/write';
 import readRouter from '@src/controller/read';
 import path from 'path';
 import logger from '@src/scripts/logger';
+import { baseRateLimiter } from './middleware/limit';
 
 // configurations
 config(); // dotenv
@@ -39,12 +40,14 @@ app.use(helmet({ contentSecurityPolicy: { directives: { "default-src": "'self'",
 app.use(cache);
 app.use(compression())
 app.use(hpp());
+app.use(baseRateLimiter);
 app.use(express.urlencoded({ limit: '0.5kb', extended: true }));
 
 
 // routes
 app.get('/', (req, res) => {
   logger.log(req.ip + " - " + res.locals.ip, true);
+  console.count();
   res.send('Hello World, via TypeScript and Node.js! ' + res.locals.ip);
 });
 

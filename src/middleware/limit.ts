@@ -7,7 +7,7 @@ import logger from '@src/scripts/logger';
 ** configurations
 */
 const baseOptions: Partial<rateLimiterOptions & slowDownOptions> = {
-  windowMs: 30 * 60 * 1000,
+  windowMs: 3 * 60 * 1000,
   skip: (req, res) => (res.locals.ip == "127.0.0.1" || res.locals.ip == "::1")
 }
 
@@ -19,7 +19,7 @@ const baseSlowDownOptions: Partial<slowDownOptions> = {
 
 const baseRateLimitOptions: Partial<rateLimiterOptions> = {
   ...baseOptions,
-  limit: 10, // Limit each IP per window
+  limit: 50, // Limit each IP per window
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   handler: function rateHandler(req: Request, res: Response, next: NextFunction, options: rateLimiterOptions) {
@@ -29,7 +29,7 @@ const baseRateLimitOptions: Partial<rateLimiterOptions> = {
     }
     res.status(options.statusCode).send(options.message);
   },
-  message: "Too many attempts"
+  message: "Too many requests"
 }
 
 
@@ -67,7 +67,6 @@ export const errorRateLimiter = rateLimit({
 
 export const loginLimiter = rateLimit({
   ...baseRateLimitOptions,
-  windowMs: 3 * 60 * 1000,
   limit: 3,
   message: 'Too many attempts without valid login',
 });
