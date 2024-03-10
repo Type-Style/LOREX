@@ -44,12 +44,15 @@ router.get("/login/", baseSlowDown, baseRateLimiter, async function login(req: R
   res.render("login-form");
 });
 
-router.post("/login/", loginSlowDown, async function postLogin(req: Request, res: Response) {
+router.post("/login/", loginSlowDown, async function postLogin(req: Request, res: Response, next: NextFunction) {
   logger.log("post login was called");
   logger.log(req.body);
   res.locals.text = "post recieved";
   loginLimiter(req, res, () => {
     let validLogin = false;
+    if (!req.body.user || !req.body.password) {
+      return createError(res, 422, "Body does not contain all expected information", next);
+    }
     const password = crypt(req.body.password);
     // Loop through all environment variables
     for (const key in process.env) {
