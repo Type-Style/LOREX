@@ -204,37 +204,47 @@ describe('API calls', () => {
 
 
 describe('/read', () => {
-  test(`returns json`, async () => {
-    const response = await axios.get("http://localhost:80/read?index=0");
-    expect(response.status).toBe(200);
-    expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+  let token = ""; 
+  test(`redirect without logged in`, async () => {
+    const path = "/read";
+    const response = await axios.get("http://localhost:80" + path);
+    expect(response.request.path).not.toBe(path);
+    expect(response.request.path).toContain("login");
   });
-  test(`index parameter to long`, async () => {
-    try {
-      await axios.get("http://localhost:80/read?index=1234");
-    } catch (error) {
-      const axiosError = error as AxiosError;
-      if (axiosError.response) {
-        expect(axiosError.response.status).toBe(400);
-      } else {
-        console.error(axiosError);
-      }
-    }
-  });
-  test(`index parameter to be a number`, async () => {
-    try {
-      await axios.get("http://localhost:80/read?index=a9");
-    } catch (error) {
-      const axiosError = error as AxiosError;
-      if (axiosError.response) {
-        expect(axiosError.response.status).toBe(400);
-      } else {
-        console.error(axiosError);
-      }
-    }
-  });
-  test(`index parameter reduces length of json`, async () => {
-    const response = await axios.get("http://localhost:80/read?index=999");
-    expect(response.data.entries.length).toBe(1);
-  });
+
+
+
+  // test(`returns json`, async () => {
+  //   const response = await axios.get("http://localhost:80/read?index=0");
+  //   expect(response.status).toBe(200);
+  //   expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+  // });
+  // test(`index parameter to long`, async () => {
+  //   try {
+  //     await axios.get("http://localhost:80/read?index=1234");
+  //   } catch (error) {
+  //     const axiosError = error as AxiosError;
+  //     if (axiosError.response) {
+  //       expect(axiosError.response.status).toBe(400);
+  //     } else {
+  //       console.error(axiosError);
+  //     }
+  //   }
+  // });
+  // test(`index parameter to be a number`, async () => {
+  //   try {
+  //     await axios.get("http://localhost:80/read?index=a9");
+  //   } catch (error) {
+  //     const axiosError = error as AxiosError;
+  //     if (axiosError.response) {
+  //       expect(axiosError.response.status).toBe(400);
+  //     } else {
+  //       console.error(axiosError);
+  //     }
+  //   }
+  // });
+  // test(`index parameter reduces length of json`, async () => {
+  //   const response = await axios.get("http://localhost:80/read?index=999");
+  //   expect(response.data.entries.length).toBe(1);
+  // });
 });

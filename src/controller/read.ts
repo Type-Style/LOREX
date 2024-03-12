@@ -36,33 +36,42 @@ router.get('/',
   });
 
 
-// TODO write test for checking the limit on request body
 router.get("/login/", baseSlowDown, baseRateLimiter, async function login(req: Request, res: Response) {
-  logger.log("login was called");
   res.locals.text = "start";
 
   res.render("login-form");
 });
 
 router.post("/login/", loginSlowDown, async function postLogin(req: Request, res: Response, next: NextFunction) {
-  logger.log("post login was called");
   logger.log(req.body);
   res.locals.text = "post recieved";
   loginLimiter(req, res, () => {
     let validLogin = false;
-    if (!req.body.user || !req.body.password) {
+    const user = req.body.user;
+    const password = req.body.password;
+    let cryptedPassword = "";
+    if (!user || !password) {
       return createError(res, 422, "Body does not contain all expected information", next);
     }
-    const password = crypt(req.body.password);
+
+    cryptedPassword = crypt(req.body.password);
+
     // Loop through all environment variables
     for (const key in process.env) {
       if (!key.startsWith('USER')) { continue; }
       if (key.substring(5) == req.body.user &&
-        process.env[key] == password) {
+        process.env[key] == cryptedPassword) {
         validLogin = true;
         break;
       }
     }
+
+    
+    // only allow test user in test environment
+    if (user == "test" && validLogin && process.env.NODE_ENV != "production") {
+      validLogin = false;
+    }
+
     if (validLogin) {
       const token = createToken(req, res);
       res.json({ "token": token });
@@ -73,7 +82,6 @@ router.post("/login/", loginSlowDown, async function postLogin(req: Request, res
 });
 
 function isLoggedIn(req: Request, res: Response) {
-  console.log("login check");
   const result = validateToken(req, res);
   if (!result) {
     loginLimiter(req, res, () => {
@@ -95,6 +103,12 @@ function validateToken(req: Request, res: Response) {
       res.status(401).send({ code: 123, message: 'Invalid or expired token.' });
     }
     console.log("payload: " + payload + " _ " + !!payload);
+
+    // don't allow test user in production environment
+    if (typeof payload == "object" && !!payload && payload.user == "test" && process.env.NODE_ENV == "production") {
+      return  false;
+    }
+    
     return !!payload;
   } else {
     return false;
