@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import qs from 'qs';
 import fs from "fs";
 import path from "path";
 
@@ -39,6 +40,17 @@ function getData(filePath: string) {
 
 function isInRange(actual: string | number, expected: number, range: number) {
   return Math.abs(Number(actual) - expected) <= range;
+}
+
+async function verifiedRequest(url:string, token:string) {
+  const response = await axios({
+    method: 'get',
+    url: url,
+    headers: {
+      'Authorization': `Bearer ${token}`, 
+    }
+  });
+  return response;
 }
 
 describe('HEAD /write', () => {
@@ -203,8 +215,12 @@ describe('API calls', () => {
 });
 
 
-describe('/read', () => {
-  let token = ""; 
+describe('read and login', () => {
+  let token = "";
+  const testData = qs.stringify({
+    user: "test",
+    password: "test",
+  });
   test(`redirect without logged in`, async () => {
     const path = "/read";
     const response = await axios.get("http://localhost:80" + path);
@@ -212,25 +228,34 @@ describe('/read', () => {
     expect(response.request.path).toContain("login");
   });
 
+  it('test user can login', async () => {
+    const response = await axios.post('http://localhost:80/read/login', testData);
 
+    expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+    expect(response).toHaveProperty('data.token');
+    expect(response.data.token).not.toBeNull();
+    token = response.data.token;
+  })
 
-  // test(`returns json`, async () => {
-  //   const response = await axios.get("http://localhost:80/read?index=0");
-  //   expect(response.status).toBe(200);
-  //   expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
-  // });
-  // test(`index parameter to long`, async () => {
-  //   try {
-  //     await axios.get("http://localhost:80/read?index=1234");
-  //   } catch (error) {
-  //     const axiosError = error as AxiosError;
-  //     if (axiosError.response) {
-  //       expect(axiosError.response.status).toBe(400);
-  //     } else {
-  //       console.error(axiosError);
-  //     }
-  //   }
-  // });
+  test('verified request returns json', async () => {
+    const response = await verifiedRequest("http://localhost:80/read?index=0", token);
+    expect(response.status).toBe(200);
+    expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
+  });
+
+  test(`index parameter to long`, async () => {
+    try {
+      await verifiedRequest("http://localhost:80/read?index=1234",token);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        expect(axiosError.response.status).toBe(400);
+      } else {
+        console.error(axiosError);
+      }
+    }
+  });
+
   // test(`index parameter to be a number`, async () => {
   //   try {
   //     await axios.get("http://localhost:80/read?index=a9");

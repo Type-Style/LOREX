@@ -54,12 +54,12 @@ router.post("/login/", loginSlowDown, async function postLogin(req: Request, res
       return createError(res, 422, "Body does not contain all expected information", next);
     }
 
-    cryptedPassword = crypt(req.body.password);
+    cryptedPassword = crypt(password);
 
     // Loop through all environment variables
     for (const key in process.env) {
       if (!key.startsWith('USER')) { continue; }
-      if (key.substring(5) == req.body.user &&
+      if (key.substring(5) == user &&
         process.env[key] == cryptedPassword) {
         validLogin = true;
         break;
@@ -68,7 +68,7 @@ router.post("/login/", loginSlowDown, async function postLogin(req: Request, res
 
     
     // only allow test user in test environment
-    if (user == "test" && validLogin && process.env.NODE_ENV != "production") {
+    if (user == "test" && validLogin && process.env.NODE_ENV == "production") {
       validLogin = false;
     }
 
@@ -76,7 +76,7 @@ router.post("/login/", loginSlowDown, async function postLogin(req: Request, res
       const token = createToken(req, res);
       res.json({ "token": token });
     } else {
-      res.redirect("/read/login");
+      return createError(res, 403, `invalid login credentials`, next);
     }
   });
 });
@@ -102,7 +102,7 @@ function validateToken(req: Request, res: Response) {
     } catch (err) {
       res.status(401).send({ code: 123, message: 'Invalid or expired token.' });
     }
-    console.log("payload: " + payload + " _ " + !!payload);
+    console.log("payload: " + JSON.stringify(payload) + " _ " + !!payload);
 
     // don't allow test user in production environment
     if (typeof payload == "object" && !!payload && payload.user == "test" && process.env.NODE_ENV == "production") {
@@ -120,7 +120,8 @@ function createToken(req: Request, res: Response) {
   if (!key) { throw new Error('KEYA is not defined in the environment variables'); }
   const id = Math.random().toString(36).substring(2, 8);
   const payload = {
-    _id: id
+    _id: id,
+    user: req.body.user
   };
   const token = jwt.sign(payload, key, { expiresIn: 60 * 1 });
   res.locals.token = token;
