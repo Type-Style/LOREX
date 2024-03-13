@@ -66,7 +66,6 @@ router.post("/login/", loginSlowDown, async function postLogin(req: Request, res
       }
     }
 
-    
     // only allow test user in test environment
     if (user == "test" && validLogin && process.env.NODE_ENV == "production") {
       validLogin = false;
@@ -81,13 +80,14 @@ router.post("/login/", loginSlowDown, async function postLogin(req: Request, res
   });
 });
 
-function isLoggedIn(req: Request, res: Response) {
+function isLoggedIn(req: Request, res: Response, next: NextFunction) {
   const result = validateToken(req, res);
   if (!result) {
     loginLimiter(req, res, () => {
       res.redirect("/read/login");
     });
   }
+  next();
 }
 
 function validateToken(req: Request, res: Response) {
@@ -98,17 +98,15 @@ function validateToken(req: Request, res: Response) {
   if (type === 'Bearer' && typeof token !== 'undefined' && key) {
     try {
       payload = jwt.verify(token, key);
-      res.status(200).send({ code: 0, message: `all good` });
     } catch (err) {
-      res.status(401).send({ code: 123, message: 'Invalid or expired token.' });
+      res.status(401).send({ message: 'Invalid or expired token.' });
     }
-    console.log("payload: " + JSON.stringify(payload) + " _ " + !!payload);
 
     // don't allow test user in production environment
     if (typeof payload == "object" && !!payload && payload.user == "test" && process.env.NODE_ENV == "production") {
-      return  false;
+      return false;
     }
-    
+
     return !!payload;
   } else {
     return false;
@@ -118,13 +116,15 @@ function validateToken(req: Request, res: Response) {
 function createToken(req: Request, res: Response) {
   const key = process.env.KEYB;
   if (!key) { throw new Error('KEYA is not defined in the environment variables'); }
-  const id = Math.random().toString(36).substring(2, 8);
+  const today = new Date();
+  const dateString = today.toLocaleDateString("de-DE", { weekday: "short", year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
   const payload = {
-    _id: id,
+    date: dateString,
     user: req.body.user
   };
   const token = jwt.sign(payload, key, { expiresIn: 60 * 1 });
   res.locals.token = token;
+  logger.log(JSON.stringify(payload), true);
   return token;
 }
 
