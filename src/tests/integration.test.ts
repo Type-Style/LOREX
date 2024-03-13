@@ -42,12 +42,12 @@ function isInRange(actual: string | number, expected: number, range: number) {
   return Math.abs(Number(actual) - expected) <= range;
 }
 
-async function verifiedRequest(url:string, token:string) {
+async function verifiedRequest(url: string, token: string) {
   const response = await axios({
     method: 'get',
     url: url,
     headers: {
-      'Authorization': `Bearer ${token}`, 
+      'Authorization': `Bearer ${token}`,
     }
   });
   return response;
@@ -231,6 +231,7 @@ describe('read and login', () => {
   it('test user can login', async () => {
     const response = await axios.post('http://localhost:80/read/login', testData);
 
+    expect(response.status).toBe(200);
     expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
     expect(response).toHaveProperty('data.token');
     expect(response.data.token).not.toBeNull();
@@ -245,7 +246,7 @@ describe('read and login', () => {
 
   test(`index parameter to long`, async () => {
     try {
-      await verifiedRequest("http://localhost:80/read?index=1234",token);
+      await verifiedRequest("http://localhost:80/read?index=1234", token);
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response) {
@@ -256,20 +257,21 @@ describe('read and login', () => {
     }
   });
 
-  // test(`index parameter to be a number`, async () => {
-  //   try {
-  //     await axios.get("http://localhost:80/read?index=a9");
-  //   } catch (error) {
-  //     const axiosError = error as AxiosError;
-  //     if (axiosError.response) {
-  //       expect(axiosError.response.status).toBe(400);
-  //     } else {
-  //       console.error(axiosError);
-  //     }
-  //   }
-  // });
-  // test(`index parameter reduces length of json`, async () => {
-  //   const response = await axios.get("http://localhost:80/read?index=999");
-  //   expect(response.data.entries.length).toBe(1);
-  // });
+  test(`index parameter to be a number`, async () => {
+    try {
+      await verifiedRequest("http://localhost:80/read?index=a9", token);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        expect(axiosError.response.status).toBe(400);
+      } else {
+        console.error(axiosError);
+      }
+    }
+  });
+  test(`index parameter reduces length of json`, async () => {
+    const response = await verifiedRequest("http://localhost:80/read?index=999", token);
+    expect(response.status).toBe(200);
+    expect(response.data.entries.length).toBe(1);
+  });
 });

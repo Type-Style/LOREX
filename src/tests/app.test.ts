@@ -19,7 +19,7 @@ describe('Server Status', () => {
     expect(serverStatus).toBe(200);
   })
 
-  it('server is ignoring requests with large body', async () => {
+  it('server is ignoring body on GET requests', async () => {
     let serverStatus;
     try {
       const response = await axios.request({
