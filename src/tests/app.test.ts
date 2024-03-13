@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import qs from 'qs';
 
 // random data of 0.75Kb pre GZIP

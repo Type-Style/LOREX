@@ -15,8 +15,7 @@ jobs:
         with:
           node-version: 16
       - run: npm ci # or yarn install
-      - uses: sibiraj-s/action-eslint@v3
-        with:
-          eslint-args: '--ignore-path=.gitignore --quiet'
-          extensions: 'js,jsx,ts,tsx'
-          annotations: true
+      - name: Lint server-side code
+        run: npx eslint src/ --fix
+      - name: Lint client-side code
+        run: npx eslint httpdocs/js/ --fix

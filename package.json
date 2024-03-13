@@ -13,6 +13,7 @@
     "dev:ts": "nodemon --config nodemon-ts.json",
     "dev:static": "nodemon --config nodemon-static.json",
     "lint": "eslint . --fix",
+    "lint:client": "eslint httpdocs/js/ --fix",
     "test": "jest"
   },
   "keywords": [],
