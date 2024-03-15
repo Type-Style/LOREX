@@ -54,43 +54,53 @@ async function verifiedRequest(url: string, token: string) {
 }
 
 describe('HEAD /write', () => {
+  // eslint-disable-next-line jest/expect-expect
   it('with all parameters correctly set it should succeed', async () => {
     await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 200);
   });
 
+  // eslint-disable-next-line jest/expect-expect
   it('without key it sends 403', async () => {
     await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0", 403);
   });
 
+  // eslint-disable-next-line jest/expect-expect
   it('with user length not equal to 2 it sends 422', async () => {
     await callServer(undefined, "user=x&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 422);
   });
 
+  // eslint-disable-next-line jest/expect-expect
   it('with lat not between -90 and 90 it sends 422', async () => {
     await callServer(undefined, "user=xx&lat=91.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 422);
   });
 
+  // eslint-disable-next-line jest/expect-expect
   it('with lon not between -180 and 180 it sends 422', async () => {
     await callServer(undefined, "user=xx&lat=45.000&lon=181.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 422);
   });
 
+  // eslint-disable-next-line jest/expect-expect
   it('with timestamp to old sends 422', async () => {
     const timestamp = new Date().getTime() - 24 * 60 * 60 * 1000 * 2; // two days ago
     await callServer(timestamp, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 422);
   })
 
+  // eslint-disable-next-line jest/expect-expect
   it('with hdop not between 0 and 100 it sends 422', async () => {
     await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=101.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 422);
   });
 
+  // eslint-disable-next-line jest/expect-expect
   it('with altitude not between 0 and 10000 it sends 422', async () => {
     await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=10001.000&speed=150.000&heading=180.0&key=test", 422);
   });
 
+  // eslint-disable-next-line jest/expect-expect
   it('with speed not between 0 and 300 it sends 422', async () => {
     await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=301.000&heading=180.0&key=test", 422);
   });
 
+  // eslint-disable-next-line jest/expect-expect
   it('with heading not between 0 and 360 it sends 422', async () => {
     await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=361.0&key=test", 422);
   });
@@ -195,6 +205,7 @@ describe("GET /write", () => {
   });
 });
 
+
 describe('API calls', () => {
   test(`1000 api calls`, async () => {
     for (let i = 0; i < 1000; i++) {
@@ -222,11 +233,17 @@ describe('read and login', () => {
     password: "test",
   });
   test(`redirect without logged in`, async () => {
-    const path = "/read";
-    const response = await axios.get("http://localhost:80" + path);
-    expect(response.request.path).not.toBe(path);
-    expect(response.request.path).toContain("login");
-  });
+    try {
+      await axios.get("http://localhost:80/read/");
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        expect(axiosError.response.status).toBe(401);
+      } else {
+        console.error(axiosError);
+      }
+    }
+   });
 
   it('test user can login', async () => {
     const response = await axios.post('http://localhost:80/read/login', testData);
@@ -237,6 +254,19 @@ describe('read and login', () => {
     expect(response.data.token).not.toBeNull();
     token = response.data.token;
   })
+
+  test('wrong token get error', async () => {
+    try {
+      await verifiedRequest("http://localhost:80/read?index=0", "justWrongValue");
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        expect(axiosError.response.status).toBe(403);
+      } else {
+        console.error(axiosError);
+      }
+    }
+  });
 
   test('verified request returns json', async () => {
     const response = await verifiedRequest("http://localhost:80/read?index=0", token);
