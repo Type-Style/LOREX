@@ -4,7 +4,7 @@ import { create as createError } from '@src/middleware/error';
 import { validationResult, query } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import logger from '@src/scripts/logger';
-import { crypt } from '@src/scripts/crypt';
+import { crypt, compare } from '@src/scripts/crypt';
 import { loginSlowDown, loginLimiter, baseSlowDown, baseRateLimiter } from '@src/middleware/limit';
 
 const router = express.Router();
@@ -35,34 +35,34 @@ router.get('/',
     res.json({ entries });
   });
 
-
 router.get("/login/", baseSlowDown, baseRateLimiter, async function login(req: Request, res: Response) {
   res.locals.text = "start";
-
-  res.render("login-form");
+  loginLimiter(req, res, () => {
+    res.render("login-form");
+  });
 });
 
 router.post("/login/", loginSlowDown, async function postLogin(req: Request, res: Response, next: NextFunction) {
   logger.log(req.body);
   res.locals.text = "post recieved";
-  loginLimiter(req, res, () => {
+  loginLimiter(req, res, async () => {
     let validLogin = false;
     const user = req.body.user;
     const password = req.body.password;
-    let cryptedPassword = "";
+    let userFound = false;
     if (!user || !password) {
       return createError(res, 422, "Body does not contain all expected information", next);
     }
 
-    cryptedPassword = crypt(password);
-
     // Loop through all environment variables
     for (const key in process.env) {
       if (!key.startsWith('USER')) { continue; }
-      if (key.substring(5) == user &&
-        process.env[key] == cryptedPassword) {
-        validLogin = true;
-        break;
+      if (key.substring(5) == user) {
+        userFound = true;
+        const hash = process.env[key];
+        if (hash) {
+          validLogin = await compare(password, hash);
+        }
       }
     }
 
@@ -75,54 +75,63 @@ router.post("/login/", loginSlowDown, async function postLogin(req: Request, res
       const token = createToken(req, res);
       res.json({ "token": token });
     } else {
+      if (!userFound) {
+        await crypt(password); // If no matching user is found, perform a dummy password comparison to prevent timing attacks
+      }
       return createError(res, 403, `invalid login credentials`, next);
     }
   });
 });
 
 function isLoggedIn(req: Request, res: Response, next: NextFunction) {
-  const result = validateToken(req, res);
-  if (!result) {
-    loginLimiter(req, res, () => {
-      res.redirect("/read/login");
-    });
+  const result = validateToken(req);
+  if (!result.success) {
+    createError(res, result.status, result.message || "", next)
+  } else {
+    next();
   }
-  next();
 }
 
-function validateToken(req: Request, res: Response) {
-  const key = process.env.KEYB;
+function validateToken(req: Request) {
+  const key = process.env.KEYA;
   const header = req.header('Authorization');
   const [type, token] = header ? header.split(' ') : "";
   let payload: string | jwt.JwtPayload = "";
-  if (type === 'Bearer' && typeof token !== 'undefined' && key) {
-    try {
-      payload = jwt.verify(token, key);
-    } catch (err) {
-      res.status(401).send({ message: 'Invalid or expired token.' });
+
+  // Guard; aka early return for common failures before verifying authorization
+  if (!key) { return { success: false, status: 500, message: 'Wrong Configuration' }; }
+  if (!header) { return { success: false, status: 401, message: 'No Authorization header' }; }
+  if (type !== 'Bearer' || !token) { return { success: false, status: 400, message: 'Invalid Authorization header' }; }
+
+  try {
+    payload = jwt.verify(token, key);
+  } catch (err) {
+    let message = "could not verify";
+    if (err instanceof Error) {
+      message = `${err.name} -  ${err.message}`;
     }
 
-    // don't allow test user in production environment
-    if (typeof payload == "object" && !!payload && payload.user == "test" && process.env.NODE_ENV == "production") {
-      return false;
-    }
-
-    return !!payload;
-  } else {
-    return false;
+    return { success: false, status: 403, message: message };
   }
+
+  // don't allow test user in production environment
+  if (typeof payload == "object" && payload.user == "test" && process.env.NODE_ENV == "production") {
+    return { success: false, status: 403, message: 'test user not allowed on production' };
+  }
+
+  return { success: true };
 }
 
 function createToken(req: Request, res: Response) {
-  const key = process.env.KEYB;
-  if (!key) { throw new Error('KEYA is not defined in the environment variables'); }
+  const key = process.env.KEYA;
+  if (!key) { throw new Error('Configuration is wrong'); }
   const today = new Date();
   const dateString = today.toLocaleDateString("de-DE", { weekday: "short", year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
   const payload = {
     date: dateString,
     user: req.body.user
   };
-  const token = jwt.sign(payload, key, { expiresIn: 60 * 1 });
+  const token = jwt.sign(payload, key, { expiresIn: 60 * 2 });
   res.locals.token = token;
   logger.log(JSON.stringify(payload), true);
   return token;
