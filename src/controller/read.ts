@@ -44,7 +44,6 @@ router.get("/login/", baseSlowDown, baseRateLimiter, async function login(req: R
 
 router.post("/login/", loginSlowDown, async function postLogin(req: Request, res: Response, next: NextFunction) {
   logger.log(req.body);
-  res.locals.text = "post recieved";
   loginLimiter(req, res, async () => {
     let validLogin = false;
     const user = req.body.user;
@@ -67,7 +66,7 @@ router.post("/login/", loginSlowDown, async function postLogin(req: Request, res
     }
 
     // only allow test user in test environment
-    if (user == "test" && validLogin && process.env.NODE_ENV == "production") {
+    if (user == "TEST" && validLogin && process.env.NODE_ENV == "production") {
       validLogin = false;
     }
 
@@ -115,7 +114,7 @@ function validateToken(req: Request) {
   }
 
   // don't allow test user in production environment
-  if (typeof payload == "object" && payload.user == "test" && process.env.NODE_ENV == "production") {
+  if (typeof payload == "object" && payload.user == "TEST" && process.env.NODE_ENV == "production") {
     return { success: false, status: 403, message: 'test user not allowed on production' };
   }
 

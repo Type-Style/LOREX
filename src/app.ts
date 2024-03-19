@@ -52,8 +52,7 @@ app.use((req, res, next) => { // limit body for specific http methods
 // routes
 app.get('/', (req, res) => {
   logger.log(req.ip + " - " + res.locals.ip, true);
-  console.count();
-  res.send('Hello World, via TypeScript and Node.js! ' + res.locals.ip);
+  res.send('Hello World, via TypeScript and Node.js! ' + `ENV: ${process.env.NODE_ENV}`);
 });
 
 app.use('/write', writeRouter);

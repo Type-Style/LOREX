@@ -10,6 +10,7 @@ async function callServer(timestamp = new Date().getTime(), query: string, expec
   params.set("timestamp", timestamp.toString());
   url.search = params.toString();
 
+
   let response;
   if (expectStatus == 200) {
     if (method == "GET") {
@@ -52,6 +53,8 @@ async function verifiedRequest(url: string, token: string) {
   });
   return response;
 }
+
+
 
 describe('HEAD /write', () => {
   // eslint-disable-next-line jest/expect-expect
@@ -114,7 +117,7 @@ describe("GET /write", () => {
   const filePath = path.resolve(dirPath, `data-${formattedDate}.json`);
 
   it('there should a file of the current date', async () => {
-    await await callServer(undefined, "user=xx&lat=52.51451&lon=13.35105&timestamp=R3Pl4C3&hdop=20.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 200, "GET");
+    await callServer(undefined, "user=xx&lat=52.51451&lon=13.35105&timestamp=R3Pl4C3&hdop=20.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 200, "GET");
 
     fs.access(filePath, fs.constants.F_OK, (err) => {
       expect(err).toBeFalsy();
@@ -198,7 +201,7 @@ describe("GET /write", () => {
     expect(entry.ignore).toBe(false); // current one to be false allways
     expect(lastEntry.ignore).toBe(true); // last one to high hdop to be true
 
-    await await callServer(undefined, "user=xx&lat=52.51627&lon=13.37770&timestamp=R3Pl4C3&hdop=50&altitude=4000.000&speed=150.000&heading=180.0&key=test", 200, "GET");
+    await callServer(undefined, "user=xx&lat=52.51627&lon=13.37770&timestamp=R3Pl4C3&hdop=50&altitude=4000.000&speed=150.000&heading=180.0&key=test", 200, "GET");
     jsonData = getData(filePath);
     entry = jsonData.entries[1]; // same data point, but not last now therefore ignore true
     expect(entry.ignore).toBe(true);
@@ -229,7 +232,7 @@ describe('API calls', () => {
 describe('read and login', () => {
   let token = "";
   const testData = qs.stringify({
-    user: "test",
+    user: "TEST",
     password: "test",
   });
   test(`redirect without logged in`, async () => {

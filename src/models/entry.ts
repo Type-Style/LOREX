@@ -102,10 +102,6 @@ export function checkTime(value: string) {
     throw new Error('Timestamp should represent a valid date');
   }
 
-  if (process.env.NODE_ENV == "development") {
-    return true; // dev testing convenience 
-  }
-
   const now = new Date();
   const difference = now.getTime() - date.getTime();
   const oneDayInMilliseconds = 24 * 60 * 60 * 1000;

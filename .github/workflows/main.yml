@@ -10,7 +10,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-  
+    env:
+      NODE_ENV: ${{ vars.NODE_ENV }}
+      LOCALHOST: ${{ vars.LOCALHOST }}
+      LOCALHOSTV6: ${{ vars.LOCALHOSTV6 }}
+      KEYA: ${{ secrets.KEYA }}
+      KEYB: ${{ secrets.KEYB }}
+      USER_TEST: ${{ secrets.USER_TEST }}
 
     steps:
     - uses: actions/checkout@v3
@@ -19,14 +25,24 @@ jobs:
       with:
         node-version: '20'
         cache: 'npm'
+    - run: echo "NODE_ENV = $NODE_ENV"
     - run: npm ci
     - run: npm run build --if-present
     - name: Start server
       run: |
-        sudo npm start &
-        sleep 8 # Give server some time to start
+        sudo NODE_ENV=$NODE_ENV LOCALHOST=$LOCALHOST LOCALHOSTV6=$LOCALHOSTV6 KEYA=$KEYA KEYB=$KEYB USER_TEST=$USER_TEST npm start &
+        sleep 15 # Give server some time to start
     - name: Check if server is running
       run: |
         curl --fail http://localhost:80 || exit 1
-    - name: Run tests
-      run: npm run test
+    - name: Run app tests
+      run: npm run test:app
+    - name: Run login tests
+      run: npm run test:login
+    - name: Run unit tests
+      run: npm run test:unit
+    - name: Run integration tests
+      run: npm run test:integration
+      
+   
+    
