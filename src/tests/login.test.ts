@@ -16,7 +16,7 @@ describe('Login', () => {
     let serverStatus = {};
     let response = { data: "", status: "" };
     try {
-      response = await axios.get('http://localhost:80/read/login');
+      response = await axios.get('http://localhost:80/login');
       serverStatus = response.status;
     } catch (error) {
       console.error(error);
@@ -28,7 +28,7 @@ describe('Login', () => {
 
   it('server is blocking requests with large body', async () => {
     try {
-      await axios.post('http://localhost:80/read/login', userDataLarge);
+      await axios.post('http://localhost:80/login', userDataLarge);
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response) {
@@ -41,7 +41,7 @@ describe('Login', () => {
 
   it('invalid login verification test', async () => {
     try {
-      await axios.post('http://localhost:80/read/login', userData);
+      await axios.post('http://localhost:80/login', userData);
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response) {
