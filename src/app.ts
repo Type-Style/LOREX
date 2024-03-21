@@ -9,6 +9,7 @@ import cache from './middleware/cache';
 import * as error from "./middleware/error";
 import writeRouter from '@src/controller/write';
 import readRouter from '@src/controller/read';
+import loginRouter from '@src/controller/login';
 import path from 'path';
 import logger from '@src/scripts/logger';
 import { baseRateLimiter } from './middleware/limit';
@@ -57,6 +58,7 @@ app.get('/', (req, res) => {
 
 app.use('/write', writeRouter);
 app.use('/read', readRouter);
+app.use('/login', loginRouter);
 
 // use httpdocs as static folder
 app.use('/', express.static(path.join(__dirname, 'httpdocs'), {

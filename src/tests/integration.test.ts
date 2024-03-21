@@ -249,7 +249,7 @@ describe('read and login', () => {
    });
 
   it('test user can login', async () => {
-    const response = await axios.post('http://localhost:80/read/login', testData);
+    const response = await axios.post('http://localhost:80/login', testData);
 
     expect(response.status).toBe(200);
     expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
