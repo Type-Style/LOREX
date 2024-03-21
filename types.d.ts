@@ -1,6 +1,5 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-
 namespace RateLimit {
 	interface obj {
 		[key: string]: {
@@ -117,4 +116,9 @@ namespace Models {
 		vertical: number,
 		total: number
 	}
+}
+
+interface HttpError extends Error {
+  status?: number;
+  statusCode?: number;
 }

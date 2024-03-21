@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { checkExact, query } from 'express-validator';
-import { crypt } from '@src/scripts/crypt';
+import { compare } from '@src/scripts/crypt';
 import { create as createError } from '@src/middleware/error';
 import * as file from '@src/scripts/file';
 import { getTime } from '@src/scripts/time';
@@ -51,7 +51,7 @@ export const entry = {
       }
     } else {
       entries.push(entry);
-    }    
+    }
 
     file.write(res, fileObj, next);
 
@@ -102,10 +102,6 @@ export function checkTime(value: string) {
     throw new Error('Timestamp should represent a valid date');
   }
 
-  if (process.env.NODE_ENV == "development") {
-    return true; // dev testing convenience 
-  }
-
   const now = new Date();
   const difference = now.getTime() - date.getTime();
   const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
@@ -117,23 +113,16 @@ export function checkTime(value: string) {
 }
 
 
-function checkKey(value: string) {
+async function checkKey(value: string) {
+  if (!value) { throw new Error('Key required'); }
+  if (!process.env.KEYB) { throw new Error('Configuration wrong'); }
   if (process.env.NODE_ENV != "production" && value == "test") {
     return true; // dev testing convenience 
   }
 
-  if (!value) {
-    throw new Error('Key required');
-  }
+  const result = await compare(decodeURIComponent(value), process.env.KEYB);
 
-  value = decodeURIComponent(value);
-
-  const hash = crypt(value);
-
-  if (process.env.KEYB != hash) {
-    if (process.env.NODE_ENV == "development") {
-      console.log(hash);
-    }
+  if (!result) {
     throw new Error('Key does not match');
   }
 

@@ -2,26 +2,23 @@ require('module-alias/register');
 import { config } from 'dotenv';
 import express from 'express';
 import toobusy from 'toobusy-js';
-// import { rateLimit } from 'express-rate-limit';
-// import { slowDown } from 'express-slow-down';
 import compression from 'compression';
 import helmet from 'helmet';
 import hpp from 'hpp';
-import getRawBody from 'raw-body';
 import cache from './middleware/cache';
 import * as error from "./middleware/error";
 import writeRouter from '@src/controller/write';
 import readRouter from '@src/controller/read';
 import path from 'path';
 import logger from '@src/scripts/logger';
-
-// console.log({ "status": 403, "name": "Error", "message": { "errors": [{ "type": "field", "msg": "Invalid value", "path": "user", "location": "query" }, { "type": "field", "msg": "is required", "path": "lat", "location": "query" }]}});
-// console.log(JSON.stringify({ "status": 403, "name": "Error", "message": { "errors": [{ "type": "field", "msg": "Invalid value", "path": "user", "location": "query" }, { "type": "field", "msg": "is required", "path": "lat", "location": "query" }]}}, null, 2));
+import { baseRateLimiter } from './middleware/limit';
 
 // configurations
 config(); // dotenv
 
 const app = express();
+
+app.set('view engine', 'ejs');
 
 app.use((req, res, next) => { // monitor eventloop to block requests if busy
   if (toobusy()) {
@@ -33,44 +30,29 @@ app.use((req, res, next) => { // clean up IPv6 Addresses
     res.locals.ip = req.ip.startsWith('::ffff:') ? req.ip.substring(7) : req.ip;
     next();
   } else {
-    const message = "No IP provided"
+    const message = "No IP provided";
     logger.error(message);
     res.status(400).send(message);
   }
-
 })
-
-// const slowDownLimiter = slowDown({
-// 	windowMs: 1 * 60 * 1000,
-// 	delayAfter: 5, // Allow 5 requests per 15 minutes.
-// 	delayMs: (used) => (used - 5) * 1000, // Add delay after delayAfter is reached
-// })
-
-// const rateLimiter = rateLimit({
-//   windowMs: 1 * 60 * 1000,
-//   limit: 10, // Limit each IP per `window`
-//   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-//   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-// })
 
 app.use(helmet({ contentSecurityPolicy: { directives: { "default-src": "'self'", "img-src": "*" } } }));
 app.use(cache);
 app.use(compression())
 app.use(hpp());
-app.use(function (req, res, next) { // limit request size limit when recieving data
-  if (!['POST', 'PUT', 'DELETE'].includes(req.method)) { return next(); }
-  getRawBody(req, { length: req.headers['content-length'], limit: '1mb', encoding: true },
-    function (err) {
-      if (err) { return next(err) }
-      next()
-    }
-  )
-})
+app.use(baseRateLimiter);
+app.use((req, res, next) => { // limit body for specific http methods
+  if(['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+   return express.urlencoded({ limit: '0.5kb', extended: true })(req, res, next);
+  }
+  next();
+});
+
 
 // routes
 app.get('/', (req, res) => {
-  console.log(req.ip + " - " + res.locals.ip);
-  res.send('Hello World, via TypeScript and Node.js! ' + res.locals.ip);
+  logger.log(req.ip + " - " + res.locals.ip, true);
+  res.send('Hello World, via TypeScript and Node.js! ' + `ENV: ${process.env.NODE_ENV}`);
 });
 
 app.use('/write', writeRouter);

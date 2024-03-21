@@ -10,17 +10,16 @@ if (!fs.existsSync(dirPath)) {
 	fs.mkdirSync(dirPath, { recursive: true });
 }
 
-// const logPath = path.resolve(__dirname, '../httpdocs/log', 'start.txt');
 const date = new Date().toLocaleString('de-DE', { hour12: false });
 
 export default {
-	log: (message: string | JSON, showDateInConsole: boolean = false, showLogInTest = false) => {
+	log: (message: string | JSON, showDateInConsole: boolean = false) => {
 		message = JSON.stringify(message);
 		fs.appendFileSync(logPath, `${date} \t|\t ${message} \n`);
 		if (showDateInConsole) {
 			message = `${chalk.dim(date + ":")} ${message}`;
 		}
-		if (process.env.NODE_ENV == "development" || showLogInTest && process.env.NODE_ENV == "test") {
+		if (process.env.NODE_ENV != "production") {
 			console.log(message);
 		}
 	},
@@ -46,7 +45,7 @@ export default {
 				content = content.replace(prefix[0], chalk.red(prefix[0]));
 			}
 		}
-		console.error(content); // log string right away or processed Object
+		console.error(content);
 
 	}
 }
