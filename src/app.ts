@@ -44,8 +44,8 @@ app.use(compression())
 app.use(hpp());
 app.use(baseRateLimiter);
 app.use((req, res, next) => { // limit body for specific http methods
-  if(['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
-   return express.urlencoded({ limit: '0.5kb', extended: true })(req, res, next);
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+    return express.urlencoded({ limit: '0.5kb', extended: true })(req, res, next);
   }
   next();
 });
