@@ -10,7 +10,7 @@
 </head>
 
 <body>
-	<form class="login" action="/read/login/" method="post">
+	<form class="login" action="/login" method="post">
 		<h1 class="a color-main-l2 b">Text: <%= locals.text %></h1>
 		<label>
 			User:
@@ -24,9 +24,7 @@
 			Submit:
 			<button type="submit">Submit</button>
 		</label>
-		<textarea name="text"></textarea>
-		<input type="hidden" name="token" value="<%= locals.token %>">
-		<p>Token: <%= locals.token %></p>
+		<input type="hidden" name="csrfToken" value="<%= locals.csrfToken %>">
 	</form>
 </body>
 

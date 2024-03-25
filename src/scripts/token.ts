@@ -1,9 +1,49 @@
 import jwt from 'jsonwebtoken';
 import logger from '@src/scripts/logger';
-import {Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
+import crypto from 'crypto';
+import { create as createError } from '@src/middleware/error';
 
 
-export function validateToken(req: Request) {
+const csrfTokens: Set<CSRFToken> = new Set();
+
+export function createCSRF(res: Response, next: NextFunction): string {
+  if (csrfTokens.size > 100) { // Max Number of Tokens in memory
+    res.set('Retry-After', '300'); // 5 minutes
+    createError(res, 503, "Too many tokens", next);
+  }
+
+  const token = crypto.randomBytes(32).toString('hex');
+  const expiry = Date.now() + (5 * 60 * 1000); // Token expires in 5 minutes
+  const csrfToken: CSRFToken = { token, expiry };
+  csrfTokens.add(csrfToken);
+
+  return token;
+}
+
+export function validateCSRF(token: string): boolean {
+  const currentTime = Date.now();
+  let valid: boolean = false;
+  for (const entry of csrfTokens) {
+    if (entry.token === token) {
+      valid = entry.expiry > currentTime;
+      csrfTokens.delete(entry);
+    }
+  }
+
+  return valid;
+}
+
+export function cleanupCSRF() {
+  const currentTime = Date.now();
+  for (const entry of csrfTokens) {
+    if (entry.expiry < currentTime) {
+      csrfTokens.delete(entry);
+    }
+  }
+}
+
+export function validateJWT(req: Request) {
   const key = process.env.KEYA;
   const header = req.header('Authorization');
   const [type, token] = header ? header.split(' ') : "";
@@ -33,7 +73,7 @@ export function validateToken(req: Request) {
   return { success: true };
 }
 
-export function createToken(req: Request, res: Response) {
+export function createJWT(req: Request, res: Response) {
   const key = process.env.KEYA;
   if (!key) { throw new Error('Configuration is wrong'); }
   const today = new Date();
@@ -44,6 +84,5 @@ export function createToken(req: Request, res: Response) {
   };
   const token = jwt.sign(payload, key, { expiresIn: 60 * 2 });
   res.locals.token = token;
-  logger.log(JSON.stringify(payload), true);
   return token;
 }
