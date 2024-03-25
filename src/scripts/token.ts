@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken';
-import logger from '@src/scripts/logger';
 import { NextFunction, Request, Response } from 'express';
 import crypto from 'crypto';
 import { create as createError } from '@src/middleware/error';
@@ -13,7 +12,7 @@ export function createCSRF(res: Response, next: NextFunction): string {
     createError(res, 503, "Too many tokens", next);
   }
 
-  const token = crypto.randomBytes(32).toString('hex');
+  const token = crypto.randomBytes(16).toString('hex');
   const expiry = Date.now() + (5 * 60 * 1000); // Token expires in 5 minutes
   const csrfToken: CSRFToken = { token, expiry };
   csrfTokens.add(csrfToken);
@@ -22,6 +21,7 @@ export function createCSRF(res: Response, next: NextFunction): string {
 }
 
 export function validateCSRF(token: string): boolean {
+  console.log(csrfTokens, token);
   const currentTime = Date.now();
   let valid: boolean = false;
   for (const entry of csrfTokens) {
