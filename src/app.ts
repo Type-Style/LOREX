@@ -12,7 +12,8 @@ import readRouter from '@src/controller/read';
 import loginRouter from '@src/controller/login';
 import path from 'path';
 import logger from '@src/scripts/logger';
-import { baseRateLimiter } from './middleware/limit';
+import { baseRateLimiter, cleanup as cleanupRateLimitedIps } from './middleware/limit';
+import { cleanupCSRF } from "@src/scripts/token";
 
 // configurations
 config(); // dotenv
@@ -74,6 +75,12 @@ app.use(error.handler);
 const server = app.listen(80, () => {
   logger.log(`Server running //localhost:80, ENV: ${process.env.NODE_ENV}`, true);
 });
+
+// scheduled cleanup
+setInterval(() => {
+  cleanupCSRF();
+  cleanupRateLimitedIps();
+}, 1000 * 60 * 5);
 
 // catching shutdowns
 ['SIGINT', 'SIGTERM', 'exit'].forEach((signal) => {
