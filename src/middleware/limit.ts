@@ -3,6 +3,8 @@ import { rateLimit, Options as rateLimiterOptions } from 'express-rate-limit';
 import { slowDown, Options as slowDownOptions } from 'express-slow-down';
 import logger from '@src/scripts/logger';
 
+const ipsThatReachedLimit: RateLimit.obj = {}; // prevent logs from flooding
+
 /* 
 ** configurations
 */
@@ -33,30 +35,17 @@ const baseRateLimitOptions: Partial<rateLimiterOptions> = {
 }
 
 
-/*
-** cleanup
-*/
-const ipsThatReachedLimit: RateLimit.obj = {}; // prevent logs from flooding
-setInterval(() => {
-  const oneHourAgo = Date.now() - 60 * 60 * 1000;
-  for (const ip in ipsThatReachedLimit) {
-    if (ipsThatReachedLimit[ip].time < oneHourAgo) {
-      delete ipsThatReachedLimit[ip];
-    }
-  }
-}, 60 * 60 * 1000);
-
 
 /*
 ** exported section
 */
 export const baseSlowDown = slowDown(baseSlowDownOptions);
 
-export const loginSlowDown = slowDown({ 
-    ...baseSlowDownOptions,
-    delayAfter: 1, // no delay for amount of attempts
-    delayMs: (used: number) => (used - 1) * 250, // Add delay after delayAfter is reached
-  });
+export const loginSlowDown = slowDown({
+  ...baseSlowDownOptions,
+  delayAfter: 1, // no delay for amount of attempts
+  delayMs: (used: number) => (used - 1) * 250, // Add delay after delayAfter is reached
+});
 
 export const baseRateLimiter = rateLimit(baseRateLimitOptions);
 
@@ -70,3 +59,13 @@ export const loginLimiter = rateLimit({
   limit: 3,
   message: 'Too many attempts without valid login',
 });
+
+
+export function cleanup() {
+  const oneHourAgo = Date.now() - 60 * 60 * 1000;
+  for (const ip in ipsThatReachedLimit) {
+    if (ipsThatReachedLimit[ip].time < oneHourAgo) {
+      delete ipsThatReachedLimit[ip];
+    }
+  }
+}

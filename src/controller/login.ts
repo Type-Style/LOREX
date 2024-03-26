@@ -1,29 +1,29 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { create as createError } from '@src/middleware/error';
-import logger from '@src/scripts/logger';
 import { crypt, compare } from '@src/scripts/crypt';
 import { loginSlowDown, loginLimiter, baseSlowDown, baseRateLimiter } from '@src/middleware/limit';
-import { createToken } from '@src/scripts/token';
+import { createJWT, createCSRF, validateCSRF } from '@src/scripts/token';
+
 
 const router = express.Router();
 
-router.get("/", baseSlowDown, baseRateLimiter, async function login(req: Request, res: Response) {
-  res.locals.text = "start";
+router.get("/", baseSlowDown, baseRateLimiter, async function login(req: Request, res: Response, next: NextFunction) {
   loginLimiter(req, res, () => {
+    const csrfToken = createCSRF(res, next);
+    res.locals = {...res.locals, text: 'start', csrfToken: csrfToken};
     res.render("login-form");
   });
 });
 
 router.post("/", loginSlowDown, async function postLogin(req: Request, res: Response, next: NextFunction) {
-  logger.log(req.body);
   loginLimiter(req, res, async () => {
     let validLogin = false;
+    const token = req.body.csrfToken;
     const user = req.body.user;
     const password = req.body.password;
     let userFound = false;
-    if (!user || !password) {
-      return createError(res, 422, "Body does not contain all expected information", next);
-    }
+    if (!user || !password) { return createError(res, 422, "Body does not contain all expected information", next); }
+    if (!token || !validateCSRF(req.body.csrfToken)) { return createError(res, 403, "Invalid CSRF Token", next); }
 
     // Loop through all environment variables
     for (const key in process.env) {
@@ -43,13 +43,13 @@ router.post("/", loginSlowDown, async function postLogin(req: Request, res: Resp
     }
 
     if (validLogin) {
-      const token = createToken(req, res);
+      const token = createJWT(req, res);
       res.json({ "token": token });
     } else {
       if (!userFound) {
         await crypt(password); // If no matching user is found, perform a dummy password comparison to prevent timing attacks
       }
-      return createError(res, 403, `invalid login credentials`, next);
+      return createError(res, 403, `Invalid credentials`, next);
     }
   });
 });

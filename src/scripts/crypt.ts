@@ -16,5 +16,3 @@ function pepper(password: string) {
 	if (!key) { throw new Error('KEYA is not defined in the environment variables'); }
 	return password + crypto.createHmac('sha256', key).digest("base64");
 }
-
-
