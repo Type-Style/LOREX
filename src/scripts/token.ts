@@ -21,7 +21,6 @@ export function createCSRF(res: Response, next: NextFunction): string {
 }
 
 export function validateCSRF(token: string): boolean {
-  console.log(csrfTokens, token);
   const currentTime = Date.now();
   let valid: boolean = false;
   for (const entry of csrfTokens) {

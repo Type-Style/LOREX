@@ -231,10 +231,25 @@ describe('API calls', () => {
 
 describe('read and login', () => {
   let token = "";
-  const testData = qs.stringify({
+  const testData = {
     user: "TEST",
     password: "test",
-  });
+    csrfToken: ""
+  }
+
+  it('form available / get Token', async () => {
+    let response = {data:""};
+    try {
+      response = await axios.get('http://localhost:80/login');
+    } catch (error) {
+      console.error(error);
+    }
+
+    const regex = /name="csrfToken" value="([^"]*)"/;
+    const match = response.data.match(regex);
+    testData.csrfToken = match ? match[1] : '-';
+  })
+  
   test(`redirect without logged in`, async () => {
     try {
       await axios.get("http://localhost:80/read/");
@@ -249,7 +264,7 @@ describe('read and login', () => {
    });
 
   it('test user can login', async () => {
-    const response = await axios.post('http://localhost:80/login', testData);
+    const response = await axios.post('http://localhost:80/login', qs.stringify(testData));
 
     expect(response.status).toBe(200);
     expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));

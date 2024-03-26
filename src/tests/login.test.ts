@@ -20,7 +20,7 @@ const userDataWithToken = {
 
 describe('Login', () => {
   it('form available', async () => {
-    let serverStatus;
+    let serverStatus = {};
     let response = { data: "", status: "" };
     try {
       response = await axios.get('http://localhost:80/login');
@@ -71,7 +71,7 @@ describe('Login', () => {
 
   it('test invalid credentials to return error', async () => {
     try {
-      userDataWithToken.csrfToken = csrfToken;
+      userDataWithToken.csrfToken = csrfToken
       await axios.post('http://localhost:80/login', qs.stringify(userDataWithToken));
     } catch (error) {
       const axiosError = error as AxiosError;
