@@ -118,6 +118,11 @@ namespace Models {
 	}
 }
 
+interface CSRFToken {
+  token: string;
+  expiry: number;
+}
+
 interface HttpError extends Error {
   status?: number;
   statusCode?: number;
