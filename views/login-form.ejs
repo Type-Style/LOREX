@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset='utf-8'>
+	<title>Login Form - Lorex</title>
+	<meta name='viewport' content='width=device-width, initial-scale=1'>
+	<link rel='stylesheet' type='text/css' href='/css/colors.css'>
+	<link rel='stylesheet' type='text/css' href='/css/login.css'>
+</head>
+
+<body>
+	<form class="login" action="/login" method="post">
+		<h1 class="a color-main-l2 b">Text: <%= locals.text %></h1>
+		<label>
+			User:
+			<input name="user" class="login__input" placeholder="User name / Email">
+		</label>
+		<label>
+			Password:
+			<input name="password" type="password" class="login__input" placeholder="Password">
+		</label>
+		<label>
+			Submit:
+			<button type="submit">Submit</button>
+		</label>
+		<input type="hidden" name="csrfToken" value="<%= locals.csrfToken %>">
+	</form>
+</body>
+
+</html>

@@ -1,0 +1,8 @@
+{
+  "watch": [
+    "httpdocs"
+  ],
+  "ext": "*",
+  "ignore": [],
+  "exec": "cp -R httpdocs/ dist/"
+}

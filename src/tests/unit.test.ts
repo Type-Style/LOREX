@@ -1,7 +1,7 @@
-import { checkNumber, checkTime } from "./entry";
+import { checkNumber, checkTime } from "../models/entry";
 
 
-describe("checkNumber", () => {
+describe("entry checkNumber", () => {
   it("should throw error if value is not provided", () => {
     expect(() => checkNumber(0, 100)("")).toThrow(new Error('is required'));
   });
@@ -19,7 +19,7 @@ describe("checkNumber", () => {
   });
 });
 
-describe("checkTime", () => {
+describe("entry checkTime", () => {
   it("should throw error if value is not a number", () => {
     expect(() => checkTime("abc")).toThrow(new Error('Timestamp should be a number'));
   });
