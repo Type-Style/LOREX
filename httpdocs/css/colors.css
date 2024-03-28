@@ -1,0 +1,95 @@
+/*
+created by atmos https://app.atmos.style/65cc9eaec76d443c0a796d4b
+
+** base configuration colors **
+Main: #f90
+Info: #231aee
+Danger: #ff0000
+Success: #59ec04
+Neutral: #131211
+*/
+
+[class*=color] {	  
+	--lightness: 67.66%;
+	--hue: 64.55;
+	--chroma: 0.007;
+	color: oklch(var(--lightness) var(--chroma) var(--hue));
+
+	&[class*=l1] {--lightness: 10%;}
+	&[class*=l2] {--lightness: 25%;}
+	&[class*=l3] {--lightness: 37.5%;}
+	&[class*=l4] {--lightness: 50%;}
+	&[class*=l5] {--lightness: 62.5%;}
+	&[class*=l6] {--lightness: 77.2%;}
+	&[class*=l7] {--lightness: 90%;}
+
+	&[class*=main] {	  
+		--lightness: 77.2%;
+		--chroma: 0.1738;
+		--hue: 64.55;
+
+		&[class*=l1] {--chroma: 0.02;}
+		&[class*=l2] {--chroma: 0.056;}
+		&[class*=l3] {--chroma: 0.085;}
+		&[class*=l4] {--chroma: 0.114;}
+		&[class*=l5] {--chroma: 0.142;}
+		&[class*=l6] {--chroma: 0.1738;} /* base */
+		&[class*=l7] {--chroma: 0.06;}
+	}
+
+	&[class*=info] {	  
+		--lightness: 44.87%;
+		--chroma: 0.2838;
+		--hue: 268.0;
+
+		&[class*=l1] {--chroma: 0.055;}
+		&[class*=l2] {--chroma: 0.158;}
+		&[class*=l3] {--chroma: 0.237;}
+		&[class*=l4] {--chroma: 0.2838;} /* base */
+		&[class*=l5] {--chroma: 0.19;}
+		&[class*=l6] {--chroma: 0.109;}
+		&[class*=l7] {--chroma: 0.04;}
+	}
+
+	&[class*=alert] {	  
+		--lightness: 62.8%;
+		--chroma: 0.2577;
+		--hue: 29.23;
+
+		&[class*=l1] {--chroma: 0.036;}
+		&[class*=l2] {--chroma: 0.103;}
+		&[class*=l3] {--chroma: 0.154;}
+		&[class*=l4] {--chroma: 0.195;}
+		&[class*=l5] {--chroma: 0.2577;} /* base */
+		&[class*=l6] {--chroma: 0.133;}
+		&[class*=l7] {--chroma: 0.045;}
+	}
+
+	&[class*=success] {		  
+		--lightness: 83%;
+		--chroma: 0.2607;
+		--hue: 138.96;
+
+		&[class*=l1] {--chroma: 0.029;}
+		&[class*=l2] {--chroma: 0.083;}
+		&[class*=l3] {--chroma: 0.124;}
+		&[class*=l4] {--chroma: 0.157;}
+		&[class*=l5] {--chroma: 0.208;}
+		&[class*=l6] {--chroma: 0.2607;} /* base */
+		&[class*=l7] {--chroma: 0.201;}
+	}
+
+	&[class*=neutral] {	
+		--lightness: 18.3%;
+		--chroma: 0.0026;
+		--hue: 67.66;
+
+		&[class*=l1] {--chroma: 0.001;}
+		&[class*=l2] {--chroma: 0.0026;} /* base */
+		&[class*=l3] {--chroma: 0.006;}
+		&[class*=l4] {--chroma: 0.007;}
+		&[class*=l5] {--chroma: 0.009;}
+		&[class*=l6] {--chroma: 0.011;}
+		&[class*=l7] {--chroma: 0.004;}
+	}
+}
