@@ -1,6 +1,7 @@
 require('module-alias/register');
 import { config } from 'dotenv';
 import express from 'express';
+import path from 'path';
 import toobusy from 'toobusy-js';
 import compression from 'compression';
 import helmet from 'helmet';
@@ -10,7 +11,6 @@ import * as error from "./middleware/error";
 import writeRouter from '@src/controller/write';
 import readRouter from '@src/controller/read';
 import loginRouter from '@src/controller/login';
-import path from 'path';
 import logger from '@src/scripts/logger';
 import { baseRateLimiter, cleanup as cleanupRateLimitedIps } from './middleware/limit';
 import { cleanupCSRF } from "@src/scripts/token";
