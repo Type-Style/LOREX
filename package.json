@@ -37,7 +37,7 @@
     "@typescript-eslint/parser": "^6.18.1",
     "axios": "^1.6.5",
     "concurrently": "^8.2.2",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.4.5",
     "eslint": "^8.56.0",
     "eslint-plugin-jest": "^27.6.3",
     "install": "^0.13.0",
