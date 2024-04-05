@@ -1,57 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome Page</title>
-    <style>
-        @keyframes slideInFromLeft {
-          0% {
-            transform: translateX(-10%);
-          }
-          100% {
-            transform: translateX(10%);
-          }
-        }
-        @keyframes textShadow {         
-          50% {
-            text-shadow: 0 0 20px #000;
-          }
-        }
-				@keyframes move-it {				
-					to {
-						background-position: 100px 0px;
-					}
-				}
-				html, body {
-					height: 100%; overflow: hidden;
-				}
-        body {
-						background: repeating-linear-gradient(
-							45deg,
-							#014126,
-							#014126 5%,
-							#025c37 5%,
-							#025c37 10%
-						);
-						background-size: 100px 100px;
-						animation: move-it 2s linear infinite;
-            font-family: Arial, sans-serif;						
-						display: flex;
-						justify-content: center;
-						align-items: center;
-        }
-        h1 {
-            color: rgb(255, 255, 255);
-            text-align: center;
-            animation: 2s ease-in-out 0s infinite slideInFromLeft alternate-reverse, 3s ease-in-out 0s infinite textShadow;
-						filter: drop-shadow(0 0 10px rgb(0, 255, 128));
-						font-size: 40px;
-						font-size: 5dvmax;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome Page</title>
+  <style>
+    @keyframes slideInFromLeft {
+      0% {
+        transform: translateX(-10%);
+      }
+
+      100% {
+        transform: translateX(10%);
+      }
+    }
+
+    @keyframes textShadow {
+      50% {
+        text-shadow: 0 0 20px #000;
+      }
+    }
+
+    @keyframes move-it {
+      to {
+        background-position: 100px 0px;
+      }
+    }
+
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background: repeating-linear-gradient(45deg,
+          #014126,
+          #014126 5%,
+          #025c37 5%,
+          #025c37 10%);
+      background-size: 100px 100px;
+      animation: move-it 2s linear infinite;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    h1 {
+      color: rgb(255, 255, 255);
+      text-align: center;
+      animation: 2s ease-in-out 0s infinite slideInFromLeft alternate-reverse, 3s ease-in-out 0s infinite textShadow;
+      filter: drop-shadow(0 0 10px rgb(0, 255, 128));
+      font-size: 40px;
+      font-size: 5dvmax;
+    }
+  </style>
 </head>
+
 <body>
+  <div id="root">
     <h1>Welcome</h1>
+  </div>
+  <script src="/js/bundle.js"></script>
 </body>
+
 </html>
