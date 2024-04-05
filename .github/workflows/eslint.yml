@@ -19,3 +19,5 @@ jobs:
         run: npx eslint src/ --fix
       - name: Lint client-side code
         run: npx eslint httpdocs/js/ --fix
+      - name: Lint react code
+        run: npx eslint src/client/ --fix

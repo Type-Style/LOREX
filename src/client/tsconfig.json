@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["dom","ES6"],
+    "outDir": "../../dist/httpdocs",
+    "rootDir": "../../",
+    "jsx": "react",
+  },
+  "include": ["**/*.tsx", "**/*.ts"],
+}
