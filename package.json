@@ -14,6 +14,7 @@
     "dev:static": "nodemon --config nodemon-static.json",
     "lint": "eslint . --fix",
     "lint:client": "eslint httpdocs/js/ --fix",
+    "lint:react": "eslint src/client --fix",
     "test": "jest",
     "test:app": "jest src/tests/app.test.ts",
     "test:login": "jest src/tests/login.test.ts",
