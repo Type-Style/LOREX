@@ -38,7 +38,9 @@ app.use((req, res, next) => { // clean up IPv6 Addresses
   }
 })
 
-app.use(helmet({ contentSecurityPolicy: { directives: { "default-src": "'self'", "img-src": "*" } } }));
+if (process.env.NODE_ENV != "development") {
+  app.use(helmet({ contentSecurityPolicy: { directives: { "default-src": "'self'", "img-src": "*" } } }));
+}
 app.use(cache);
 app.use(compression())
 app.use(hpp());
