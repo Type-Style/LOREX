@@ -1,11 +1,6 @@
 import * as React from 'react';
 import { Root, createRoot } from 'react-dom/client';
-
-const App = () => {
-  return (
-    <h1>Hello, React!</h1>
-  );
-};
+import App from "./components/App";
 
 const container = document.getElementById('root');
 let root:Root;

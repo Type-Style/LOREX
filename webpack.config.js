@@ -3,6 +3,7 @@ const path = require('path');
 module.exports = (args) => {
   const mode = args.mode || 'development';
   return {
+    mode: mode,
     entry: './src/client/index.tsx',
     module: {
       rules: [
