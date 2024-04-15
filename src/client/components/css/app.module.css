@@ -1,0 +1,50 @@
+@keyframes slideInFromLeft {
+	0% {
+		transform: translateX(-5%);
+	}
+
+	100% {
+		transform: translateX(5%);
+	}
+}
+
+@keyframes move-it {
+	to {
+		background-position: 200px 0px;
+	}
+}
+
+.app {
+	--bg1: var(--neutral-L7);
+	--bg2: var(--neutral-L7);	
+	--text: var(--neutral-L1);
+	--shadow: var(--main);
+	@media (prefers-color-scheme: dark) {
+		--bg1: var(--neutral-L1);
+		--bg2: var(--neutral-L2);
+		--text: var(--main);
+		--shadow: var(--neutral-L1);
+	}
+
+	height: 100%;
+	color: var(--text);
+	background: repeating-linear-gradient(45deg,
+			var(--bg1),
+			var(--bg1) 5%,
+			var(--bg2) 5%,
+			var(--bg2) 10%);
+	background-size: 200px 200px;
+	animation: move-it 10s linear infinite;
+	font-family: Arial, sans-serif;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+
+	.headline {
+		text-align: center;
+		animation: 2s ease-in-out 0s infinite slideInFromLeft alternate-reverse, 3s ease-in-out 0s infinite textShadow;
+		text-shadow: 0 0 15px var(--shadow);
+		font-size: clamp(30px, 5dvmax, 100px);
+	}
+}
