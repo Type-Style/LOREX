@@ -1,0 +1,217 @@
+@charset "UTF-8";
+
+/* ---------------------------------------------------------------------
+Project Name: LOREX
+------------------------------------------------------------------------
+*1. Reset
+*2. Global styles / Variables
+*3. Helper styles
+*4. Grid styles
+*5. Media Queries
+----------------------------------------------------------------------- */
+
+/* ==============================
+	*1. Reset
+================================= */
+
+html {
+	font-size: 62.5%;
+	-webkit-text-size-adjust: 100%; 
+		-ms-text-size-adjust: 100%;
+			text-size-adjust: none;
+	scroll-behavior: smooth;
+}
+html, textarea, input, button {
+	font-family: sans-serif;
+	font-kerning: normal;
+}
+html, body {
+	height: 100%;
+}
+
+
+body,
+p, h1, h2, h3, h4, h5, h6, 
+div, ul, ol, li, dd, dt, dl, table, td, th
+blockquote, address, hr, pre, 
+article, aside, audio, canvas, details, figure, figcaption, footer, header, hgroup, 
+iframe, main, menu, nav, section, summary, video,
+form, fieldset, legend, label, input, textarea {
+	margin: 0; padding: 0;
+	box-sizing: border-box;
+}
+::before, ::after { box-sizing: border-box; }
+	
+
+p, li, h1, h2, h3, h4, h5, h6 {
+	font-weight: normal;
+	font-size: 1em;
+	-webkit-text-size-adjust: none;
+			-ms-text-size-adjust: none;
+					text-size-adjust: none;
+	/* -moz-osx-font-smoothing: grayscale;
+	-webkit-font-smoothing : grayscale; */
+	
+	hyphens: auto;
+	-webkit-hyphenate-limit-lines: 1;
+					hyphenate-limit-lines: 1; /* consecutive  */
+	hyphenate-limit-chars: 6 3 3;		
+}
+
+a {background-color: inherit;}
+a:is(:hover, :active) {text-decoration: underline;}
+a:visited {color: #509; /* background-color: #eee; */}
+a:active, button:active {outline: none;}
+
+:focus {outline: 0.1em dotted;  outline-offset: 0.1em;}
+:focus:not(:focus-visible) { outline: none; }
+embed:focus, object:focus, a img {border: none;}
+
+img, object, embed {display: inline-block; max-width: 100%; vertical-align: baseline;} 
+
+img:-moz-broken, img:-moz-user-disabled {display: none;}
+
+abbr[title], dfn[title], q {cursor: help; border-bottom: 0.1em dotted;}
+input[disabled], textarea[disabled], button[disabled] {cursor: not-allowed;}
+
+button::-moz-focus-inner, input::-moz-focus-inner {
+    border: 0; padding: 0;
+}
+
+label[for], button, select, summary, [type=radio], [type=submit], [type=checkbox]  {
+	cursor: pointer;
+}
+
+/*  touch devices, and anything other where there is no mouse */
+@media screen and (pointer: coarse) {
+	label[for] { font-size: 1.05em; }
+	[type="checkbox"] {	width: 1.5rem; height: 1.5rem; }
+	button { min-height: 3rem; }
+}
+
+/* ==============================
+	*2. Global styles / Variables
+================================= */
+/*
+created by atmos https://app.atmos.style/65cc9eaec76d443c0a796d4b
+
+** base configuration colors **
+Main: #f90
+Info: #231aee
+Danger: #ff0000
+Success: #59ec04
+Neutral: #131211
+*/
+:root {
+	--main: var(--main-L6);
+	--main-L1: oklch(10% 0.02 64.55);
+	--main-L2: oklch(25% 0.056 64.55);
+	--main-L3: oklch(37.5% 0.085 64.55);
+	--main-L4: oklch(50% 0.114 64.55);
+	--main-L5: oklch(62.5% 0.142 64.55);
+	--main-L6: oklch(77.2% 0.1738 64.55); /* base */
+	--main-L7: oklch(90% 0.06 64.55);
+	
+	--info: var(--info-L4);
+	--info-L1: oklch(10% 0.055 268.01);
+	--info-L2: oklch(25% 0.158 268.01);
+	--info-L3: oklch(37.5% 0.237 268.01);
+	--info-L4: oklch(50% 0.2838 268.01); /* base */
+	--info-L5: oklch(62.5% 0.19 268.01);
+	--info-L6: oklch(77.2% 0.109 268.01);
+	--info-L7: oklch(90% 0.04 268.01);
+	
+	--alert: var(--alert-L5);
+	--alert-L1: oklch(10% 0.036 29.23);
+	--alert-L2: oklch(25% 0.103 29.23);
+	--alert-L3: oklch(37.5% 0.154 29.23);
+	--alert-L4: oklch(50% 0.195 29.23);
+	--alert-L5: oklch(62.5% 0.2577 29.23); /* base */
+	--alert-L6: oklch(77.2% 0.133 29.23);
+	--alert-L7: oklch(90% 0.045 29.23);
+	
+	--success: var(--success-L6);
+	--success-L1: oklch(10% 0.029 138.96);
+	--success-L2: oklch(25% 0.083 138.96);
+	--success-L3: oklch(37.5% 0.124 138.96);
+	--success-L4: oklch(50% 0.157 138.96);
+	--success-L5: oklch(62.5% 0.208 138.96);
+	--success-L6: oklch(77.2% 0.2607 138.96); /* base */
+	--success-L7: oklch(90% 0.201 138.96);
+	
+	--neutral: var(--neutral-L2);
+	--neutral-L1: oklch(10% 0.001 67.66);
+	--neutral-L2: oklch(25% 0.0026 67.66); /* base */
+	--neutral-L3: oklch(37.5% 0.006 67.66);
+	--neutral-L4: oklch(50% 0.007 67.66);
+	--neutral-L5: oklch(62.5% 0.009 67.66);
+	--neutral-L6: oklch(77.2% 0.011 67.66);
+	--neutral-L7: oklch(90% 0.004 67.66);
+}
+
+
+/* ==============================
+	*3. Helper styles
+================================= */
+
+/* visually hidden */
+.hideText {
+	text-indent: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+@media screen and
+  (prefers-reduced-motion: reduce), 
+  (update: slow) {
+	 :root {
+		 scroll-behavior: auto;
+ 	 }
+	 * {
+		 animation-duration: 0.001ms !important;
+		 animation-iteration-count: 1 !important;
+		 transition-duration: 0.001ms !important;
+	 }
+}
+
+/* development */ 
+#html:target::before, #html:target::after {
+	content: "";
+	font-size: 200%;
+	position: fixed; top: 1em; left: 1em;
+	width: 10em;
+	padding: 0.5em;
+	opacity: 0.8;
+	
+	border: 0.2em solid red;
+	background: rgba(255, 50, 50, 0.6);
+	font-weight: bold;
+	text-align: center;
+	text-shadow: 0.1em 0.1em 0.2em #fff;
+	z-index: 100;
+}
+#html:target::after {
+	border-color: blue;
+	background: rgba(50, 50, 255, 0.6);
+	left: 14em;
+}
+
+
+
+/* ==============================
+	*4. Grid styles
+================================= */
+
+#react-root {
+	display: contents;
+}
+	
+/* ==============================
+	*5. Media Queries
+================================= */
+
+@media (min-width: 30em){#html:target::before {content: ">= 480px"; }}
+@media (min-width: 48em){#html:target::before {content: ">= 768px"; }}
+@media (min-width: 64em){#html:target::before {content: ">= 1024px"; }}
+@media (min-width: 75em){#html:target::before {content: ">= 1200px"; }}
+@media (min-width: 100em){#html:target::before {content: ">= 1600px"; }}
