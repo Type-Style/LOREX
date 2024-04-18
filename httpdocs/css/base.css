@@ -17,12 +17,12 @@ Project Name: LOREX
 html {
 	font-size: 62.5%;
 	-webkit-text-size-adjust: 100%; 
-		-ms-text-size-adjust: 100%;
-			text-size-adjust: none;
+			-ms-text-size-adjust: 100%;
+					text-size-adjust: none;
 	scroll-behavior: smooth;
 }
 html, textarea, input, button {
-	font-family: sans-serif;
+	font-family: Science-Gothic, sans-serif;
 	font-kerning: normal;
 }
 html, body {
@@ -92,6 +92,15 @@ label[for], button, select, summary, [type=radio], [type=submit], [type=checkbox
 /* ==============================
 	*2. Global styles / Variables
 ================================= */
+
+@font-face {
+	font-family: 'Science-Gothic';
+	src: url('/font/science-gothic.woff2') format('woff2'); /* variable font, no tech or variations here, due to browsers support and no fallback font anyway */
+	font-weight: 100 900;
+  font-stretch: 50% 200%;
+  unicode-range: U+0020-007E, U+2026;
+}
+
 /*
 created by atmos https://app.atmos.style/65cc9eaec76d443c0a796d4b
 
