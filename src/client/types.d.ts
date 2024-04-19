@@ -2,10 +2,19 @@
 declare module "*.module.css";
 
 declare namespace client {
-	interface contact {
-		name: string,
-		email: string,
-		phone: string
-		hobby?: string
-	}
+  interface Contact {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    hobby?: string;
+  }
+
+  interface ContactProps {
+    contact: Contact;
+  }
+
+  interface Contacts {
+    contacts: Contact[];
+  }
 }

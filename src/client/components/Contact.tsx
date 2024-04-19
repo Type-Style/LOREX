@@ -1,17 +1,22 @@
 import React, { Component } from 'react';
-import * as classes from "./css/contact.module.css";
+import * as css from "./css/contact.module.css";
 
-export default class Contact extends Component<client.contact> {
+export default class Contact extends Component<client.ContactProps> {
   static defaultProps = {
-    name: "no name",
-    email: "no email",
-    hobby: "no hobby"
+    contact: {
+      name: "no name",
+      email: "no email",
+      hobby: "no hobby"      
+    }
   }
+
   render() {
-    const {name, email, phone, hobby} = this.props;
-    
+    let { name, email, phone, hobby } = this.props.contact;
+    hobby = hobby || "no hobby";
+
+
     return (
-      <div className={classes.contact}>
+      <div className={css.contact}>
         <h4>{name}</h4>
         <dl>
           <dt>Email:</dt><dd>{email}</dd>
@@ -22,5 +27,3 @@ export default class Contact extends Component<client.contact> {
     )
   }
 }
-
-Contact
