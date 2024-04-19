@@ -14,7 +14,7 @@
 		--text: var(--main);
 	}
 
-	height: 100%;
+	min-height: 100%;
 	color: var(--text);
 	background: repeating-linear-gradient(45deg,
 			var(--bg1),
@@ -24,13 +24,12 @@
 	background-size: 200px 200px;
 	animation: move-it 10s linear infinite;
 
-	display: flex;
-	justify-content: center;
-	align-items: center;
-
+	
 
 	.headline {
+		margin-inline: auto;
+		padding-block: max(1em, 10dvh);
 		text-align: center;
-		font-size: clamp(30px, 5dvmax, 100px);
+		font-size: clamp(4rem, 5dvmax, 10rem);
 	}
 }
