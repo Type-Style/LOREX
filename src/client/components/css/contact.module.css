@@ -28,4 +28,9 @@
 	dd {
 		grid-column: 2;
 	}
+
+	button {
+		display: block;
+		margin: 1rem auto 0;
+	}
 }

@@ -1,40 +1,26 @@
 import React, { Component } from 'react';
 import * as css from "./css/contacts.module.css";
+import { Consumer } from './context';
 import Contact from './Contact';
 
-export default class Contacts extends Component<{}, client.Contacts> {
-  state: client.Contacts = {
-    contacts: [
-      {
-        id: "0",
-        name: "John Doe",
-        email: "jd@example.com",
-        phone: "0123456789",
-      },
-      {
-        id: "1",
-        name: "Joe Todd",
-        email: "jt@example.com",
-        phone: "0123456789",
-        hobby: "Swimming",
-      },
-      {
-        id: "2",
-        name: "Julia Benner",
-        email: "jb@example.com",
-        phone: "0123456789",
-        hobby: "Running",
-      }
-    ]
-  }
+export default class Contacts extends Component {
+
 
   render() {
-    const { contacts } = this.state;
 
     return (
-      <div className={css.contacts}>
-        {contacts.map(contact => (<Contact key={contact.id} contact={contact} />))}
-      </div>
+      <Consumer>
+        {value => {
+          const { contacts } = value;
+          return (
+            <>
+              <div className={css.contacts}>
+                {contacts.map(contact => (<Contact key={contact.id} contact={contact} />))}
+              </div>
+            </>
+          )
+        }}
+      </Consumer>
     )
   }
 }

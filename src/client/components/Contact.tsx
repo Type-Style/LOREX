@@ -29,12 +29,13 @@ export default class Contact extends Component<client.ContactProps> {
     return (
       <div className={css.contact}>
         <h4 onClick={this.toggleDetails}>{name}</h4>
-        {expanded ? (<dl>
+        {expanded ? (<><dl>
           <dt>Email:</dt><dd>{email}</dd>
           <dt>Phone:</dt><dd>{phone}</dd>
           <dt>Hobby:</dt><dd>{hobby}</dd>
-        </dl>) : null}
+        </dl><button>Delete</button></>
         
+        ) : null}
       </div>
     )
   }

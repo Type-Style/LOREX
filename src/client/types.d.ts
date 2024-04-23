@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 declare module "*.module.css";
-
 declare namespace client {
   interface Contact {
     id: string;
@@ -17,4 +16,10 @@ declare namespace client {
   interface Contacts {
     contacts: Contact[];
   }
+
+  interface ProviderProps {
+    children?: React.ReactNode;
+  }
 }
+
+
