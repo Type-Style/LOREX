@@ -15,6 +15,7 @@ declare namespace client {
 
   interface Contacts {
     contacts: Contact[];
+    dispatch?: (state: Contacts, action: string) => void;
   }
 
   interface ProviderProps {
