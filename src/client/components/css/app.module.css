@@ -15,6 +15,10 @@
 	}
 
 	min-height: 100%;
+
+	display: flex;
+	align-items: center;
+
 	color: var(--text);
 	background: repeating-linear-gradient(45deg,
 			var(--bg1),
@@ -31,5 +35,10 @@
 		padding-block: max(1em, 10dvh);
 		text-align: center;
 		font-size: clamp(4rem, 5dvmax, 10rem);
+	}
+
+	a {
+		display: block;
+		font-size: 2rem;
 	}
 }

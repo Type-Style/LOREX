@@ -1,21 +1,28 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import Contacts from './Contacts';
 import * as css from "./css/app.module.css";
 
 import Provider from "./context"
 
-class App extends Component {
-  render() {
-    return (
-      <Provider>
-        <div className={css.app}>
-          <h1 className={css.headline}>Hello, React!</h1>
-          <Contacts />
-        </div>
-      </Provider>
-    );
-  }
+const App = () => {
+  return (
+    <Provider>
+      <div className={css.app}>
+        <Router>
+          <Routes>
+            <Route path="/contacts" element={<Contacts />} />
+            <Route path="/" element={
+              <>
+                <h1 className={css.headline}>Hello, React! <br /> 
+                <Link to="/contacts">Go to Contacts</Link></h1>                
+              </>
+            } />
+          </Routes>
+        </Router>
+      </div>
+    </Provider>
+  );
 }
-
 
 export default App;
