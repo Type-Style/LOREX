@@ -5,7 +5,6 @@ import Contact from './Contact';
 
 export default class Contacts extends Component {
 
-
   render() {
 
     return (

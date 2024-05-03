@@ -42,8 +42,31 @@ class Provider extends Component<client.ProviderProps, client.Contacts> {
       }
     ],
     dispatch: (action) => {
-      this.setState(state => reducer(state,action))
+      this.setState(state => reducer(state, action))
     }
+  }
+
+  async componentDidMount() {
+    let response;
+
+    try {
+      response = await fetch('https://jsonplaceholder.typicode.com/users');
+    } catch (error) {
+      console.log('There was an error', error);
+    }
+
+    // Uses the 'optional chaining' operator
+    if (response?.ok) {
+      console.log('Use the response here!');
+      const fetchedContacts = await response.json();
+      const newContacts = this.state.contacts.concat(fetchedContacts);
+
+      this.setState({...this.state, contacts: newContacts})
+      
+    } else {
+      console.log(`HTTP Response Code: ${response?.status}`)
+    }
+
   }
 
   render() {
