@@ -26,5 +26,7 @@
 			"version": "detect"
 		}
 	},
-	"rules": {}
+	"rules": {
+		//"react/jsx-key": false
+	}
 }

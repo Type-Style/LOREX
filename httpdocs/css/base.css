@@ -20,6 +20,7 @@ html {
 			-ms-text-size-adjust: 100%;
 					text-size-adjust: none;
 	scroll-behavior: smooth;
+	color-scheme: light dark;
 }
 html, textarea, input, button {
 	font-family: Science-Gothic, sans-serif;
@@ -75,7 +76,7 @@ abbr[title], dfn[title], q {cursor: help; border-bottom: 0.1em dotted;}
 input[disabled], textarea[disabled], button[disabled] {cursor: not-allowed;}
 
 button::-moz-focus-inner, input::-moz-focus-inner {
-    border: 0; padding: 0;
+  border: 0; padding: 0;
 }
 
 label[for], button, select, summary, [type=radio], [type=submit], [type=checkbox]  {
@@ -163,11 +164,15 @@ Neutral: #131211
 	*3. Helper styles
 ================================= */
 
-/* visually hidden */
-.hideText {
-	text-indent: 100%;
-	white-space: nowrap;
-	overflow: hidden;
+.visually-hidden {
+  clip:rect(0 0 0 0);
+  border:0;
+  height:1px;
+  margin:-1px;
+  overflow:hidden;
+  padding:0;
+  position:absolute;
+  width:1px
 }
 
 @media screen and

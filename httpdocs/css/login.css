@@ -1,13 +1,20 @@
 form {
+	font-size: 2rem;
 	margin-inline: auto;
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-between;
 	max-width: 500px;
-	gap: 10px;
+}
+label {
+	display: block;
+	margin-block: 1em;
 }
 input, button {
-	flex-grow: 1;
+	height: 2em;
+	display: block;
+	margin-block: 0.25em 2em;
+	font-size: inherit;
+}
+button {
+	cursor: pointer;
 }
 textarea, h1 {
 	flex-basis: 100%;

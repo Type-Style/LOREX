@@ -54,9 +54,9 @@ app.use((req, res, next) => { // limit body for specific http methods
 
 
 // routes
-app.get('/', (req, res) => {
+app.get(['/', '/contacts'], (req, res) => {
   logger.log(req.ip + " - " + res.locals.ip, true);
-  res.render("index", {root: process.env.ROOT});
+  res.render("index");
 });
 
 app.use('/write', writeRouter);

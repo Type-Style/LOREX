@@ -1,0 +1,36 @@
+.contact {
+	font-size: 2rem;
+
+	&:not(:first-child) {
+		padding-top: var(--rowGap, 2rem);
+		border-top: calc(var(--rowGap) / 10) solid;
+	}
+
+	h4 {
+		text-align: center;
+		cursor: pointer;
+	}
+
+	dl {
+		margin-top: 1rem;
+		margin-inline: 0;
+		list-style: none;
+		display: grid;
+		grid-template-columns: min-content min-content;
+		justify-content: center;
+		gap: 1rem;
+	}
+
+	dt {
+		grid-column: 1;
+	}
+
+	dd {
+		grid-column: 2;
+	}
+
+	button {
+		display: block;
+		margin: 1rem auto 0;
+	}
+}
