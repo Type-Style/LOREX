@@ -1,7 +1,0 @@
-.contacts {
-	display: grid;
-	width: 100%;
-	--rowGap: 2rem;
-	row-gap: var(--rowGap);
-}
-
