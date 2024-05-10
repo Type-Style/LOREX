@@ -4,7 +4,7 @@
 	}
 }
 
-.app {
+.start {
 	--bg1: color-mix(in oklch, var(--main) 95%, white);
 	--bg2: var(--main);	
 	--text: color-mix(in oklch, var(--neutral) 50%, black);;
