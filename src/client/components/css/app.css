@@ -5,19 +5,20 @@
 }
 
 .app {
-	--bg1: color-mix(in oklch, var(--main-L6) 80%, var(--main-L5));
-	--bg2: var(--main-L6);	
-	--text: var(--neutral-L1);
+	--bg1: color-mix(in oklch, var(--main) 95%, white);
+	--bg2: var(--main);	
+	--text: color-mix(in oklch, var(--neutral) 50%, black);;
 	@media (prefers-color-scheme: dark) {
-		--bg1: var(--neutral-L1);
-		--bg2: var(--neutral-L2);
+		--bg1: color-mix(in oklch, var(--neutral) 90%, black);
+		--bg2: var(--neutral);
 		--text: var(--main);
 	}
 
 	min-height: 100%;
-
 	display: flex;
+	justify-content: center;
 	align-items: center;
+	flex-wrap: wrap;
 
 	color: var(--text);
 	background: repeating-linear-gradient(45deg,
@@ -35,6 +36,7 @@
 		padding-block: max(1em, 10dvh);
 		text-align: center;
 		font-size: clamp(4rem, 5dvmax, 10rem);
+		flex-basis: 100%;
 	}
 
 	a {
