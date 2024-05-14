@@ -123,7 +123,14 @@ Neutral: #131211
 	--bg: color-mix(in oklch, var(--neutral) 20%, white);
 	--text: color-mix(in oklch, var(--neutral) 20%, black);
 	--textOnColor: var(--neutral);
-	@media (prefers-color-scheme: dark) {
+
+  /* dark theme, initial state (prefers mq) by react */
+  &[data-mui-color-scheme="dark"] {
+    --main: oklch(75% 0.1738 64.55); 
+    --info: oklch(47.5% 0.2838 268.01); 
+    --alert: oklch(60% 0.2577 29.23); 
+    --success: oklch(75% 0.2607 138.96);
+    
 		--bg: color-mix(in oklch, var(--neutral) 20%, black);
 		--text: color-mix(in oklch, var(--neutral) 20%, white);
 	}
@@ -197,7 +204,7 @@ Neutral: #131211
 ================================= */
 
 /** MUI OVERWRITES **/
-:root:root, [data-mui-color-scheme="light"][data], [data-mui-color-scheme="dark"][data] {
+:root body {
   --mui-palette-common-black: black;
   --mui-palette-common-white: white;
   --mui-palette-common-background: color-mix(in oklch, var(--neutral) 5%, white);
@@ -252,7 +259,7 @@ Neutral: #131211
   --mui-palette-success-lightChannel: var(--mui-palette-success-mainChannel);
   --mui-palette-success-darkChannel: var(--mui-palette-success-mainChannel);
   --mui-palette-success-contrastTextChannel: 0 0 0;
-  --mui-palette-grey-50: #fafafa;
+  /* --mui-palette-grey-50: #fafafa;
   --mui-palette-grey-100:#f5f5f5;
   --mui-palette-grey-200:#eeeeee;
   --mui-palette-grey-300:#e0e0e0;
@@ -265,7 +272,7 @@ Neutral: #131211
   --mui-palette-grey-A100:#f5f5f5;
   --mui-palette-grey-A200:#eeeeee; 
   --mui-palette-grey-A400:#bdbdbd;
-  --mui-palette-grey-A700:#616161;
+  --mui-palette-grey-A700:#616161; */
   --mui-palette-text-primary: var(--textOnColor);
   --mui-palette-text-secondary:var(--mui-palette-text-primary);
   --mui-palette-text-disabled: color-mix(in oklch, var(--mui-palette-text-primary) 75%, transparent);
