@@ -7,13 +7,14 @@ import { createJWT, createCSRF, validateCSRF } from '@src/scripts/token';
 
 const router = express.Router();
 
-router.get("/", baseSlowDown, baseRateLimiter, async function login(req: Request, res: Response, next: NextFunction) {
-  loginLimiter(req, res, () => {
-    const csrfToken = createCSRF(res, next);
-    res.locals = {...res.locals, text: 'start', csrfToken: csrfToken};
-    res.render("login-form");
-  });
-});
+// TODO refactor endpoint to get token
+// router.get("/", baseSlowDown, baseRateLimiter, async function login(req: Request, res: Response, next: NextFunction) {
+//   loginLimiter(req, res, () => {
+//     const csrfToken = createCSRF(res, next);
+//     res.locals = {...res.locals, text: 'start', csrfToken: csrfToken};
+//     res.render("login-form");
+//   });
+// });
 
 router.post("/", loginSlowDown, async function postLogin(req: Request, res: Response, next: NextFunction) {
   loginLimiter(req, res, async () => {
