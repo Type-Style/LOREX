@@ -2,6 +2,7 @@ import React from 'react';
 import { useColorScheme } from '@mui/material/styles';
 import { Button, useMediaQuery } from '@mui/material';
 import { LightMode, Nightlight } from '@mui/icons-material';
+import * as css from "../css/modeSwticher.module.css";
 
 function ModeSwitcher() {
   const { mode, setMode } = useColorScheme();
@@ -13,7 +14,8 @@ function ModeSwitcher() {
 
   return (
     <Button
-      variant='contained' size='large'
+      className={css.modeSwitcher}
+      variant='outlined' size='large'
       startIcon={mode === 'dark' ? <Nightlight/> : <LightMode/>}
       onClick={() => {
         if (mode === 'light') {

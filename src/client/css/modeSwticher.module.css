@@ -1,0 +1,19 @@
+.modeSwitcher[class] {
+	position: fixed;
+	inset: 1rem 1rem auto auto;
+
+	color: var(--text);
+	border-color: currentColor;
+
+	&:hover {
+		background-color: color-mix(in oklch, var(--neutral) 20%, transparent);
+		border-color: currentColor;
+	}
+
+	[data-mui-color-scheme="dark"] & {
+		color: var(--main);
+		&:hover {
+			background-color: color-mix(in oklch, white 10%, transparent);
+		}
+	}	
+}
