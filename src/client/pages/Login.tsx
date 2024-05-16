@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TextField, Button, InputAdornment } from '@mui/material';
-import { AccountCircle, Lock } from '@mui/icons-material';
+import { AccountCircle, Lock, HighlightOff } from '@mui/icons-material';
 import "../css/login.css";
 import ModeSwitcher from '../components/ModeSwitcher';
 
@@ -24,19 +24,20 @@ function Login() {
     token: ""
   });
 
-  const isFormValid = formData.user.value !== '' && formData.password.value !== ''; //&& formData.token;
+  const isFormValid = formData.user.value && !formData.user.isError && formData.password.value && !formData.password.isError; //&& formData.token;
 
-  function updateField(name:string, value:string) {
+  function updateField(name: string, value: string) {
     const hasError = validateField(name, value, false);
-    const newObj = { ...formData, [name] : {...formData[name], value: value }}
-    if (!hasError) {newObj[name].isError = false} // remove error state while typing but don't add before blur
+    console.log(hasError);
+    const newObj = { ...formData, [name]: { ...formData[name], value: value } }
+    if (!hasError) { newObj[name].isError = false } // remove error state while typing but don't add before blur event
     updateFormData(newObj)
   }
 
-  function validateField(name:string, value:string, update = true) {
+  function validateField(name: string, value: string, update = true) {
     const isError = value.length <= 1;
     if (update) {
-      updateFormData({ ...formData, [name] : {...formData[name], isError: isError}})
+      updateFormData({ ...formData, [name]: { ...formData[name], isError: isError } })
     } else {
       return isError;
     }
@@ -66,8 +67,14 @@ function Login() {
                 <AccountCircle />
               </InputAdornment>
             ),
+            endAdornment: formData.user.isError ? (
+              <InputAdornment position="end">
+                 <HighlightOff color="error" /> 
+              </InputAdornment>
+            ) : null
           }}
         />
+
         <TextField
           label="Password"
           type="password"
@@ -85,6 +92,11 @@ function Login() {
                 <Lock />
               </InputAdornment>
             ),
+            endAdornment: formData.password.isError ? (
+              <InputAdornment position="end">
+                 <HighlightOff color="error" /> 
+              </InputAdornment>
+            ) : null
           }}
         />
         <input onChange={(e) => updateFormData({ ...formData, [e.target.name]: e.target.value })} type="hidden" id="csrfToken" value={formData.token} name="csrfToken" />
