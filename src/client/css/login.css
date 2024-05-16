@@ -70,12 +70,16 @@
 			max-height: 100%;
 			height: 4.15em;
 		}
+
+		p {
+			margin-top: 0.5em;
+		}
 	}
 
 	.submit {
 		align-self: end;
 
-		[data-mui-color-scheme="light"] & {
+		[data-mui-color-scheme="light"] &:not([disabled]) {
 			color: var(--main);
 			background-color: color-mix(in oklch, var(--neutral) 90%, transparent);
 		}
