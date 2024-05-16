@@ -54,7 +54,7 @@ app.use((req, res, next) => { // limit body for specific http methods
 
 
 // routes
-app.get(['/'], (req, res) => {
+app.get(['/', '/login'], (req, res) => {
   logger.log(req.ip + " - " + res.locals.ip, true);
   res.render("index");
 });

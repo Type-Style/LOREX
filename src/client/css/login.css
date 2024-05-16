@@ -1,0 +1,87 @@
+@keyframes move-it {
+	to {
+		background-position: 200px 0px;
+	}
+}
+
+.login {
+	--bg1: color-mix(in oklch, var(--main) 95%, white);
+	--bg2: var(--main);
+	--text: color-mix(in oklch, var(--neutral) 50%, black);
+
+	[data-mui-color-scheme="dark"] & {
+		--bg1: color-mix(in oklch, var(--neutral) 90%, black);
+		--bg2: var(--neutral);
+		--text: var(--main);
+	}
+
+	min-height: 100%;
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	flex-wrap: wrap;
+
+	color: var(--text);
+	background: repeating-linear-gradient(45deg,
+		var(--bg1),
+		var(--bg1) 5%,
+		var(--bg2) 5%,
+		var(--bg2) 10%);
+	background-size: 200px 200px;
+	animation: move-it 10s linear infinite;
+
+
+
+	.headline {
+		margin-inline: auto;
+		padding-block: 1em;
+		text-align: center;
+		font-size: 3.5rem;
+		flex-basis: 100%;
+	}
+
+	form {
+		display: flex;
+		flex-flow: nowrap column;
+		gap: 1.5em;
+		margin-bottom: 10vh;
+	}
+
+	input {
+		font-size: 2.2rem;
+	}
+
+	label {
+		font-size: 1.8rem;
+		margin-bottom: 0.5em;
+
+		&.Mui-focused {
+			color: var(--text);
+		}
+	}
+
+	form {
+		.MuiSvgIcon-root {
+			font-size: 2.7rem;
+			max-height: 100%;
+		}
+
+		.MuiInputAdornment-root {
+			max-height: 100%;
+			height: 4.15em;
+		}
+	}
+
+	.submit {
+		align-self: end;
+
+		[data-mui-color-scheme="light"] & {
+			color: var(--main);
+			background-color: color-mix(in oklch, var(--neutral) 90%, transparent);
+		}
+
+
+	}
+
+
+}
