@@ -86,7 +86,7 @@
 
 	.submit {
 		align-self: end;
-		font-size: 1.325rem;
+		font-size: 1.5rem;
 		min-width: 9em;
 		min-height: 3.5em;
 		border-radius: 0;
@@ -94,6 +94,10 @@
 		[data-mui-color-scheme="light"] &:not([disabled]) {
 			color: var(--main);
 			background-color: color-mix(in oklch, var(--neutral) 90%, transparent);
+		}
+
+		.MuiButton-icon {
+			font-size: 0.8em;
 		}
 
 	}
