@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { TextField, Button, InputAdornment } from '@mui/material';
-import { AccountCircle, Lock, HighlightOff } from '@mui/icons-material';
+import { TextField, Button, InputAdornment, CircularProgress } from '@mui/material';
+import { AccountCircle, Lock, HighlightOff, Login as LoginIcon } from '@mui/icons-material';
 import "../css/login.css";
 import ModeSwitcher from '../components/ModeSwitcher';
 import axios from 'axios';
@@ -21,6 +21,7 @@ function Login() {
     },
     token: ""
   });
+  const [isLoading, setLoading] = React.useState(false);
 
   const isFormValid = formInfo.user.value && !formInfo.user.isError && formInfo.password.value && !formInfo.password.isError; //&& formInfo.token;
 
@@ -42,8 +43,18 @@ function Login() {
 
   async function submit(e) {
     e.preventDefault();
+    setLoading(true);
 
-    const bodyFormData = { "user": formInfo.user.value, "password": formInfo.password.value };
+    let token = null; // get csrf token
+    try {
+      token = (await axios.get("/login/csrf")).data;
+      updateFormInfo({ ...formInfo, token: token })
+    } catch (error) {
+      console.log(error);
+    }
+
+    // collect data and convert to urlencoded string then send
+    const bodyFormData = { "user": formInfo.user.value, "password": formInfo.password.value, csrfToken: token};
     try {
       const response = await axios({
         method: "post",
@@ -55,6 +66,8 @@ function Login() {
       console.log(response);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false); // Reset loading after request is complete
     }
   }
 
@@ -121,13 +134,14 @@ function Login() {
               ) : null
             }}
           />
-          <input onChange={(e) => updateFormInfo({ ...formInfo, [e.target.name]: e.target.value })} type="hidden" id="csrfToken" value={formInfo.token} name="csrfToken" />
+          <input type="hidden" id="csrfToken" value={formInfo.token} name="csrfToken" />
           <Button
             className="submit cut"
             variant="contained"
+            startIcon={isLoading ? <CircularProgress color="inherit" size={"1em"} /> : <LoginIcon />}
             color="primary"
             type="submit"
-            disabled={!isFormValid}
+            disabled={!isFormValid || isLoading}
           >
             Login
           </Button>
