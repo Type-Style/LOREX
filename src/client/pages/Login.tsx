@@ -3,7 +3,8 @@ import { TextField, Button, InputAdornment } from '@mui/material';
 import { AccountCircle, Lock, HighlightOff } from '@mui/icons-material';
 import "../css/login.css";
 import ModeSwitcher from '../components/ModeSwitcher';
-
+import axios from 'axios';
+import qs from 'qs';
 
 
 function Login() {
@@ -25,7 +26,6 @@ function Login() {
 
   function updateField(name: string, value: string) {
     const hasError = validateField(name, value, false);
-    console.log(hasError);
     const newObj = { ...formInfo, [name]: { ...formInfo[name], value: value } }
     if (!hasError) { newObj[name].isError = false } // remove error state while typing but don't add before blur event
     updateFormInfo(newObj)
@@ -43,16 +43,15 @@ function Login() {
   async function submit(e) {
     e.preventDefault();
 
-    const formData = new FormData();
-    formData.append('user', formInfo.user.value);
-    formData.append('password', formInfo.password.value);
-    formData.append('token', formInfo.token);
-
+    const bodyFormData = { "user": formInfo.user.value, "password": formInfo.password.value };
     try {
-      const response = await fetch("/login", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await axios({
+        method: "post",
+        url: "/login",
+        data: qs.stringify(bodyFormData),
+        headers: { "content-type": "application/x-www-form-urlencoded" }
+      })
+
       console.log(response);
     } catch (error) {
       console.log(error);
@@ -63,8 +62,6 @@ function Login() {
     <div className="login">
       <ModeSwitcher />
       <div className="wrapper cut">
-
-
         <h1 className="headline">
           Login Page
         </h1>
