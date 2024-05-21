@@ -31,6 +31,14 @@
 	animation: move-it 10s linear infinite;
 
 
+	.wrapper {
+		max-width: 50em;
+		padding: 2.5em;
+		margin: 2.5em;
+		background: var(--semiBg);
+		--cut: 3em;
+		.cut { --cut: 1.1em } /* reset for child elements */
+	}
 
 	.headline {
 		margin-inline: auto;
@@ -43,7 +51,7 @@
 	form {
 		display: flex;
 		flex-flow: nowrap column;
-		gap: 1.5em;
+		gap: 2em;
 		margin-bottom: 10vh;
 	}
 
@@ -78,12 +86,15 @@
 
 	.submit {
 		align-self: end;
+		font-size: 1.325rem;
+		min-width: 9em;
+		min-height: 3.5em;
+		border-radius: 0;
 
 		[data-mui-color-scheme="light"] &:not([disabled]) {
 			color: var(--main);
 			background-color: color-mix(in oklch, var(--neutral) 90%, transparent);
 		}
-
 
 	}
 

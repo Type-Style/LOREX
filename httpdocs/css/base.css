@@ -123,6 +123,7 @@ Neutral: #131211
 	--bg: color-mix(in oklch, var(--neutral) 20%, white);
 	--text: color-mix(in oklch, var(--neutral) 20%, black);
 	--textOnColor: var(--neutral);
+  --semiBg: #ffffffbb;
 
   /* dark theme, initial state (prefers mq) by react */
   &[data-mui-color-scheme="dark"] {
@@ -133,6 +134,7 @@ Neutral: #131211
     
 		--bg: color-mix(in oklch, var(--neutral) 20%, black);
 		--text: color-mix(in oklch, var(--neutral) 20%, white);
+    --semiBg: #00000077;
 	}
 }
 
@@ -151,6 +153,11 @@ Neutral: #131211
   position:absolute;
   width:1px
 }
+.cut {
+  --cut: 2em;
+  clip-path: polygon(0% var(--cut), var(--cut) 0%, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%);
+}
+	
 
 @media screen and
   (prefers-reduced-motion: reduce), 
