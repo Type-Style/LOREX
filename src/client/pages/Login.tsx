@@ -4,13 +4,10 @@ import { AccountCircle, Lock, HighlightOff } from '@mui/icons-material';
 import "../css/login.css";
 import ModeSwitcher from '../components/ModeSwitcher';
 
-function submit(e) {
-  e.preventDefault();
-  console.log("submit");
-}
+
 
 function Login() {
-  const [formData, updateFormData] = useState({
+  const [formInfo, updateFormInfo] = useState({
     user: {
       isError: false,
       message: "Minimum 2",
@@ -24,92 +21,121 @@ function Login() {
     token: ""
   });
 
-  const isFormValid = formData.user.value && !formData.user.isError && formData.password.value && !formData.password.isError; //&& formData.token;
+  const isFormValid = formInfo.user.value && !formInfo.user.isError && formInfo.password.value && !formInfo.password.isError; //&& formInfo.token;
 
   function updateField(name: string, value: string) {
     const hasError = validateField(name, value, false);
     console.log(hasError);
-    const newObj = { ...formData, [name]: { ...formData[name], value: value } }
+    const newObj = { ...formInfo, [name]: { ...formInfo[name], value: value } }
     if (!hasError) { newObj[name].isError = false } // remove error state while typing but don't add before blur event
-    updateFormData(newObj)
+    updateFormInfo(newObj)
   }
 
   function validateField(name: string, value: string, update = true) {
     const isError = value.length <= 1;
     if (update) {
-      updateFormData({ ...formData, [name]: { ...formData[name], isError: isError } })
+      updateFormInfo({ ...formInfo, [name]: { ...formInfo[name], isError: isError } })
     } else {
       return isError;
+    }
+  }
+
+  async function submit(e) {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append('user', formInfo.user.value);
+    formData.append('password', formInfo.password.value);
+    formData.append('token', formInfo.token);
+
+    try {
+      const response = await fetch("/login", {
+        method: "POST",
+        body: formData,
+      });
+      console.log(response);
+    } catch (error) {
+      console.log(error);
     }
   }
 
   return (
     <div className="login">
       <ModeSwitcher />
-      <h1 className="headline">
-        Login Page
-      </h1>
-      <form action="/login" method="post" onSubmit={submit}>
-        <TextField
-          label="Username"
-          variant="filled"
-          value={formData.user.value}
-          onChange={(e) => updateField(e.target.name, e.target.value)}
-          onBlur={(e) => validateField(e.target.name, e.target.value)}
-          error={formData.user.isError}
-          helperText={formData.user.isError ? formData.user.message : false}
-          required
-          InputProps={{
-            autoFocus: true,
-            name: "user",
-            startAdornment: (
-              <InputAdornment position="start">
-                <AccountCircle />
-              </InputAdornment>
-            ),
-            endAdornment: formData.user.isError ? (
-              <InputAdornment position="end">
-                 <HighlightOff color="error" /> 
-              </InputAdornment>
-            ) : null
-          }}
-        />
+      <div className="wrapper cut">
 
-        <TextField
-          label="Password"
-          type="password"
-          variant="filled"
-          value={formData.password.value}
-          onChange={(e) => updateField(e.target.name, e.target.value)}
-          onBlur={(e) => validateField(e.target.name, e.target.value)}
-          required
-          error={formData.password.isError}
-          helperText={formData.password.isError ? formData.password.message : false}
-          InputProps={{
-            name: "password",
-            startAdornment: (
-              <InputAdornment position="start">
-                <Lock />
-              </InputAdornment>
-            ),
-            endAdornment: formData.password.isError ? (
-              <InputAdornment position="end">
-                 <HighlightOff color="error" /> 
-              </InputAdornment>
-            ) : null
-          }}
-        />
-        <input onChange={(e) => updateFormData({ ...formData, [e.target.name]: e.target.value })} type="hidden" id="csrfToken" value={formData.token} name="csrfToken" />
-        <Button
-          className="submit"
-          variant="contained"
-          color="primary"
-          type="submit"
-          disabled={!isFormValid}
-        >
-          Login
-        </Button>
-      </form>
+
+        <h1 className="headline">
+          Login Page
+        </h1>
+        <form action="/login" method="post" onSubmit={submit}>
+          <TextField
+            label="Username"
+            variant="filled"
+            value={formInfo.user.value}
+            onChange={(e) => updateField(e.target.name, e.target.value)}
+            onBlur={(e) => validateField(e.target.name, e.target.value)}
+            error={formInfo.user.isError}
+            helperText={formInfo.user.isError ? formInfo.user.message : false}
+            required
+            InputProps={{
+              classes: {
+                root: "cut",
+              },
+              autoFocus: true,
+              name: "user",
+              startAdornment: (
+                <InputAdornment position="start">
+                  <AccountCircle />
+                </InputAdornment>
+              ),
+              endAdornment: formInfo.user.isError ? (
+                <InputAdornment position="end">
+                  <HighlightOff color="error" />
+                </InputAdornment>
+              ) : null
+            }}
+          />
+
+          <TextField
+            label="Password"
+            type="password"
+            variant="filled"
+            value={formInfo.password.value}
+            onChange={(e) => updateField(e.target.name, e.target.value)}
+            onBlur={(e) => validateField(e.target.name, e.target.value)}
+            required
+            error={formInfo.password.isError}
+            helperText={formInfo.password.isError ? formInfo.password.message : false}
+            InputProps={{
+              classes: {
+                root: "cut",
+              },
+              name: "password",
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Lock />
+                </InputAdornment>
+              ),
+              endAdornment: formInfo.password.isError ? (
+                <InputAdornment position="end">
+                  <HighlightOff color="error" />
+                </InputAdornment>
+              ) : null
+            }}
+          />
+          <input onChange={(e) => updateFormInfo({ ...formInfo, [e.target.name]: e.target.value })} type="hidden" id="csrfToken" value={formInfo.token} name="csrfToken" />
+          <Button
+            className="submit cut"
+            variant="contained"
+            color="primary"
+            type="submit"
+            disabled={!isFormValid}
+          >
+            Login
+          </Button>
+        </form>
+      </div>
     </div>
   )
 }
