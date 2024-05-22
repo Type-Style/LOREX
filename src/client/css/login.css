@@ -84,9 +84,15 @@
 		}
 	}
 
+	.subWrapper {
+		display: flex;
+		width: 100%;
+		align-items: center;
+	}
+
 	.submit {
-		align-self: end;
 		font-size: 1.5rem;
+		margin-left: auto;
 		min-width: 9em;
 		min-height: 3.5em;
 		border-radius: 0;
@@ -99,7 +105,15 @@
 		.MuiButton-icon {
 			font-size: 0.8em;
 		}
+	}
 
+	.errorMessage {
+		color: var(--alert);
+		font-size: 1.8em;
+		font-style: italics;
+		margin: 0;
+
+		strong { margin-right: 0.3em;}
 	}
 
 

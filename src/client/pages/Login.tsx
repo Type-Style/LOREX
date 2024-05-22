@@ -5,6 +5,7 @@ import "../css/login.css";
 import ModeSwitcher from '../components/ModeSwitcher';
 import axios from 'axios';
 import qs from 'qs';
+import { error } from 'console';
 
 
 function Login() {
@@ -22,6 +23,7 @@ function Login() {
     token: ""
   });
   const [isLoading, setLoading] = React.useState(false);
+  const [errorObj, setErrorObj] = React.useState({ status: null, message: null });
 
   const isFormValid = formInfo.user.value && !formInfo.user.isError && formInfo.password.value && !formInfo.password.isError; //&& formInfo.token;
 
@@ -44,17 +46,22 @@ function Login() {
   async function submit(e) {
     e.preventDefault();
     setLoading(true);
+    setErrorObj({ status: null, message: null })
+
 
     let token = null; // get csrf token
     try {
-      token = (await axios.get("/login/csrf")).data;
-      updateFormInfo({ ...formInfo, token: token })
+      token = await axios.get("/login/csrf");
+      updateFormInfo({ ...formInfo, token: token.data });
     } catch (error) {
+      setErrorObj({ status: error.response.data.status || error.response.status, message: error.response.data.message || error.message })
       console.log(error);
     }
 
+    if (!token) {setLoading(false); return; } // skip when the first request has an error
+
     // collect data and convert to urlencoded string then send
-    const bodyFormData = { "user": formInfo.user.value, "password": formInfo.password.value, csrfToken: token};
+    const bodyFormData = { "user": formInfo.user.value, "password": formInfo.password.value, csrfToken: token.data };
     try {
       const response = await axios({
         method: "post",
@@ -62,9 +69,8 @@ function Login() {
         data: qs.stringify(bodyFormData),
         headers: { "content-type": "application/x-www-form-urlencoded" }
       })
-
-      console.log(response);
     } catch (error) {
+      setErrorObj({ status: error.response.data.status || error.response.status, message: error.response.data.message || error.message })
       console.log(error);
     } finally {
       setLoading(false); // Reset loading after request is complete
@@ -135,16 +141,30 @@ function Login() {
             }}
           />
           <input type="hidden" id="csrfToken" value={formInfo.token} name="csrfToken" />
-          <Button
-            className="submit cut"
-            variant="contained"
-            startIcon={isLoading ? <CircularProgress color="inherit" size={"1em"} /> : <LoginIcon />}
-            color="primary"
-            type="submit"
-            disabled={!isFormValid || isLoading}
-          >
-            Login
-          </Button>
+          <div className="subWrapper">
+            {errorObj.status ? (
+              <p className="errorMessage">
+                <strong>{errorObj.status}</strong>
+                {errorObj.message.split('\n').map((line:string, index:string) => (
+                  <React.Fragment key={index}>
+                    {line}
+                    <br />
+                  </React.Fragment>
+                ))}
+              </p>
+            ) : null}
+            <Button
+              className="submit cut"
+              variant="contained"
+              startIcon={isLoading ? <CircularProgress color="inherit" size={"1em"} /> : <LoginIcon />}
+              color="primary"
+              type="submit"
+              disabled={!isFormValid || isLoading}
+            >
+              Login
+            </Button>
+          </div>
+
         </form>
       </div>
     </div>
