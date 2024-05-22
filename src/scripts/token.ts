@@ -6,10 +6,11 @@ import { create as createError } from '@src/middleware/error';
 
 const csrfTokens: Set<CSRFToken> = new Set();
 
-export function createCSRF(res: Response, next: NextFunction): string {
+export function createCSRF(res: Response, next: NextFunction): string | false {
   if (csrfTokens.size > 100) { // Max Number of Tokens in memory
     res.set('Retry-After', '300'); // 5 minutes
-    createError(res, 503, "Too many tokens", next);
+    createError(res, 503, "Too many tokens \n retry after 5 Minuits", next);
+    return false;
   }
 
   const token = crypto.randomBytes(16).toString('hex');

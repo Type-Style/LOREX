@@ -11,7 +11,9 @@ const router = express.Router();
 router.get("/csrf", baseSlowDown, baseRateLimiter, async function csrf(req: Request, res: Response, next: NextFunction) {
   loginLimiter(req, res, () => {
     const csrfToken = createCSRF(res, next);
-    res.json(csrfToken);
+    if (csrfToken) {
+      res.json(csrfToken);
+    }
   });
 });
 
@@ -24,7 +26,7 @@ router.post("/", loginSlowDown, async function postLogin(req: Request, res: Resp
     let userFound = false;
     console.log(`user: ${user}, password: ${password}`);
     if (!user || !password) { return createError(res, 422, "Body does not contain all expected information", next); }
-    if (!token || !validateCSRF(req.body.csrfToken)) { return createError(res, 403, "Invalid CSRF Token", next); }
+    if (!token || !validateCSRF(req.body.csrfToken)) { return createError(res, 403, "Invalid CSRF Token \n retry in 5 Minuits", next); }
 
     // Loop through all environment variables
     for (const key in process.env) {
