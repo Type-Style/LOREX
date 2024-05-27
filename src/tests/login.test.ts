@@ -19,22 +19,30 @@ const userDataWithToken = {
 };
 
 describe('Login', () => {
-  it('form available', async () => {
+  it('csrf available', async () => {
     let serverStatus = {};
     let response = { data: "", status: "" };
     try {
-      response = await axios.get('http://localhost:80/login');
+      response = await axios({
+        method: "post",
+        url: "/login/csrf",
+        headers: { 
+          "content-type": "application/x-www-form-urlencoded",
+          "x-requested-with": "XMLHttpRequest"
+        }
+      })
       serverStatus = response.status;
     } catch (error) {
       console.error(error);
     }
 
+
     expect(serverStatus).toBe(200);
-    expect(response.data).toContain('<form');
-    const regex = /name="csrfToken" value="([^"]*)"/;
-    const match = response.data.match(regex);
-    csrfToken = match ? match[1] : '';
-    expect(csrfToken.length).toBeGreaterThan(4);
+    expect(response.data).toBeTruthy();
+    const regex = /^[a-f0-9]{32}$/;
+    expect(response.data).toMatch(regex);
+    csrfToken = response.data;
+    expect(csrfToken.length).toBeGreaterThan(30);
   })
 
   it('server is blocking requests with large body', async () => {
