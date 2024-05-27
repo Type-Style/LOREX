@@ -7,8 +7,11 @@ import { createJWT, createCSRF, validateCSRF } from '@src/scripts/token';
 
 const router = express.Router();
 
-router.get("/csrf", baseSlowDown, baseRateLimiter, async function csrf(req: Request, res: Response, next: NextFunction) {
+router.post("/csrf", baseSlowDown, baseRateLimiter, async function csrf(req: Request, res: Response, next: NextFunction) {
   loginLimiter(req, res, () => {
+    if (req.headers['x-requested-with'] !== 'XMLHttpRequest') {
+      return createError(res, 403, "Unable to provide token", next);
+    }
     const csrfToken = createCSRF(res, next);
     if (csrfToken) {
       res.json(csrfToken);

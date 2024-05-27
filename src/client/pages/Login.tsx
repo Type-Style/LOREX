@@ -51,7 +51,14 @@ function Login() {
 
     let token = null; // get csrf token
     try {
-      token = await axios.get("/login/csrf");
+      token = await axios({
+        method: "post",
+        url: "/login/csrf",
+        headers: { 
+          "content-type": "application/x-www-form-urlencoded",
+          "x-requested-with": "XMLHttpRequest"
+        }
+      })
       updateFormInfo({ ...formInfo, token: token.data });
     } catch (error) {
       setErrorObj({ status: error.response.data.status || error.response.status, message: error.response.data.message || error.message })
