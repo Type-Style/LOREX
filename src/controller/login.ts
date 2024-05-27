@@ -7,7 +7,6 @@ import { createJWT, createCSRF, validateCSRF } from '@src/scripts/token';
 
 const router = express.Router();
 
-// TODO refactor endpoint to get token
 router.get("/csrf", baseSlowDown, baseRateLimiter, async function csrf(req: Request, res: Response, next: NextFunction) {
   loginLimiter(req, res, () => {
     const csrfToken = createCSRF(res, next);
