@@ -19,6 +19,7 @@ import { cleanupCSRF } from "@src/scripts/token";
 config(); // dotenv
 
 const app = express();
+app.disable("x-powered-by");
 
 app.set('view engine', 'ejs');
 
