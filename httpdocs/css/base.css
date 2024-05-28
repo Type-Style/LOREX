@@ -186,7 +186,12 @@ Neutral: #131211
   filter: url(#rough-edges);
 }
 
-
+.headline {
+  font-variation-settings: "YOPQ" 32;
+  font-style: oblique 7.11deg;
+  font-stretch: 110%;
+  font-weight: 831;
+}
 
 @media screen and
   (prefers-reduced-motion: reduce), 
