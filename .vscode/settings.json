@@ -1,5 +1,6 @@
 {
 	"workbench.editor.enablePreview": false,
 	"editor.rename.enablePreview": false,
-	"typescript.tsdk": "node_modules\\typescript\\lib"
+	"typescript.tsdk": "node_modules\\typescript\\lib",
+	"html.format.wrapLineLength": 150
 }
