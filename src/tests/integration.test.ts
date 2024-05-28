@@ -237,17 +237,23 @@ describe('read and login', () => {
     csrfToken: ""
   }
 
-  it('form available / get Token', async () => {
+  it('get csrfToken', async () => {
     let response = {data:""};
     try {
-      response = await axios.get('http://localhost:80/login');
+      response = await axios({
+        method: "post",
+        url: "http://localhost/login/csrf",
+        headers: { 
+          "content-type": "application/x-www-form-urlencoded",
+          "x-requested-with": "XMLHttpRequest"
+        }
+      })
     } catch (error) {
       console.error(error);
     }
-
-    const regex = /name="csrfToken" value="([^"]*)"/;
-    const match = response.data.match(regex);
-    testData.csrfToken = match ? match[1] : '-';
+    
+    testData.csrfToken = response.data;
+    expect(testData.csrfToken).toBeTruthy();
   })
   
   test(`redirect without logged in`, async () => {
