@@ -4,26 +4,26 @@
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    	
+
 	<title>LOREX - Osmand Webtracking Frontend</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	
+
 	<link rel="preload" href="/font/science-gothic.woff2" as="font" type="font/woff2">
 	<meta name="color-scheme" content"dark light">
-	
+
 	<meta property="og:title" content="LOREX - Osmand Webtracking Frontend">
 	<meta name="description" content="LOREX - Based on leaflet, openstreetmap React and Express, save your webtracking and display it on a map">
-  <meta property="og:description" content="LOREX - Based on leaflet, openstreetmap React and Express, save your webtracking and display it on a map">
+	<meta property="og:description" content="LOREX - Based on leaflet, openstreetmap React and Express, save your webtracking and display it on a map">
 	<meta property="og:image" content="<%= locals.root %>/icon.png">
 	<meta property="og:image:alt" content="Image description">
 	<meta property="og:locale" content="en_US">
 	<meta property="og:type" content="website">
 	<meta name="twitter:card" content="summary_large_image">
-	<meta property="og:url" content="<%= locals.root %>">	
+	<meta property="og:url" content="<%= locals.root %>">
 
 	<link rel="stylesheet" href="/css/base.css">
 	<link rel="icon" href="favicon.ico">
-	
+
 	<link rel="apple-touch-icon" href="/icon.png">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -33,6 +33,30 @@
 	<div id="react-root">
 		<h1>Lorex</h1>
 	</div>
-  
-  <script src="/js/bundle.js"></script>
+
+	<svg class="bg hidden" aria-hidden="true" width="80" height="80" xmlns="http://www.w3.org/2000/svg">
+		<defs>
+			<pattern id="repeatingGradient" patternTransform="rotate(-45)" patternUnits="userSpaceOnUse" width="80" height="80">
+				<rect fill="var(--bg2)" filter="url(#rough)" transform="rotate(-45)" x="0" height="200%" width="30"></rect>
+				<rect fill="var(--bg2)" filter="url(#rough)" transform="rotate(-45)" x="-56.5" height="200%" width="30"></rect>
+				<animateTransform attributeName="patternTransform" type="translate" from="0" dur="2s" repeatCount="indefinite" to="80"></animateTransform>
+			</pattern>
+
+
+			<filter id="rough-edges">
+				<feTurbulence type="fractalNoise" numOctaves="7" seed="3">
+					<animate attributeName="baseFrequency" dur="50s" values="0.015;0.02;0.015" repeatCount="indefinite"></animate>
+				</feTurbulence>
+				<feDisplacementMap in="SourceGraphic" scale="100"></feDisplacementMap>
+			</filter>
+			<filter id="rough">
+				<feTurbulence type="fractalNoise" numOctaves="4" seed="2" baseFrequency="0.08 0.05">
+					<animate attributeName="baseFrequency" values="0.08 0.05;0.1 0.1;0.08 0.05" dur="10s" repeatCount="indefinite" />
+				</feTurbulence>
+				<feDisplacementMap in="SourceGraphic" scale="50"></feDisplacementMap>
+			</filter>
+		</defs>
+	</svg>
+
+	<script src="/js/bundle.js"></script>
 </body>

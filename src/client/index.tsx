@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Root, createRoot } from 'react-dom/client';
-import { Experimental_CssVarsProvider as CssVarsProvider, experimental_extendTheme as extendTheme} from '@mui/material/styles';
+import { Experimental_CssVarsProvider as CssVarsProvider, experimental_extendTheme as extendTheme } from '@mui/material/styles';
 import App from "./components/App";
 
 const theme = extendTheme({ // color pallette overwritten in css

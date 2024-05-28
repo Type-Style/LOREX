@@ -5,13 +5,9 @@
 }
 
 .start {
-	--bg1: color-mix(in oklch, var(--main) 95%, white);
-	--bg2: var(--main);
 	--text: color-mix(in oklch, var(--neutral) 50%, black);
 
 	[data-mui-color-scheme="dark"] & {
-		--bg1: color-mix(in oklch, var(--neutral) 90%, black);
-		--bg2: var(--neutral);
 		--text: var(--main);
 	}
 
@@ -22,15 +18,6 @@
 	flex-wrap: wrap;
 
 	color: var(--text);
-	background: repeating-linear-gradient(45deg,
-		var(--bg1),
-		var(--bg1) 5%,
-		var(--bg2) 5%,
-		var(--bg2) 10%);
-	background-size: 200px 200px;
-	animation: move-it 10s linear infinite;
-
-
 
 	.headline {
 		margin-inline: auto;
