@@ -5,8 +5,6 @@ import "../css/login.css";
 import ModeSwitcher from '../components/ModeSwitcher';
 import axios from 'axios';
 import qs from 'qs';
-import { error } from 'console';
-
 
 function Login() {
   const [formInfo, updateFormInfo] = useState({
@@ -70,7 +68,8 @@ function Login() {
     // collect data and convert to urlencoded string then send
     const bodyFormData = { "user": formInfo.user.value, "password": formInfo.password.value, csrfToken: token.data };
     try {
-      const response = await axios({
+      // nextup store token for further usuage
+      await axios({
         method: "post",
         url: "/login",
         data: qs.stringify(bodyFormData),
