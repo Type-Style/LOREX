@@ -37,9 +37,10 @@
 	<svg class="bg hidden" aria-hidden="true" width="80" height="80" xmlns="http://www.w3.org/2000/svg">
 		<defs>
 			<pattern id="repeatingGradient" patternTransform="rotate(-45)" patternUnits="userSpaceOnUse" width="80" height="80">
+				<rect fill="var(--bg1)" width="100%" height="100%"/>
 				<rect fill="var(--bg2)" filter="url(#rough)" transform="rotate(-45)" x="0" height="200%" width="30"></rect>
 				<rect fill="var(--bg2)" filter="url(#rough)" transform="rotate(-45)" x="-56.5" height="200%" width="30"></rect>
-				<animateTransform attributeName="patternTransform" type="translate" from="0" dur="2s" repeatCount="indefinite" to="80"></animateTransform>
+				<animateTransform attributeName="patternTransform" type="translate" from="0" dur="10s" repeatCount="indefinite" to="80"></animateTransform>
 			</pattern>
 
 
@@ -50,10 +51,12 @@
 				<feDisplacementMap in="SourceGraphic" scale="100"></feDisplacementMap>
 			</filter>
 			<filter id="rough">
-				<feTurbulence type="fractalNoise" numOctaves="4" seed="2" baseFrequency="0.08 0.05">
-					<animate attributeName="baseFrequency" values="0.08 0.05;0.1 0.1;0.08 0.05" dur="10s" repeatCount="indefinite" />
+				<feTurbulence type="fractalNoise" numOctaves="4" seed="2">
+					<animate attributeName="baseFrequency" values="0.08 0.1;0.1 0.05;0.08 0.1" dur="20s" repeatCount="indefinite" />
 				</feTurbulence>
-				<feDisplacementMap in="SourceGraphic" scale="50"></feDisplacementMap>
+				<feDisplacementMap in="SourceGraphic" scale="50">
+					<animate attributeName="scale" values="50;200;50" dur="15s" repeatCount="indefinite" />
+				</feDisplacementMap>
 			</filter>
 		</defs>
 	</svg>
