@@ -131,6 +131,10 @@ Neutral: #131211
 	--textOnColor: var(--neutral);
   --semiBg: #ffffffbb;
 
+  --baseFontWeightModifier: 50;
+
+  font-weight: calc(400 + var(--baseFontWeightModifier));
+
   /* dark theme, initial state (prefers mq) by react */
   &[data-mui-color-scheme="dark"] {
     --main: oklch(75% 0.1738 64.55); 
@@ -141,6 +145,8 @@ Neutral: #131211
 		--bg: color-mix(in oklch, var(--neutral) 20%, black);
 		--text: color-mix(in oklch, var(--neutral) 20%, white);
     --semiBg: #00000077;
+
+    --baseFontWeightModifier: -50;
 	}
 }
 
@@ -166,11 +172,11 @@ Neutral: #131211
 }
 
 .bg {
-  --bg1: color-mix(in oklch, var(--main) 95%, white);
+  --bg1: color-mix(in oklch, var(--main) 90%, white);
   --bg2: var(--main);
 
   [data-mui-color-scheme="dark"] & {
-    --bg1: color-mix(in oklch, var(--neutral) 90%, black);
+    --bg1: color-mix(in oklch, var(--neutral) 90%, white);
     --bg2: var(--neutral);
   }
 }
@@ -190,7 +196,7 @@ Neutral: #131211
   font-variation-settings: "YOPQ" 32;
   font-style: oblique 7.11deg;
   font-stretch: 110%;
-  font-weight: 831;
+  font-weight: calc(800 + var(--baseFontWeightModifier));
 }
 
 @media screen and
