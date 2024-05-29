@@ -27,12 +27,17 @@
 		margin: 2.5em;
 		position: relative;
 		filter: drop-shadow(10px 10px var(--semiBg));
+		[data-mui-color-scheme="dark"] & {
+			filter: none;
+			&::after { box-shadow: var(--text) 0 0 1em;}
+		}
 
 		&::after {
 			content: "";
 			position: absolute;
 			inset: 0;
 			background: var(--semiBg);
+			
 			filter: url(#rough-edges);
 			z-index: -1;
 		}
