@@ -58,6 +58,14 @@
 					<animate attributeName="scale" values="50;200;50" dur="15s" repeatCount="indefinite" />
 				</feDisplacementMap>
 			</filter>
+			<filter id="rough-light">
+				<feTurbulence type="fractalNoise" numOctaves="3" seed="1">
+					<animate attributeName="baseFrequency" values="0.1 0.05;0.08 0.08;0.1 0.05" dur="20s" repeatCount="indefinite" />
+				</feTurbulence>
+				<feDisplacementMap in="SourceGraphic" scale="10">
+					<animate attributeName="scale" values="10;5;10" dur="15s" repeatCount="indefinite" />
+				</feDisplacementMap>
+			</filter>
 		</defs>
 	</svg>
 
