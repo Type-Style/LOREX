@@ -116,15 +116,22 @@
 		}
 	}
 
-	.errorMessage {
-		color: var(--alert);
+	.message {
 		font-size: 1.8em;
 		font-style: italics;
 		margin: 0;
 
 		strong {
-			margin-right: 0.3em;
+			display: inline-block;
+			vertical-align: middle;
+			margin-right: 0.4em;
 		}
+	}
+	.message--error {
+		color: var(--alert);
+	}
+	.message--success {
+		color: var(--success);
 	}
 
 

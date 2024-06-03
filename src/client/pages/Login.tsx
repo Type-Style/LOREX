@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TextField, Button, InputAdornment, CircularProgress } from '@mui/material';
-import { AccountCircle, Lock, HighlightOff, Login as LoginIcon } from '@mui/icons-material';
+import { AccountCircle, Lock, HighlightOff, Login as LoginIcon, Check } from '@mui/icons-material';
 import "../css/login.css";
 import ModeSwitcher from '../components/ModeSwitcher';
 import axios from 'axios';
@@ -21,7 +21,7 @@ function Login() {
     token: ""
   });
   const [isLoading, setLoading] = React.useState(false);
-  const [errorObj, setErrorObj] = React.useState({ status: null, message: null });
+  const [errorObj, setMessageObj] = React.useState({ isError: null, status: null, message: null });
 
   const isFormValid = formInfo.user.value && !formInfo.user.isError && formInfo.password.value && !formInfo.password.isError; //&& formInfo.token;
 
@@ -44,7 +44,7 @@ function Login() {
   async function submit(e) {
     e.preventDefault();
     setLoading(true);
-    setErrorObj({ status: null, message: null })
+    setMessageObj({ isError: null, status: null, message: null })
 
 
     let token = null; // get csrf token
@@ -59,7 +59,7 @@ function Login() {
       })
       updateFormInfo({ ...formInfo, token: token.data });
     } catch (error) {
-      setErrorObj({ status: error.response.data.status || error.response.status, message: error.response.data.message || error.message })
+      setMessageObj({isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message })
       console.log(error);
     }
 
@@ -68,15 +68,17 @@ function Login() {
     // collect data and convert to urlencoded string then send
     const bodyFormData = { "user": formInfo.user.value, "password": formInfo.password.value, csrfToken: token.data };
     try {
-      // nextup store token for further usuage
-      await axios({
+      const response = await axios({
         method: "post",
         url: "/login",
         data: qs.stringify(bodyFormData),
         headers: { "content-type": "application/x-www-form-urlencoded" }
       })
+      const token = response.data.token;
+      sessionStorage.setItem("jwt", token);
+      setMessageObj({isError: false, status: <Check/>, message: "Success!" })
     } catch (error) {
-      setErrorObj({ status: error.response.data.status || error.response.status, message: error.response.data.message || error.message })
+      setMessageObj({isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message })
       console.log(error);
     } finally {
       setLoading(false); // Reset loading after request is complete
@@ -149,7 +151,7 @@ function Login() {
           <input type="hidden" id="csrfToken" value={formInfo.token} name="csrfToken" />
           <div className="subWrapper">
             {errorObj.status ? (
-              <p className="errorMessage">
+              <p className={`message ${errorObj.isError ? 'message--error' : 'message--success'}`}>
                 <strong>{errorObj.status}</strong>
                 {errorObj.message.split('\n').map((line:string, index:string) => (
                   <React.Fragment key={index}>
