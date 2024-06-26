@@ -5,30 +5,54 @@
 }
 
 .start {
+	/* theming */
 	--text: color-mix(in oklch, var(--neutral) 50%, black);
-
 	[data-mui-color-scheme="dark"] & {
 		--text: var(--main);
 	}
-
-	min-height: 100%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-wrap: wrap;
-
 	color: var(--text);
 
-	.headline {
-		margin-inline: auto;
-		padding-block: max(1em, 10dvh);
-		text-align: center;
-		font-size: clamp(4rem, 5dvmax, 10rem);
-		flex-basis: 100%;
+
+	/* grid layout */
+	height: 100%;
+	display: grid;
+  grid-template-columns: 1fr 40vmin;
+	grid-template-rows: 3rem 1fr 1fr 1fr 3rem;
+
+
+}
+
+.grid-item {
+	background-color: aqua;
+
+	&.info {
+		background-color: bisque;
+
 	}
 
-	a {
-		display: block;
-		font-size: 2rem;
+	&.map {
+		grid-column: 1;
+		grid-row: 2 / span 3;
+		background-color: darkkhaki;
+	}
+
+	&.status {
+		grid-column: 2;
+		grid-row: 1 / span 2;
+		background-color: gold;
+	}
+
+	&.image {
+		grid-column: 2;
+		background-color: moccasin;
+	}
+
+	&.image+.image {
+		background-color: lightgoldenrodyellow;
+	}
+
+	&.subinfo {
+		grid-column: 1 / -1;
+		background-color: peachpuff;
 	}
 }
