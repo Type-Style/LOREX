@@ -82,7 +82,7 @@ export function createJWT(req: Request, res: Response) {
     date: dateString,
     user: req.body.user
   };
-  const token = jwt.sign(payload, key, { expiresIn: 60 * 2 });
+  const token = jwt.sign(payload, key, { expiresIn: 60 * 25 });
   res.locals.token = token;
   return token;
 }
