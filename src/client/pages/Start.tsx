@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import "../css/start.css";
 import axios from 'axios';
+import { LoginContext } from "../components/App";
 
 function Start() {
+  const isLoggedIn = useContext(LoginContext);
   const [entries, setEntries] = useState<Models.IEntry[]>([]);
 
   useEffect(() => {
@@ -23,18 +25,18 @@ function Start() {
         console.log(error)
       }
     };
-    
-    getData(); 
+
+    getData();
     console.log(response);
-    
+
     return () => {
       console.log("cleanup")
     };
-    
+
   }, []);
   return (
     <div className="start">
-      <div className="grid-item info">info: {JSON.stringify(entries)}</div>
+      <div className="grid-item info">loggedIn: {isLoggedIn ? "yes" : "no" } info: {JSON.stringify(entries)}</div>
       <div className="grid-item map">map</div>
       <div className="grid-item status">status</div>
       <div className="grid-item image">image1</div>

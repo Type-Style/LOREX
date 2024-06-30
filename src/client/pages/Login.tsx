@@ -23,7 +23,7 @@ function Login() {
   const [isLoading, setLoading] = React.useState(false);
   const [errorObj, setMessageObj] = React.useState({ isError: null, status: null, message: null });
 
-  const isFormValid = formInfo.user.value && !formInfo.user.isError && formInfo.password.value && !formInfo.password.isError; //&& formInfo.token;
+  const isFormValid = formInfo.user.value && !formInfo.user.isError && formInfo.password.value && !formInfo.password.isError; // TODO check token and tests && formInfo.token; 
 
   function updateField(name: string, value: string) {
     const hasError = validateField(name, value, false);
@@ -75,7 +75,7 @@ function Login() {
         headers: { "content-type": "application/x-www-form-urlencoded" }
       })
       const token = response.data.token;
-      sessionStorage.setItem("jwt", token);
+      sessionStorage.setItem("jwt", token); // TODO check expire date
       setMessageObj({isError: false, status: <Check/>, message: "Success!" })
     } catch (error) {
       setMessageObj({isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message })
