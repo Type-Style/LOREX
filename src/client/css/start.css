@@ -17,16 +17,13 @@
 	height: 100%;
 	display: grid;
   grid-template-columns: 1fr 40vmin;
-	grid-template-rows: 3rem 1fr 1fr 1fr 3rem;
-
-
+	grid-template-rows: minmax(3em, auto) 1fr 1fr 1fr minmax(3em, auto);
 }
 
 .grid-item {
-	background-color: aqua;
 
 	&.info {
-		background-color: bisque;
+		
 
 	}
 

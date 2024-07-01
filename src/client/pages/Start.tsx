@@ -2,9 +2,12 @@ import React, { useEffect, useState, useContext } from 'react'
 import "../css/start.css";
 import axios from 'axios';
 import { LoginContext } from "../components/App";
+import { HighlightOff, Check } from '@mui/icons-material';
+import { Button } from '@mui/material';
+
 
 function Start() {
-  const isLoggedIn = useContext(LoginContext);
+  const [isLoggedIn] = useContext(LoginContext);
   const [entries, setEntries] = useState<Models.IEntry[]>([]);
 
   useEffect(() => {
@@ -34,9 +37,24 @@ function Start() {
     };
 
   }, []);
+
   return (
     <div className="start">
-      <div className="grid-item info">loggedIn: {isLoggedIn ? "yes" : "no" } info: {JSON.stringify(entries)}</div>
+      <div className="grid-item info">
+        <Button
+          className="cut"
+          variant="contained"
+          href={isLoggedIn ? null : "/login"}
+          endIcon={isLoggedIn ? <Check /> : null}
+          startIcon={isLoggedIn ? null : <HighlightOff />}
+          color={isLoggedIn ? "success" : "error"}
+          size="large"
+        >
+          {isLoggedIn ? "LoggedIn" : "Locked Out"}
+        </Button>
+
+
+        {isLoggedIn ? "yes" : "no"} info: {JSON.stringify(entries)}</div>
       <div className="grid-item map">map</div>
       <div className="grid-item status">status</div>
       <div className="grid-item image">image1</div>

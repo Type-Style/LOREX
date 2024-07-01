@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { TextField, Button, InputAdornment, CircularProgress } from '@mui/material';
 import { AccountCircle, Lock, HighlightOff, Login as LoginIcon, Check } from '@mui/icons-material';
 import "../css/login.css";
 import ModeSwitcher from '../components/ModeSwitcher';
 import axios from 'axios';
 import qs from 'qs';
+import { LoginContext } from '../components/App';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
+  const navigate = useNavigate();
+  const [isLoggedIn, setLogin] = useContext(LoginContext);
   const [formInfo, updateFormInfo] = useState({
     user: {
       isError: false,
@@ -44,7 +48,7 @@ function Login() {
   async function submit(e) {
     e.preventDefault();
     setLoading(true);
-    setMessageObj({ isError: null, status: null, message: null })
+    setMessageObj({ isError: null, status: null, message: null });
 
 
     let token = null; // get csrf token
@@ -52,18 +56,18 @@ function Login() {
       token = await axios({
         method: "post",
         url: "/login/csrf",
-        headers: { 
+        headers: {
           "content-type": "application/x-www-form-urlencoded",
           "x-requested-with": "XMLHttpRequest"
         }
       })
       updateFormInfo({ ...formInfo, token: token.data });
     } catch (error) {
-      setMessageObj({isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message })
+      setMessageObj({ isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message })
       console.log(error);
     }
 
-    if (!token) {setLoading(false); return; } // skip when the first request has an error
+    if (!token) { setLoading(false); return; } // skip when the first request has an error
 
     // collect data and convert to urlencoded string then send
     const bodyFormData = { "user": formInfo.user.value, "password": formInfo.password.value, csrfToken: token.data };
@@ -76,9 +80,13 @@ function Login() {
       })
       const token = response.data.token;
       sessionStorage.setItem("jwt", token); // TODO check expire date
-      setMessageObj({isError: false, status: <Check/>, message: "Success!" })
+      setLogin(true);
+      setTimeout(() => { navigate("/") }, 300);
+
+
+      setMessageObj({ isError: false, status: <Check />, message: "Success!" })
     } catch (error) {
-      setMessageObj({isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message })
+      setMessageObj({ isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message })
       console.log(error);
     } finally {
       setLoading(false); // Reset loading after request is complete
@@ -153,7 +161,7 @@ function Login() {
             {errorObj.status ? (
               <p className={`message ${errorObj.isError ? 'message--error' : 'message--success'}`}>
                 <strong>{errorObj.status}</strong>
-                {errorObj.message.split('\n').map((line:string, index:string) => (
+                {errorObj.message.split('\n').map((line: string, index: string) => (
                   <React.Fragment key={index}>
                     {line}
                     <br />
