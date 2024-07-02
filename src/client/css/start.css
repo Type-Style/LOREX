@@ -7,49 +7,80 @@
 .start {
 	/* theming */
 	--text: color-mix(in oklch, var(--neutral) 50%, black);
+
 	[data-mui-color-scheme="dark"] & {
 		--text: var(--main);
 	}
+
 	color: var(--text);
 
 
 	/* grid layout */
 	height: 100%;
 	display: grid;
-  grid-template-columns: 1fr 40vmin;
+	grid-template-columns: 1fr 40vmin;
 	grid-template-rows: minmax(3em, auto) 1fr 1fr 1fr minmax(3em, auto);
-}
 
-.grid-item {
+	.grid-item {
 
-	&.info {
+		&.info {
+			display: flex;
+			width: 100%;
+			justify-content: space-between;
+			padding: 0.7em 2em;
+
+		}
+
+		&.map {
+			grid-column: 1;
+			grid-row: 2 / span 3;
+			background-color: darkkhaki;
+		}
+
+		&.status {
+			grid-column: 2;
+			grid-row: 1 / span 2;
+			background-color: gold;
+		}
+
+		&.image {
+			grid-column: 2;
+			background-color: moccasin;
+		}
+
+		&.image+.image {
+			background-color: lightgoldenrodyellow;
+		}
+
+		&.subinfo {
+			grid-column: 1 / -1;
+			background-color: peachpuff;
+		}
+	}
+
+	.error {
+		display: inline-flex;
+		flex-wrap: wrap;
+		align-content: center;
+		justify-content: center;
+		font-size: 1.3em;
+
+		.statusCode {
+			width: 100%;
+			text-align: center;
+		}
+	}
+
+	.loginButton {
+		color: var(--bg);
+		margin-left: auto;
+		cursor: pointer;
 		
-
-	}
-
-	&.map {
-		grid-column: 1;
-		grid-row: 2 / span 3;
-		background-color: darkkhaki;
-	}
-
-	&.status {
-		grid-column: 2;
-		grid-row: 1 / span 2;
-		background-color: gold;
-	}
-
-	&.image {
-		grid-column: 2;
-		background-color: moccasin;
-	}
-
-	&.image+.image {
-		background-color: lightgoldenrodyellow;
-	}
-
-	&.subinfo {
-		grid-column: 1 / -1;
-		background-color: peachpuff;
+		&.loginButton--loggedIn {
+			svg {
+				position: relative;
+				top: -0.1em; right: 0.1em;
+			}
+		}		
 	}
 }

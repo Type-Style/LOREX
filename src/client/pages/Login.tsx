@@ -7,8 +7,11 @@ import axios from 'axios';
 import qs from 'qs';
 import { LoginContext } from '../components/App';
 import { useNavigate } from 'react-router-dom';
+import LinearBuffer from '../components/LinearBuffer';
 
 function Login() {
+  const [finish, setFinish] = useState(1);
+  const [start, setStart] = useState(1);
   const navigate = useNavigate();
   const [isLoggedIn, setLogin] = useContext(LoginContext);
   const [formInfo, updateFormInfo] = useState({
@@ -47,6 +50,11 @@ function Login() {
 
   async function submit(e) {
     e.preventDefault();
+    const date = new Date();
+    setStart(date.getTime());
+    const milliseconds = 9  * 1000; // Estimated bcrypt Time
+    setFinish(new Date(date.getTime() + milliseconds).getTime());
+
     setLoading(true);
     setMessageObj({ isError: null, status: null, message: null });
 
@@ -63,8 +71,8 @@ function Login() {
       })
       updateFormInfo({ ...formInfo, token: token.data });
     } catch (error) {
-      setMessageObj({ isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message })
       console.log(error);
+      setMessageObj({ isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message })
     }
 
     if (!token) { setLoading(false); return; } // skip when the first request has an error
@@ -81,14 +89,19 @@ function Login() {
       const token = response.data.token;
       sessionStorage.setItem("jwt", token);
       setLogin(true);
-      setTimeout(() => { navigate("/") }, 300);
-
-
       setMessageObj({ isError: false, status: <Check />, message: "Success!" })
+
+      // update linearBar for delay until redirect
+      const date = new Date();
+      setStart(date.getTime());
+      setFinish(new Date(date.getTime() + 1000).getTime());
+      
+      // redirect back to main page
+      setTimeout(() => { setLoading(false); navigate("/") }, 1000);
+
     } catch (error) {
-      setMessageObj({ isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message })
       console.log(error);
-    } finally {
+      setMessageObj({ isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message })
       setLoading(false); // Reset loading after request is complete
     }
   }
@@ -180,6 +193,7 @@ function Login() {
               Login
             </Button>
           </div>
+          {isLoading && <LinearBuffer msStart={start} msFinish={finish} />}
         </form>
       </div>
       <svg className="bg-pattern" xmlns="http://www.w3.org/2000/svg">
