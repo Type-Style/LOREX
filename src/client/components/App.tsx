@@ -18,7 +18,8 @@ function loginDefault() {
     console.error("Unable to parse JWT Data, for login default state");
     return false;
    }  
-  }  
+  }
+  return false; 
 }
 
 const router = createBrowserRouter([

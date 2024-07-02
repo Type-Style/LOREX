@@ -27,7 +27,7 @@ function Login() {
   const [isLoading, setLoading] = React.useState(false);
   const [errorObj, setMessageObj] = React.useState({ isError: null, status: null, message: null });
 
-  const isFormValid = formInfo.user.value && !formInfo.user.isError && formInfo.password.value && !formInfo.password.isError; // TODO check token and tests && formInfo.token; 
+  const isFormValid = formInfo.user.value && !formInfo.user.isError && formInfo.password.value && !formInfo.password.isError;
 
   function updateField(name: string, value: string) {
     const hasError = validateField(name, value, false);
@@ -79,7 +79,7 @@ function Login() {
         headers: { "content-type": "application/x-www-form-urlencoded" }
       })
       const token = response.data.token;
-      sessionStorage.setItem("jwt", token); // TODO check expire date
+      sessionStorage.setItem("jwt", token);
       setLogin(true);
       setTimeout(() => { navigate("/") }, 300);
 
