@@ -19,7 +19,10 @@
 
 	color: var(--text);
 
-	
+	.fixed {
+		position: fixed;
+		inset: 1rem 1rem auto auto;
+	}
 
 	.wrapper {
 		max-width: 50em;

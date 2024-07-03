@@ -4,6 +4,7 @@ import axios from 'axios';
 import { LoginContext } from "../components/App";
 import { HighlightOff, Check } from '@mui/icons-material';
 import { Button } from '@mui/material';
+import ModeSwitcher from '../components/ModeSwitcher';
 
 function Start() {
   const [isLoggedIn, setLogin] = useContext(LoginContext);
@@ -55,13 +56,13 @@ function Start() {
           </div>
         }
         <Button
-          className={`loginButton ${isLoggedIn ? "loginButton--loggedIn" : '' } cut`}
+          className={`loginButton ${isLoggedIn ? "loginButton--loggedIn" : ''} cut`}
           variant="contained"
           href={isLoggedIn ? null : "/login"}
           onClick={isLoggedIn ? () => { setLogin(false); sessionStorage.clear(); } : null}
           endIcon={isLoggedIn ? <Check /> : null}
           startIcon={isLoggedIn ? null : <HighlightOff />}
-          color={isLoggedIn ? "success" : "error"}  
+          color={isLoggedIn ? "success" : "error"}
           size="large"
         >
           {isLoggedIn ? "Logged In" : "Logged Out"}
@@ -69,9 +70,13 @@ function Start() {
       </div>
 
       <div className="grid-item map">map</div>
+      <div className="grid-item theme"><ModeSwitcher/></div>
       <div className="grid-item status">status</div>
-      <div className="grid-item image">image1</div>
-      <div className="grid-item image">image2</div>
+      <div className="grid-item images">
+        <div className="image">image1</div>
+        <div className="image">image2</div>
+      </div>
+
       <div className="grid-item subinfo">subinfo</div>
     </div>
   )

@@ -16,7 +16,7 @@ function ModeSwitcher() {
     <Button
       className={css.modeSwitcher}
       variant='outlined' size='large'
-      startIcon={mode === 'dark' ? <Nightlight/> : <LightMode/>}
+      startIcon={mode === 'dark' ? <Nightlight /> : <LightMode />}
       onClick={() => {
         if (mode === 'light') {
           setMode('dark');

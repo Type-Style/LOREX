@@ -1,14 +1,12 @@
 .modeSwitcher[class] {
-	position: fixed;
-	inset: 1rem 1rem auto auto;
-
 	color: var(--text);
 	border-color: currentColor;
 
 	/* mobile show only icon */
 	visibility: hidden;
 	font-size: 0;
-	& > span {
+
+	&>span {
 		visibility: visible;
 		margin: 0;
 	}

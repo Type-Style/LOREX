@@ -13,6 +13,7 @@
 	}
 
 	color: var(--text);
+	background: var(--semiBg);
 
 
 	/* grid layout */
@@ -31,6 +32,15 @@
 
 		}
 
+		&.theme {
+			grid-row: 1;
+			grid-column: 2;
+			display: grid;
+			align-items: center;
+			justify-items: center;
+			background-color: var(--bg);
+		}
+
 		&.map {
 			grid-column: 1;
 			grid-row: 2 / span 3;
@@ -39,16 +49,22 @@
 
 		&.status {
 			grid-column: 2;
-			grid-row: 1 / span 2;
+			grid-row: 2;
 			background-color: gold;
 		}
 
-		&.image {
+		&.images {
 			grid-column: 2;
-			background-color: moccasin;
+			grid-row: 3 / span 2;
+
+			display: grid;
 		}
 
-		&.image+.image {
+		image {			
+			background-color: moccasin;			
+		}
+
+		.image+.image {
 			background-color: lightgoldenrodyellow;
 		}
 

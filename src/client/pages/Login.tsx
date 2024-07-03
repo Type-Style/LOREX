@@ -52,7 +52,7 @@ function Login() {
     e.preventDefault();
     const date = new Date();
     setStart(date.getTime());
-    const milliseconds = 9  * 1000; // Estimated bcrypt Time
+    const milliseconds = 9 * 1000; // Estimated bcrypt Time
     setFinish(new Date(date.getTime() + milliseconds).getTime());
 
     setLoading(true);
@@ -95,7 +95,7 @@ function Login() {
       const date = new Date();
       setStart(date.getTime());
       setFinish(new Date(date.getTime() + 1000).getTime());
-      
+
       // redirect back to main page
       setTimeout(() => { setLoading(false); navigate("/") }, 1000);
 
@@ -108,7 +108,9 @@ function Login() {
 
   return (
     <div className="login">
-      <ModeSwitcher />
+      <div className="fixed">
+        <ModeSwitcher />
+      </div>
       <div className="wrapper cut">
         <h1 className="headline">
           Login Page
