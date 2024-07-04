@@ -30,7 +30,7 @@ namespace File {
 
 namespace Models {
 	interface IEntries {
-		entries: Models.IEntry[]
+		entries: IEntry[]
 	}
 
 	interface IEntry {

@@ -5,6 +5,7 @@ import { LoginContext } from "../components/App";
 import { HighlightOff, Check } from '@mui/icons-material';
 import { Button } from '@mui/material';
 import ModeSwitcher from '../components/ModeSwitcher';
+import Map from '../components/Map';
 
 function Start() {
   const [isLoggedIn, setLogin] = useContext(LoginContext);
@@ -69,7 +70,7 @@ function Start() {
         </Button>
       </div>
 
-      <div className="grid-item map">map</div>
+      <div className="grid-item map"><Map entries={entries}/></div>
       <div className="grid-item theme"><ModeSwitcher/></div>
       <div className="grid-item status">status</div>
       <div className="grid-item images">
