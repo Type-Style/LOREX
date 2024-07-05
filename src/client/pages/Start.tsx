@@ -8,13 +8,13 @@ import ModeSwitcher from '../components/ModeSwitcher';
 import Map from '../components/Map';
 
 function Start() {
-  const [isLoggedIn, setLogin] = useContext(LoginContext);
+  const [isLoggedIn, setLogin, userInfo] = useContext(LoginContext);
   const [entries, setEntries] = useState<Models.IEntry[]>([]);
   const [errorObj, setMessageObj] = React.useState({ isError: null, status: null, message: null });
 
 
   useEffect(() => {
-    const token = sessionStorage.getItem("jwt");
+    const token = localStorage.getItem("jwt");
     let response;
 
     const getData = async () => {
@@ -52,15 +52,20 @@ function Start() {
     <div className="start">
       <div className="grid-item info">
         {errorObj.isError &&
-          <div className="error">
-            <strong className="statusCode">{errorObj.status}</strong> <span>{errorObj.message} </span>
+          <div className="message center">
+            <strong className="title">{errorObj.status}</strong> <span className="fadeIn">{errorObj.message}</span>
+          </div>
+        }
+        {!errorObj.isError && userInfo &&
+          <div className="message">
+            <strong className="title">{userInfo.user}</strong> <span className="fade">Welcome back</span>
           </div>
         }
         <Button
           className={`loginButton ${isLoggedIn ? "loginButton--loggedIn" : ''} cut`}
           variant="contained"
           href={isLoggedIn ? null : "/login"}
-          onClick={isLoggedIn ? () => { setLogin(false); sessionStorage.clear(); } : null}
+          onClick={isLoggedIn ? () => { setLogin(false); localStorage.clear(); } : null}
           endIcon={isLoggedIn ? <Check /> : null}
           startIcon={isLoggedIn ? null : <HighlightOff />}
           color={isLoggedIn ? "success" : "error"}
@@ -70,8 +75,8 @@ function Start() {
         </Button>
       </div>
 
-      <div className="grid-item map"><Map entries={entries}/></div>
-      <div className="grid-item theme"><ModeSwitcher/></div>
+      <div className="grid-item map"><Map entries={entries} /></div>
+      <div className="grid-item theme"><ModeSwitcher /></div>
       <div className="grid-item status">status</div>
       <div className="grid-item images">
         <div className="image">image1</div>

@@ -5,21 +5,24 @@ import Login from '../pages/Login';
 
 export const LoginContext = createContext([]);
 
-function loginDefault() {
-  const token = sessionStorage?.jwt;
-  let exp;
-  
-  if (token) {
-   try {
-    exp =  JSON.parse(window.atob(token.split('.')[1])).exp;
-    const date = new Date();
-    return date.getTime() / 1000 <= exp;
-   } catch (error) {
-    console.error("Unable to parse JWT Data, for login default state");
+export function convertJwt() {
+  const token = localStorage?.jwt;
+  if (!token) { return false }
+  try {
+    const { user, exp } = JSON.parse(window.atob(token.split('.')[1]));
+    return { user, exp };
+  } catch (error) {
+    console.error("Unable to parse JWT Data");
     return false;
-   }  
   }
-  return false; 
+}
+
+function loginDefault(userInfo) {
+  if (!userInfo) { return false; }
+
+  const date = new Date();
+  const exp = userInfo.exp
+  return date.getTime() / 1000 <= exp;
 }
 
 const router = createBrowserRouter([
@@ -34,10 +37,11 @@ const router = createBrowserRouter([
 ]);
 
 const App = () => {
-  const [isLoggedIn, setLogin] = useState(loginDefault());
+  const [userInfo, setUserInfo] = useState(convertJwt());
+  const [isLoggedIn, setLogin] = useState(loginDefault(userInfo));
 
   return (
-    <LoginContext.Provider value={[isLoggedIn, setLogin]}>
+    <LoginContext.Provider value={[isLoggedIn, setLogin, userInfo, setUserInfo]}>
       <RouterProvider router={router} />
     </LoginContext.Provider>
   );

@@ -5,7 +5,7 @@ import "../css/login.css";
 import ModeSwitcher from '../components/ModeSwitcher';
 import axios from 'axios';
 import qs from 'qs';
-import { LoginContext } from '../components/App';
+import { LoginContext, convertJwt } from '../components/App';
 import { useNavigate } from 'react-router-dom';
 import LinearBuffer from '../components/LinearBuffer';
 
@@ -13,12 +13,12 @@ function Login() {
   const [finish, setFinish] = useState(1);
   const [start, setStart] = useState(1);
   const navigate = useNavigate();
-  const [isLoggedIn, setLogin] = useContext(LoginContext);
+  const [isLoggedIn, setLogin, userInfo, setUserInfo] = useContext(LoginContext);
   const [formInfo, updateFormInfo] = useState({
     user: {
       isError: false,
       message: "Minimum 2",
-      value: ""
+      value: userInfo?.user || ""
     },
     password: {
       isError: false,
@@ -87,7 +87,7 @@ function Login() {
         headers: { "content-type": "application/x-www-form-urlencoded" }
       })
       const token = response.data.token;
-      sessionStorage.setItem("jwt", token);
+      localStorage.setItem("jwt", token);
       setLogin(true);
       setMessageObj({ isError: false, status: <Check />, message: "Success!" })
 
@@ -95,6 +95,7 @@ function Login() {
       const date = new Date();
       setStart(date.getTime());
       setFinish(new Date(date.getTime() + 1000).getTime());
+      setUserInfo(convertJwt());
 
       // redirect back to main page
       setTimeout(() => { setLoading(false); navigate("/") }, 1000);
@@ -115,6 +116,9 @@ function Login() {
         <h1 className="headline">
           Login Page
         </h1>
+        {isLoggedIn &&
+         <h2 className="headline sub">You are logged in</h2>
+        }
         <form action="/login" method="post" onSubmit={submit}>
           <TextField
             label="Username"
