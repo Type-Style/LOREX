@@ -129,11 +129,11 @@ function Login() {
             error={formInfo.user.isError}
             helperText={formInfo.user.isError ? formInfo.user.message : false}
             required
+            autoFocus={!userInfo?.user}
             InputProps={{
               classes: {
                 root: "cut",
               },
-              autoFocus: true,
               name: "user",
               startAdornment: (
                 <InputAdornment position="start">
@@ -158,6 +158,7 @@ function Login() {
             required
             error={formInfo.password.isError}
             helperText={formInfo.password.isError ? formInfo.password.message : false}
+            autoFocus={!!userInfo?.user}
             InputProps={{
               classes: {
                 root: "cut",

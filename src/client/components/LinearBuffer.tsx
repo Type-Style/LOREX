@@ -1,25 +1,32 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
 import LinearProgress from '@mui/material/LinearProgress';
 
-export default function LinearBuffer({ msStart, msFinish }: { msStart: number, msFinish: number }) {
+export default function LinearBuffer({ msStart, msFinish, variant = "buffer" }: { msStart: number, msFinish: number, variant?: "buffer" | "determinate" }) {
   const [progress, setProgress] = React.useState(0);
   const [buffer, setBuffer] = React.useState(10);
 
   const progressRef = React.useRef(() => { });
   React.useEffect(() => {
-    progressRef.current = () => { 
+    if (!msStart || !msFinish) {
+      console.log("LinearProgress did not recieve correct data")
+    }
+    progressRef.current = () => {
+      let progressValue;
       const duration = msFinish - msStart; // duration based on input props
-      const secondPhase = duration == 1000;
       const date = new Date();
       const now = date.getTime();
-     
-      const bufferValue = secondPhase ? 100 : 90;
       const progressCalcValue = ((now - msStart) / duration) * 100;
-      const progressValue = secondPhase ? 100 : Math.min(progressCalcValue, bufferValue);
+      progressValue = progressCalcValue;
+      if (variant == "buffer") {
+        const secondPhase = duration == 1000;
+        const bufferValue = secondPhase ? 100 : 90;
+        progressValue = secondPhase ? 100 : Math.min(progressCalcValue, bufferValue);
+
+        setBuffer(bufferValue);
+      }
 
       setProgress(progressValue);
-      setBuffer(bufferValue);
+
     };
   });
 
@@ -34,8 +41,6 @@ export default function LinearBuffer({ msStart, msFinish }: { msStart: number, m
   }, []);
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <LinearProgress variant="buffer" value={progress} valueBuffer={buffer} />
-    </Box>
+    <LinearProgress variant={variant} value={progress} valueBuffer={variant == "buffer" ? buffer : null} />
   );
 }

@@ -135,6 +135,8 @@ Neutral: #131211
 
   font-weight: calc(400 + var(--baseFontWeightModifier));
 
+  accent-color: var(--main);
+
   /* dark theme, initial state (prefers mq) by react */
   &[data-mui-color-scheme="dark"] {
     --main: oklch(75% 0.1738 64.55); 
@@ -166,7 +168,7 @@ Neutral: #131211
   width:1px;
 }
 
-.cut {
+.cut, .cut-after::after {
   --cut: 2em;
   clip-path: polygon(0% var(--cut), var(--cut) 0%, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%);
 }

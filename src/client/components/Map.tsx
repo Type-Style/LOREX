@@ -7,8 +7,8 @@ import 'leaflet-defaulticon-compatibility';
 import * as css from "../css/map.module.css";
 
 function Map({ entries }: { entries: Models.IEntry[] }) {
-	if(!entries?.length) {
-		return ( "No Data to be displayed" );		
+	if (!entries?.length) {
+		return <span className="noData cut">No Data to be displayed</span>
 	}
 	const lastEntry = entries.at(-1);
 
@@ -20,7 +20,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 			/>
 			<Marker position={[lastEntry.lat, lastEntry.lon]}>
 				<Popup>
-					{JSON.stringify(lastEntry)}
+					{JSON.stringify(lastEntry, null, 2)}
 				</Popup>
 			</Marker>
 		</MapContainer>
