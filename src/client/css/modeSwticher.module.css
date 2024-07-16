@@ -6,7 +6,7 @@
 	visibility: hidden;
 	font-size: 0;
 
-	&>span {
+	& > span {
 		visibility: visible;
 		margin: 0;
 	}
@@ -29,5 +29,4 @@
 		font-size: 1rem;
 		visibility: visible;
 	}
-
 }
