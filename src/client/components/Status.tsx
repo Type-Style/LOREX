@@ -1,5 +1,5 @@
 import React from 'react'
-import * as css from "../css/status.module.css";
+//import * as css from "../css/status.module.css";
 
 function Map({ entries }: { entries: Models.IEntry[] }) {
 	if(!entries?.length) {
