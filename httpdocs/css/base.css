@@ -135,6 +135,8 @@ Neutral: #131211
 
   font-weight: calc(400 + var(--baseFontWeightModifier));
 
+  accent-color: var(--main);
+
   /* dark theme, initial state (prefers mq) by react */
   &[data-mui-color-scheme="dark"] {
     --main: oklch(75% 0.1738 64.55); 
@@ -166,7 +168,7 @@ Neutral: #131211
   width:1px;
 }
 
-.cut {
+.cut, .cut-after::after {
   --cut: 2em;
   clip-path: polygon(0% var(--cut), var(--cut) 0%, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%);
 }
@@ -197,6 +199,15 @@ Neutral: #131211
   font-style: oblique 7.11deg;
   font-stretch: 110%;
   font-weight: calc(800 + var(--baseFontWeightModifier));
+}
+
+.fade { animation: fade 1s 1s forwards; }
+.fadeIn { animation: reverse fade 1s forwards; } 
+@keyframes fade { 
+  to {
+      font-size: 0;
+      opacity: 0;
+  }
 }
 
 @media screen and
@@ -377,12 +388,12 @@ Neutral: #131211
     /* --mui-palette-FilledInput-bg:rgba(0, 0, 0, 0.06);
     --mui-palette-FilledInput-hoverBg:rgba(0, 0, 0, 0.09);
     --mui-palette-FilledInput-disabledBg:rgba(0, 0, 0, 0.12); */
-    --mui-palette-LinearProgress-primaryBg: color-mix(in oklch, var(--mui-palette-primary-main) 85%, transparent);
-    --mui-palette-LinearProgress-secondaryBg: color-mix(in oklch, var(--mui-palette-secondary-main) 85%, transparent);
-    --mui-palette-LinearProgress-errorBg: color-mix(in oklch, var(--mui-error-primary-main) 85%, transparent);
-    --mui-palette-LinearProgress-infoBg: color-mix(in oklch, var(--mui-palette-info-main) 85%, transparent);
-    --mui-palette-LinearProgress-successBg: color-mix(in oklch, var(--mui-palette-success-main) 85%, transparent);
-    --mui-palette-LinearProgress-warningBg: color-mix(in oklch, var(--mui-palette-warning-main) 85%, transparent);
+    --mui-palette-LinearProgress-primaryBg: color-mix(in oklch, var(--mui-palette-primary-main) 50%, transparent);
+    --mui-palette-LinearProgress-secondaryBg: color-mix(in oklch, var(--mui-palette-secondary-main) 50%, transparent);
+    --mui-palette-LinearProgress-errorBg: color-mix(in oklch, var(--mui-error-primary-main) 50%, transparent);
+    --mui-palette-LinearProgress-infoBg: color-mix(in oklch, var(--mui-palette-info-main) 50%, transparent);
+    --mui-palette-LinearProgress-successBg: color-mix(in oklch, var(--mui-palette-success-main) 50%, transparent);
+    --mui-palette-LinearProgress-warningBg: color-mix(in oklch, var(--mui-palette-warning-main) 50%, transparent);
     --mui-palette-Skeleton-bg: rgba(var(--mui-palette-text-primaryChannel) / 0.11);
     --mui-palette-Slider-primaryTrack: var(--mui-palette-primary-main);
     --mui-palette-Slider-secondaryTrack: var(--mui-palette-secondary-main);
