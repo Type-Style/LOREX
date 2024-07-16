@@ -2,9 +2,9 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  modulePathIgnorePatterns: ['<rootDir>/dist/', '<rootDir>/src/testData/'],
   moduleNameMapper: {
     '^@src/(.*)$': '<rootDir>/src/$1',
   },
+  testMatch: ['<rootDir>/src/testData/createTestData.test.ts'],
   bail: true
 };

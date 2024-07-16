@@ -8,14 +8,14 @@ import * as css from "../css/map.module.css";
 
 
 // Used to recenter the map to new coordinates
-const MapRecenter= ({ lat, lng, zoomLevel }) => {
-  const map = useMap();
+const MapRecenter = ({ lat, lon, zoom }: { lat: number, lon: number, zoom: number }) => {
+	const map = useMap();
 
-  useEffect(() => {
-    // Fly to that coordinates and set new zoom level
-    map.flyTo([lat, lng], zoomLevel );
-  }, [lat, lng]);
-  return null;
+	useEffect(() => {
+		// Fly to that coordinates and set new zoom level
+		map.flyTo([lat, lon], zoom);
+	}, [lat, lon]);
+	return null;
 
 };
 
@@ -27,7 +27,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 
 	return (
 		<MapContainer className={css.mapContainer} center={[lastEntry.lat, lastEntry.lon]} zoom={13} scrollWheelZoom={false}>
-			<MapRecenter lat={lastEntry.lat} lng={lastEntry.lon} zoomLevel={13} />
+			<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} zoom={13} />
 			<TileLayer
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

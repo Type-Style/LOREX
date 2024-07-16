@@ -17,6 +17,7 @@
     "lint:client": "eslint httpdocs/js/ --fix",
     "lint:react": "eslint src/client/ --fix",
     "test": "jest",
+    "test:data": "jest --config jest.testData.config.js",
     "test:app": "jest src/tests/app.test.ts",
     "test:login": "jest src/tests/login.test.ts",
     "test:unit": "jest src/tests/unit.test.ts",
