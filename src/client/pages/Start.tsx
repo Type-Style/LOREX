@@ -70,7 +70,7 @@ function Start() {
 
       const newEntries = response.data.entries;
       if (newEntries.length) {
-        setEntries((prevEntries) => [prevEntries, ...newEntries]);
+        setEntries((prevEntries) => [...prevEntries, ...newEntries]);
         index.current += newEntries.length;
       }
 
@@ -97,6 +97,7 @@ function Start() {
 
   return (
     <>
+    {console.info("entries %o", entries)}
       <div className="start">
         <div className="grid-item info">
           {messageObj.isError &&
