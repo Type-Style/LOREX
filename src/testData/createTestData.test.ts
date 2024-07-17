@@ -35,20 +35,22 @@ async function callServer(timestamp = new Date().getTime(), query: string, expec
 
 
 describe('test Data', () => {
-  const entries = 5;
+  const entries = 6;
   const start = { lat: 52.51625, lon: 13.37661 };
   const end = { lat: 52.50960, lon: 13.27457 };
   const diff = {lat: end.lat - start.lat, lon: end.lon - start.lon};
+
   // eslint-disable-next-line jest/expect-expect
-  it('create ' + entries + 'entries', () => {
+  it('create ' + entries + ' entries', () => {
     return new Promise<void>(done => {
 
-      for (let i = 0; i <= entries; i++) {
-        const lat = start.lat + (diff.lat / entries * i);
-        const lon = start.lon + (diff.lon / entries * i);
+      for (let i = 0; i < entries; i++) {
+        const lat = (start.lat + (diff.lat / (entries - 1) * i)).toFixed(8);
+        const lon = (start.lon + (diff.lon / (entries - 1) * i)).toFixed(8);
         setTimeout(async () => {
-          console.log("call server " + i);
-          await callServer(undefined, `user=xx&lat=${lat}&lon=${lon}&timestamp=R3Pl4C3&hdop=${Math.floor(Math.random() * 15) + 1}&altitude=${i+1}&speed=${46 + i}&heading=${262 + Math.floor(Math.random() * 20) - 10}&key=test`, 200, "GET");
+          await callServer(undefined, `user=xx&lat=${lat}&lon=${lon}&timestamp=R3Pl4C3&hdop=${Math.floor(Math.random() * 15) + 1}&altitude=${i+1}&speed=${35.5 + i}&heading=${262 + Math.floor(Math.random() * 20) - 10}&key=test`, 200, "GET");
+          console.log("called server " + (i + 1) + "/" + entries);
+
         }, 1000 * 30 * i);
       }
 
