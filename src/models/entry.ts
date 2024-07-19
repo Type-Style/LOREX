@@ -49,6 +49,11 @@ export const entry = {
             break;
           }
         }
+        
+        if (previousEntry === fileObj.content.entries.at(-1)) {
+          logger.error("previousEntry was not replaced");
+        }
+
       }
 
       entry.time = getTime(Number(req.query.timestamp), previousEntry); // overwrite time in case previousEnty was changed
