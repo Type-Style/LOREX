@@ -62,17 +62,31 @@ function Start() {
       setLastFetch(now);
       response = await axios({
         method: 'get',
-        url: "/read?index=" + index.current + "&noCache=" + now,
+        url: "/read?index=" + (Math.max(index.current - 1, 0)) + "&noCache=" + now,
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
       const newEntries = response.data.entries;
-      if (newEntries.length) {
-        setEntries((prevEntries) => [...prevEntries, ...newEntries]);
-        index.current += newEntries.length;
+
+      if (newEntries.length == 1) {
+        setEntries(newEntries);
       }
+
+      if (newEntries.length > 1) {
+        setEntries((prevEntries) => {
+          const allButLastPrevEntries = prevEntries.slice(0, prevEntries.length -1);
+          console.log("newEntries %o", newEntries);
+          const mergedEntries = [...allButLastPrevEntries, ...newEntries];
+          index.current = mergedEntries.length;
+          console.log("mergedEntries %o", mergedEntries);
+          console.log("index.current %o", index.current);
+          
+          return mergedEntries;
+        });
+        
+      }     
 
       setMessageObj({ isError: null, status: null, message: null });
       setNextFetch(new Date().getTime() + fetchIntervalMs);
@@ -97,7 +111,7 @@ function Start() {
 
   return (
     <>
-    {console.info("entries %o", entries)}
+      {console.info("entries %o", entries)}
       <div className="start">
         <div className="grid-item info">
           {messageObj.isError &&

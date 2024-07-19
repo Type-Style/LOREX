@@ -195,16 +195,23 @@ describe("GET /write", () => {
 
   it('check ignore', async () => {
     let jsonData = getData(filePath);
-    let entry = jsonData.entries[1];
-    const lastEntry = jsonData.entries[0];
+    let entry = jsonData.entries.at(-1);
+    let firstEntry = jsonData.entries[0];
+    let previousEntry = null;
 
-    expect(entry.ignore).toBe(false); // current one to be false allways
-    expect(lastEntry.ignore).toBe(true); // last one to high hdop to be true
+    expect(entry.ignore).toBe(false); // current one to be false always
+    expect(firstEntry.ignore).toBe(false); // start entry to be false always
 
     await callServer(undefined, "user=xx&lat=52.51627&lon=13.37770&timestamp=R3Pl4C3&hdop=50&altitude=4000.000&speed=150.000&heading=180.0&key=test", 200, "GET");
+
     jsonData = getData(filePath);
-    entry = jsonData.entries[1]; // same data point, but not last now therefore ignore true
-    expect(entry.ignore).toBe(true);
+    entry = jsonData.entries.at(-1);
+    previousEntry = jsonData.entries.at(-2);
+    firstEntry = jsonData.entries[0];
+
+    expect(entry.ignore).toBe(false); // current one to be false always
+    expect(firstEntry.ignore).toBe(false); // start entry to be false always
+    expect(previousEntry.ignore).toBe(true); // now since there is 3 entries the previous can be ignored
   });
 });
 
