@@ -44,7 +44,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 		return <span className="noData cut">No Data to be displayed</span>
 	}
 	const statusData = getStatusData(entries);
-	const lastEntry = entries.at(-1);
+	//const lastEntry = entries.at(-1);
 
 	return (
 		<ul>

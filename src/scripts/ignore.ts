@@ -4,10 +4,10 @@ export function getIgnore(lastEntry: Models.IEntry, entry: Models.IEntry): boole
 
   const timing = Math.max(lastEntry.time.diff, entry.time.diff)
 
-  // Threshold increases with older previous entries or farther future entries.
+  // Threshold increases with older previous entries
   if (timing > 32) {
     threshold += Math.min(lastEntry.time.diff / 60, maxThreshold);
   }
-
+  
   return lastEntry.hdop > threshold;
 }

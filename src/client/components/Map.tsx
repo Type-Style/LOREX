@@ -23,7 +23,9 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 	if (!entries?.length) {
 		return <span className="noData cut">No Data to be displayed</span>
 	}
+
 	const lastEntry = entries.at(-1);
+	const cleanEntries = entries.filter((entry) => !entry.ignore);
 
 	return (
 		<MapContainer className={css.mapContainer} center={[lastEntry.lat, lastEntry.lon]} zoom={13} scrollWheelZoom={false}>
@@ -32,11 +34,14 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 			/>
-			<Marker position={[lastEntry.lat, lastEntry.lon]}>
-				<Popup>
-					{JSON.stringify(lastEntry, null, 2)}
-				</Popup>
-			</Marker>
+			{cleanEntries.map((entry) =>
+				<Marker key={entry.index} position={[entry.lat, entry.lon]}>
+					<Popup>
+						<pre>{JSON.stringify(entry, null, 2)}</pre>
+					</Popup>
+				</Marker>
+			)}
+
 		</MapContainer>
 	)
 }
