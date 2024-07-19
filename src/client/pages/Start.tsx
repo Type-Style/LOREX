@@ -77,11 +77,8 @@ function Start() {
       if (newEntries.length > 1) {
         setEntries((prevEntries) => {
           const allButLastPrevEntries = prevEntries.slice(0, prevEntries.length -1);
-          console.log("newEntries %o", newEntries);
           const mergedEntries = [...allButLastPrevEntries, ...newEntries];
           index.current = mergedEntries.length;
-          console.log("mergedEntries %o", mergedEntries);
-          console.log("index.current %o", index.current);
           
           return mergedEntries;
         });
@@ -111,7 +108,6 @@ function Start() {
 
   return (
     <>
-      {console.info("entries %o", entries)}
       <div className="start">
         <div className="grid-item info">
           {messageObj.isError &&
