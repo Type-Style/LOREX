@@ -88,11 +88,21 @@ function Start() {
       setMessageObj({ isError: null, status: null, message: null });
       setNextFetch(new Date().getTime() + fetchIntervalMs);
     } catch (error) {
+      console.log("error fetching data %o", error);
+      
+      if (!error.response) {
+        setMessageObj({ isError: true, status: 499, message: error.message || "offline" });
+        setNextFetch(new Date().getTime() + fetchIntervalMs);
+        return;
+      }
+      
+      if (error.response.status == 403) { setLogin(false) }
+      
+      setMessageObj({ isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message });
+      
       clearInterval(intervalID.current); intervalID.current = null;
       console.info("cleared Interval");
       setNextFetch(null);
-      if (error.response.status == 403) { setLogin(false) }
-      setMessageObj({ isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message });
     }
   };
 
