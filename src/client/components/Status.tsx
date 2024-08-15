@@ -50,7 +50,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 		<ul>
 			<li>datapoints: {entries.length - statusData.ignoredEntries}<i>({statusData.ignoredEntries})</i></li>
 			<li>Ø upload: {statusData.uploadMean}s </li>
-			<li>Ø speed: GPS: {statusData.speedGPSMean}km/h Calc: {statusData.speedCalcMean == "NaN" ? " - " : statusData.speedCalcMean	}km/h </li>
+			<li>Ø speed: GPS: {statusData.speedGPSMean}km/h Calc: {statusData.speedCalcMean == "NaN" ? " - " : statusData.speedCalcMean}km/h </li>
 			<li></li>
 		</ul>
 	)
