@@ -144,9 +144,9 @@ function Start() {
           </Button>
         </div>
 
-        <div className="grid-item map"><Map entries={entries} /></div>
+        <div className="grid-item map cut"><Map entries={entries} /></div>
         <div className="grid-item theme"><ModeSwitcher /></div>
-        <div className="grid-item status cut-after"><Status entries={entries} /></div>
+        <div className={`grid-item status ${entries.length ? "cut-after" : 'emptyData'}`}><Status entries={entries} /></div>
         <div className="grid-item images">
           <div className="image">image1</div>
           <div className="image">image2</div>
