@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react'
-import { MapContainer, Marker,  Popup, TileLayer, useMap } from 'react-leaflet'
+import { MapContainer, Marker, Polyline, Popup, TileLayer, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css'; // Re-uses images from ~leaflet package
 // import L from 'leaflet';
 import 'leaflet-defaulticon-compatibility';
 import "../css/map.css";
+import { LatLngExpression } from "leaflet";
 
 
 // Used to recenter the map to new coordinates
@@ -27,6 +28,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 	const lastEntry = entries.at(-1);
 	const cleanEntries = entries.filter((entry) => !entry.ignore);
 
+	const polyline: LatLngExpression[] = cleanEntries.map((entry) => ([entry.lat, entry.lon]));
 
 	return (
 		<MapContainer className="mapContainer" center={[lastEntry.lat, lastEntry.lon]} zoom={13} scrollWheelZoom={false}>
@@ -46,6 +48,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 				)
 			})}
 
+			<Polyline pathOptions={{ color: 'red' }} positions={polyline} />
 
 		</MapContainer>
 	)

@@ -1,0 +1,9 @@
+.mapContainer {
+	height: 100%;
+}
+
+
+.leaflet-popup-content {
+	font-size: 1.2rem;
+	min-width: min-content;
+}
