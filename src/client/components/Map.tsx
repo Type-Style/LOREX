@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
-import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
+import { MapContainer, Marker,  Popup, TileLayer, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css'; // Re-uses images from ~leaflet package
 // import L from 'leaflet';
 import 'leaflet-defaulticon-compatibility';
-import * as css from "../css/map.module.css";
+import "../css/map.css";
 
 
 // Used to recenter the map to new coordinates
@@ -27,20 +27,25 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 	const lastEntry = entries.at(-1);
 	const cleanEntries = entries.filter((entry) => !entry.ignore);
 
+
 	return (
-		<MapContainer className={css.mapContainer} center={[lastEntry.lat, lastEntry.lon]} zoom={13} scrollWheelZoom={false}>
+		<MapContainer className="mapContainer" center={[lastEntry.lat, lastEntry.lon]} zoom={13} scrollWheelZoom={false}>
 			<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} zoom={13} />
 			<TileLayer
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 			/>
-			{cleanEntries.map((entry) =>
-				<Marker key={entry.index} position={[entry.lat, entry.lon]}>
-					<Popup>
-						<pre>{JSON.stringify(entry, null, 2)}</pre>
-					</Popup>
-				</Marker>
-			)}
+			{cleanEntries.map((entry) => {
+				console.log(entry.index);
+				return (
+					<Marker key={entry.index} position={[entry.lat, entry.lon]}>
+						<Popup>
+							<pre>{JSON.stringify(entry, null, 2)}</pre>
+						</Popup>
+					</Marker>
+				)
+			})}
+
 
 		</MapContainer>
 	)
