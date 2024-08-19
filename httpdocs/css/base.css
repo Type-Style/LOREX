@@ -130,6 +130,8 @@ Neutral: #131211
 	--text: color-mix(in oklch, var(--neutral) 20%, black);
 	--textOnColor: var(--neutral);
   --semiBg: #ffffffbb;
+  --contrastText: white;
+  --contrastBackground: black;
 
   --baseFontWeightModifier: 50;
 
@@ -147,6 +149,9 @@ Neutral: #131211
 		--bg: color-mix(in oklch, var(--neutral) 20%, black);
 		--text: color-mix(in oklch, var(--neutral) 20%, white);
     --semiBg: #00000077;
+
+    --contrastText: black;
+    --contrastBackground: white;
 
     --baseFontWeightModifier: -50;
 	}

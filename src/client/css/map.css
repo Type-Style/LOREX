@@ -7,3 +7,27 @@
 	font-size: 1.2rem;
 	min-width: min-content;
 }
+
+
+.customMarkerIcon {
+	
+	&.start,	&.end {
+		display: flex;
+		place-content: center;
+		border: 2px solid var(--contrastBackground);
+		outline: 3px solid var(--contrastBackground);
+		outline-offset: 3px;
+		border-radius: 50%;
+		background: var(--contrastBackground);
+
+		svg {
+			height: 80%;
+		}
+	}
+
+	&.start {
+		outline: none;
+	}
+
+	
+}
