@@ -6,5 +6,5 @@
     "jsx": "react",
     "esModuleInterop": true
   },
-  "include": ["**/*.tsx", "**/*.ts", "types.d.ts", "../../types.d.ts"]
+  "include": ["**/*.tsx", "**/*.ts", "types.d.ts", "../../types.d.ts", "types_polyline.d.ts"]
 }
