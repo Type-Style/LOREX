@@ -24,46 +24,42 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 	const useRelativeColors = true; // Change candidate; Use color in range to maximum speed, like from 0 to max, rather than fixed range
 
 	function calculateHue(baseHue, maxSpeed, currentSpeed) {
-    // range of currentSpeed and maxSpeed transfered to range from 0 to 360
-    let hueOffset = (currentSpeed / maxSpeed) * 360;
-    // add  baseHue to the hueOffset and overflow at 360
-    let hue = (baseHue + hueOffset) % 360;
+		// range of currentSpeed and maxSpeed transfered to range from 0 to 360
+		const hueOffset = (currentSpeed / maxSpeed) * 360;
+		// add  baseHue to the hueOffset and overflow at 360
+		const hue = (baseHue + hueOffset) % 360;
 
-    return hue;
-}
+		return hue;
+	}
 
 	useEffect(() => {
 		if (map) {
-
 			let maxSpeed = 0;
+
 			if (useRelativeColors) {
 				maxSpeed = cleanEntries.reduce((maxSpeed, entry) => {
 					// compare the current entry's GPS speed with the maxSpeed found so far
 					return Math.max(maxSpeed, entry.speed.gps);
 				}, cleanEntries[0].speed.gps);
+				maxSpeed *= 3.6; // convert M/S to KM/h	
 			}
-			maxSpeed *= 3.6; // convert M/S to KM/h			
 
 			const colorsArray = cleanEntries.map((entry) => {
 				const startColor = parse('oklch(62.8% 0.2577 29.23)') as Oklch; // red
 				const currentSpeed = entry.speed.gps * 3.6; // convert to km/h
-			
-				
+
 				startColor.h = calculateHue(startColor.h, maxSpeed, currentSpeed);
 				startColor.l = currentSpeed > maxSpeed * 0.8 ? startColor.l = currentSpeed / maxSpeed : startColor.l;
 
 				const rgbInGamut = toGamut('rgb', 'oklch', null)(startColor); // map OKLCH to the RGB gamut
 				const colorRgb = formatRgb(rgbInGamut); // format the result as an RGB string
 
-
-		
-	
 				return colorRgb;
 			});
 
 			const polylineArray: LatLngExpression[] = cleanEntries.map((entry) => ([entry.lat, entry.lon]));
 
-			const polyline = L.polycolor(polylineArray, {
+			L.polycolor(polylineArray, {
 				colors: colorsArray,
 				weight: 5
 			}).addTo(map);
