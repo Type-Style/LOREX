@@ -70,36 +70,39 @@ function Start() {
 
       const newEntries = response.data.entries;
 
-      if (newEntries.length == 1) {
-        setEntries(newEntries);
-      }
-
-      if (newEntries.length > 1) {
+      if (newEntries.length) {
         setEntries((prevEntries) => {
-          const allButLastPrevEntries = prevEntries.slice(0, prevEntries.length -1);
-          const mergedEntries = [...allButLastPrevEntries, ...newEntries];
-          index.current = mergedEntries.length;
+          let allButLastPrevEntries, mergedEntries = [];
+
+          if (prevEntries.length) {
+            allButLastPrevEntries = prevEntries.slice(0, prevEntries.length - 1);
+            mergedEntries = [...allButLastPrevEntries, ...newEntries];
+          } else {
+            mergedEntries = newEntries;
+          }
           
+          index.current = mergedEntries.length;
+
           return mergedEntries;
         });
-        
-      }     
+
+      }
 
       setMessageObj({ isError: null, status: null, message: null });
       setNextFetch(new Date().getTime() + fetchIntervalMs);
     } catch (error) {
       console.log("error fetching data %o", error);
-      
+
       if (!error.response) {
         setMessageObj({ isError: true, status: 499, message: error.message || "offline" });
         setNextFetch(new Date().getTime() + fetchIntervalMs);
         return;
       }
-      
+
       if (error.response.status == 403) { setLogin(false) }
-      
+
       setMessageObj({ isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message });
-      
+
       clearInterval(intervalID.current); intervalID.current = null;
       console.info("cleared Interval");
       setNextFetch(null);
