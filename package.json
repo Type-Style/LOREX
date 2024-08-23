@@ -91,7 +91,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-leaflet": "^4.2.1",
-    "react-router-dom": "^6.25.1",
+    "react-router-dom": "^6.26.0",
     "toobusy-js": "^0.5.1"
   },
   "_moduleAliases": {
