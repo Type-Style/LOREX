@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react'
-import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
+import React, { useEffect, useState } from 'react'
+import { MapContainer, Marker, Polyline, Popup, TileLayer, useMap } from 'react-leaflet'
 import leafletPolycolor from 'leaflet-polycolor';
-import { formatRgb, toGamut, parse, Oklch } from 'culori';
+import { formatRgb, toGamut, parse, Oklch, formatCss } from 'culori';
 import L, { LatLngExpression } from 'leaflet';
 import 'leaflet-rotatedmarker';
 import 'leaflet/dist/leaflet.css';
@@ -19,52 +19,47 @@ const MapRecenter = ({ lat, lon, zoom }: { lat: number, lon: number, zoom: numbe
 	return null;
 };
 
-const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] }) => {
-	const map = useMap();
-	const useRelativeColors = true; // Change candidate; Use color in range to maximum speed, like from 0 to max, rather than fixed range
 
-	function calculateHue(baseHue, maxSpeed, currentSpeed) {
+
+const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] }) => {
+	const [useRelativeColors, setUseRelativeColors] = useState<boolean>(true); // Change candidate; Use color in range to maximum speed, like from 0 to max, rather than fixed range
+
+	let maxSpeed = 0;
+	const startColor = parse('oklch(62.8% 0.2577 29.23)') as Oklch; // red
+	const calculateHue = function (baseHue, maxSpeed, currentSpeed) {
 		// range of currentSpeed and maxSpeed transfered to range from 0 to 360
 		const hueOffset = (currentSpeed / maxSpeed) * 360;
 		// add  baseHue to the hueOffset and overflow at 360
-		const hue = (baseHue + hueOffset) % 360;
-
-		return hue;
+		return (baseHue + hueOffset) % 360;
 	}
 
-	useEffect(() => {
-		if (map) {
-			let maxSpeed = 0;
+	if (useRelativeColors) {
+		maxSpeed = cleanEntries.reduce((maxSpeed, entry) => {
+			// compare the current entry's GPS speed with the maxSpeed found so far
+			return Math.max(maxSpeed, entry.speed.gps);
+		}, cleanEntries[0].speed.gps);
+		maxSpeed *= 3.6; // convert M/S to KM/h	
+	}
 
-			if (useRelativeColors) {
-				maxSpeed = cleanEntries.reduce((maxSpeed, entry) => {
-					// compare the current entry's GPS speed with the maxSpeed found so far
-					return Math.max(maxSpeed, entry.speed.gps);
-				}, cleanEntries[0].speed.gps);
-				maxSpeed *= 3.6; // convert M/S to KM/h	
-			}
+	return cleanEntries.map((entry, index) => {
+		if (!index) { return false; }
+		const previousEntry = cleanEntries[index - 1];
+		const color = startColor;
+		const currentSpeed = entry.speed.gps * 3.6; // convert to km/h
 
-			const colorsArray = cleanEntries.map((entry) => {
-				const startColor = parse('oklch(62.8% 0.2577 29.23)') as Oklch; // red
-				const currentSpeed = entry.speed.gps * 3.6; // convert to km/h
+		color.h = calculateHue(color.h, maxSpeed, currentSpeed);
+		color.l = currentSpeed > maxSpeed * 0.75 ? color.l = currentSpeed / maxSpeed : color.l;
 
-				startColor.h = calculateHue(startColor.h, maxSpeed, currentSpeed);
-				startColor.l = currentSpeed > maxSpeed * 0.8 ? startColor.l = currentSpeed / maxSpeed : startColor.l;
+		const correctedColor = toGamut('rgb', 'oklch', null)(color); // map OKLCH to the RGB gamut
 
-				const rgbInGamut = toGamut('rgb', 'oklch', null)(startColor); // map OKLCH to the RGB gamut
-				const colorRgb = formatRgb(rgbInGamut); // format the result as an RGB string
 
-				return colorRgb;
-			});
-
-			const polylineArray: LatLngExpression[] = cleanEntries.map((entry) => ([entry.lat, entry.lon]));
-
-			
-		}
-	}, [map]);
-
-	return null;
-};
+		return (<Polyline
+			key={entry.time.created * 1.1 + Math.random()} // random to force rerender while new data is incoming (maxSpeed might have changed)
+			positions={[[previousEntry.lat, previousEntry.lon], [entry.lat, entry.lon]]}
+			color={formatCss(correctedColor)} weight={5}
+		/>)
+	});
+}
 
 function Map({ entries }: { entries: Models.IEntry[] }) {
 	if (!entries?.length) {
@@ -107,7 +102,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 	}
 
 	return (
-		<MapContainer className="mapContainer" center={[lastEntry.lat, lastEntry.lon]} zoom={13} preferCanvas={true}>
+		<MapContainer className="mapContainer" center={[lastEntry.lat, lastEntry.lon]} zoom={13}>
 			<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} zoom={13} />
 			<TileLayer
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -127,15 +122,11 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 								<pre>{JSON.stringify(entry, null, 2)}</pre>
 							</Popup>
 						</Marker>
-
-						<MultiColorPolyline cleanEntries={cleanEntries} />
 					</div>
 				)
 			})}
 
-
-
-
+			<MultiColorPolyline cleanEntries={cleanEntries} />
 
 		</MapContainer>
 	)
