@@ -59,10 +59,7 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 
 			const polylineArray: LatLngExpression[] = cleanEntries.map((entry) => ([entry.lat, entry.lon]));
 
-			L.polycolor(polylineArray, {
-				colors: colorsArray,
-				weight: 5
-			}).addTo(map);
+			
 		}
 	}, [map]);
 
