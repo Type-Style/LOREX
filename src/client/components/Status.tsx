@@ -1,4 +1,5 @@
 import React from 'react'
+import { getMaxSpeed } from "../helper/maxSpeed";
 //import * as css from "../css/status.module.css";
 function getStatusData(entries) {
 	const cleanEntries = entries.filter((entry: Models.IEntry) => !entry.ignore);
@@ -26,16 +27,50 @@ function getStatusData(entries) {
 		return value;
 	}
 
+
+	function getVertical() {
+		let up = 0, down = 0;
+
+		for (let index = 0; index < cleanEntries.length; index++) {
+			const entry = cleanEntries[index];
+			if (!entry.distance) { continue; }
+
+			const vertical = parseFloat(entry.distance.vertical);
+
+			if (vertical > 0) {
+				up += vertical;
+			} else if (vertical < 0) {
+				down += vertical;
+			}
+		}
+
+		return [up, down];
+	}
+
+	function getDistance() {
+		return cleanEntries.reduce((accumulatorValue:number, entry) => {
+			console.log(accumulatorValue);
+			if (!entry.distance ) { return accumulatorValue }			
+			return accumulatorValue + parseFloat(entry.distance.horizontal);
+		}, 0) / 1000; 
+	}
+
 	const ignoredEntries = entries.length - cleanEntries.length;
 	const uploadMean = getMean("time.uploadDuration").toFixed(3);
 	const speedGPSMean = (getMean("speed.gps") * 3.6).toFixed(1);
 	const speedCalcMean = (getMean("speed.horizontal") * 3.6).toFixed(1);
+	const verticalCalc = getVertical();
+	const maxSpeed = getMaxSpeed(cleanEntries);
+	const distance = getDistance().toFixed(2);
 
 	return {
 		ignoredEntries,
 		uploadMean,
 		speedGPSMean,
-		speedCalcMean
+		speedCalcMean,
+		maxSpeed,
+		verticalCalc,
+		distance
 	}
 }
 
@@ -51,7 +86,9 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 			<li>datapoints: {entries.length - statusData.ignoredEntries}<i>({statusData.ignoredEntries})</i></li>
 			<li>Ø upload: {statusData.uploadMean}s </li>
 			<li>Ø speed: GPS: {statusData.speedGPSMean}km/h Calc: {statusData.speedCalcMean == "NaN" ? " - " : statusData.speedCalcMean}km/h </li>
-			<li></li>
+			<li>maxSpeed: {statusData.maxSpeed}</li>
+			<li>vertcial: {statusData.verticalCalc[0]} up,  {statusData.verticalCalc[1]} down</li>
+			<li>distance {statusData.distance}km</li>
 		</ul>
 	)
 }

@@ -6,6 +6,7 @@ import L from 'leaflet';
 import 'leaflet-rotatedmarker';
 import 'leaflet/dist/leaflet.css';
 import "../css/map.css";
+import { getMaxSpeed } from "../helper/maxSpeed";
 leafletPolycolor(L);
 
 
@@ -34,11 +35,7 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 	}
 
 	if (useRelativeColors) {
-		maxSpeed = cleanEntries.reduce((maxSpeed, entry) => {
-			// compare the current entry's GPS speed with the maxSpeed found so far
-			return Math.max(maxSpeed, entry.speed.gps);
-		}, cleanEntries[0].speed.gps);
-		maxSpeed *= 3.6; // convert M/S to KM/h	
+		maxSpeed = getMaxSpeed(cleanEntries);
 	}
 
 	return cleanEntries.map((entry, index) => {
