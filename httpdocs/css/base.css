@@ -206,7 +206,7 @@ Neutral: #131211
   font-weight: calc(800 + var(--baseFontWeightModifier));
 }
 
-.fade { animation: fade 1s 1s forwards; }
+.fade { animation: fade 1s 2s forwards; }
 .fadeIn { animation: reverse fade 1s forwards; } 
 @keyframes fade { 
   to {
