@@ -226,6 +226,8 @@ Neutral: #131211
 		 animation-iteration-count: 1 !important;
 		 transition-duration: 0.001ms !important;
 	 }
+
+   /* note this does not remove SVG Animations */
 }
 
 /* development */ 

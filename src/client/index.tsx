@@ -1,3 +1,4 @@
+import "./components/removeSvgAnimation";
 import * as React from 'react';
 import { Root, createRoot } from 'react-dom/client';
 import { Experimental_CssVarsProvider as CssVarsProvider, experimental_extendTheme as extendTheme } from '@mui/material/styles';
