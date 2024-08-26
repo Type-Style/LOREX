@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { MapContainer, Marker, Polyline, Popup, TileLayer, useMap } from 'react-leaflet'
 import leafletPolycolor from 'leaflet-polycolor';
-import { formatRgb, toGamut, parse, Oklch, formatCss } from 'culori';
-import L, { LatLngExpression } from 'leaflet';
+import { toGamut, parse, Oklch, formatCss } from 'culori';
+import L from 'leaflet';
 import 'leaflet-rotatedmarker';
 import 'leaflet/dist/leaflet.css';
 import "../css/map.css";
@@ -22,7 +22,7 @@ const MapRecenter = ({ lat, lon, zoom }: { lat: number, lon: number, zoom: numbe
 
 
 const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] }) => {
-	const [useRelativeColors, setUseRelativeColors] = useState<boolean>(true); // Change candidate; Use color in range to maximum speed, like from 0 to max, rather than fixed range
+	const [useRelativeColors] = useState<boolean>(true); // Change candidate; Use color in range to maximum speed, like from 0 to max, rather than fixed range
 
 	let maxSpeed = 0;
 	const startColor = parse('oklch(62.8% 0.2577 29.23)') as Oklch; // red
