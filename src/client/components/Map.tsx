@@ -49,11 +49,17 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 
 		const correctedColor = toGamut('rgb', 'oklch', null)(color); // map OKLCH to the RGB gamut
 
+		let strokeDashArray = null;
 
+		if (entry.time.diff > 100) { strokeDashArray = "4 8";}
 		return (<Polyline
 			key={entry.time.created * 1.1 + Math.random()} // random to force rerender while new data is incoming (maxSpeed might have changed)
 			positions={[[previousEntry.lat, previousEntry.lon], [entry.lat, entry.lon]]}
-			color={formatCss(correctedColor)} weight={5}
+			color={formatCss(correctedColor)} 
+			weight={5}
+			dashArray={strokeDashArray}
+			lineCap={"butt"}
+			
 		/>)
 	});
 }
@@ -71,7 +77,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 	function createCustomIcon(entry: Models.IEntry) {
 		let className = "";
 		let iconSize = 15;
-		if (entry.index == 0) {
+		if (entry.index == 0 || entry.time.diff >= 300) {
 			className = "start"
 		}
 		if (entry == lastEntry) {
