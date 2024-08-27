@@ -1,6 +1,13 @@
 import React from 'react'
 import { getMaxSpeed } from "../helper/maxSpeed";
-//import * as css from "../css/status.module.css";
+import "../css/status.css";
+import StorageIcon from '@mui/icons-material/Storage';
+import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
+import SpeedIcon from '@mui/icons-material/Speed';
+import BoltIcon from '@mui/icons-material/Bolt';
+import ShowChartIcon from '@mui/icons-material/ShowChart';
+import EastIcon from '@mui/icons-material/East';
+
 function getStatusData(entries) {
 	const cleanEntries = entries.filter((entry: Models.IEntry) => !entry.ignore);
 
@@ -44,15 +51,15 @@ function getStatusData(entries) {
 			}
 		}
 
-		return [up, down];
+		return [(up / 1000).toFixed(2), (down / 1000).toFixed(2)];
 	}
 
 	function getDistance() {
-		return cleanEntries.reduce((accumulatorValue:number, entry) => {
+		return cleanEntries.reduce((accumulatorValue: number, entry) => {
 			console.log(accumulatorValue);
-			if (!entry.distance ) { return accumulatorValue }			
+			if (!entry.distance) { return accumulatorValue }
 			return accumulatorValue + parseFloat(entry.distance.horizontal);
-		}, 0) / 1000; 
+		}, 0) / 1000;
 	}
 
 	const ignoredEntries = entries.length - cleanEntries.length;
@@ -82,14 +89,55 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 	//const lastEntry = entries.at(-1);
 
 	return (
-		<ul>
-			<li>datapoints: {entries.length - statusData.ignoredEntries}<i>({statusData.ignoredEntries})</i></li>
-			<li>Ø upload: {statusData.uploadMean}s </li>
-			<li>Ø speed: GPS: {statusData.speedGPSMean}km/h Calc: {statusData.speedCalcMean == "NaN" ? " - " : statusData.speedCalcMean}km/h </li>
-			<li>maxSpeed: {statusData.maxSpeed}</li>
-			<li>vertcial: {statusData.verticalCalc[0]} up,  {statusData.verticalCalc[1]} down</li>
-			<li>distance {statusData.distance}km</li>
-		</ul>
+		<table className="statusTable">
+			<tr>
+				<td><StorageIcon /></td>
+				<th>data</th>
+				<td>
+					{entries.length - statusData.ignoredEntries}<i className="strike" title="ignored">({statusData.ignoredEntries})</i>
+				</td>
+			</tr>
+
+			<tr>
+				<td><NetworkCheckIcon /></td>
+				<th>Ø upload</th>
+				<td>
+					{statusData.uploadMean}s
+				</td>
+			</tr>
+
+			<tr>
+				<td><SpeedIcon /></td>
+				<th>Ø speed</th>
+				<td>
+					<span>GPS: {statusData.speedGPSMean}km/h</span> <span>Calc: {statusData.speedCalcMean == "NaN" ? " - " : statusData.speedCalcMean}km/h</span>
+				</td>
+			</tr>
+
+			<tr>
+				<td><BoltIcon /></td>
+				<th>maxSpeed</th>
+				<td>
+					<span>{statusData.maxSpeed}km/h</span>
+				</td>
+			</tr>
+
+			<tr>
+				<td><ShowChartIcon /></td>
+				<th>vertical</th>
+				<td>
+					<span>{statusData.verticalCalc[0]}km up</span>,  <span>{statusData.verticalCalc[1]}km down</span>
+				</td>
+			</tr>
+
+			<tr>
+				<td><EastIcon /></td>
+				<th>Distance</th>
+				<td>
+					<span>{statusData.distance}km</span>
+				</td>
+			</tr>
+		</table>
 	)
 }
 

@@ -19,7 +19,7 @@
 	/* grid layout */
 	height: 100%;
 	display: grid;
-	grid-template-columns: 1fr 40vmin;
+	grid-template-columns: 1fr minmax(18.5rem, 40vmin);
 	grid-template-rows: minmax(3em, auto) 1fr 1fr 1fr minmax(3em, auto);
 
 	.grid-item {

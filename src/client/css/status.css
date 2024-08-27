@@ -1,0 +1,56 @@
+.status {
+	container-type: inline-size;
+}
+
+
+.statusTable {
+	font-size: 1.4rem;
+	padding: 0.7rem 0.2em 0.2em 1em;
+	height: 100%;
+
+	th {
+		text-align: left;
+		padding: 0 1rem;
+	}
+
+	td {
+		font-stretch: 120%;
+		font-weight: 350;
+		font-style: oblique 10deg;
+		letter-spacing: 0.0125em;
+	}
+
+	.strike {
+		font-style: normal;
+		position: relative;
+
+		&::after {
+			content: "";
+			position: absolute;
+			top: 40%;
+			left: 60%;
+			transform: translate(-50%, -50%);
+			border-top: 1px solid;
+			width: 100%;
+		}
+	}
+
+	span {
+		white-space: nowrap;
+	}
+}
+
+@container (max-width: 30rem) {
+	.statusTable {
+		padding: 0.5rem 0.2rem;
+		font-size: 1.3rem;
+	}
+
+	th {
+		display: none;
+	}
+
+	td {
+		padding-inline: 0.2rem;
+	}
+}
