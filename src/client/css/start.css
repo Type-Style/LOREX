@@ -29,6 +29,7 @@
 			width: 100%;
 			justify-content: space-between;
 			padding: 0.5em 0.8em;
+
 			@media (min-width: 30em) {
 				padding: 0.7em 2em;
 			}
@@ -46,9 +47,9 @@
 			grid-column: 1;
 			grid-row: 2 / span 3;
 			margin-right: 1em;
-			
+
 			background-color: color-mix(in oklab, transparent 50%, var(--main));
-			
+
 			@media (max-width: 35em) {
 				grid-column: 1 / -1;
 				margin-right: 0;
@@ -76,13 +77,14 @@
 
 				--shadowColor: var(--text);
 				filter: url(#rough-light);
-        box-shadow: 0 0 0.2em var(--shadowColor);
+				box-shadow: 0 0 0.2em var(--shadowColor);
 			}
+
 			[data-mui-color-scheme="dark"] &::after {
 				--shadowColor: var(--main);
 				filter: url(#rough-light) drop-shadow(0 3px 5px var(--shadowColor));
 			}
-			
+
 		}
 
 		&.images {
@@ -91,6 +93,7 @@
 
 			display: grid;
 			overflow: auto;
+			
 			@media (max-width: 35em) {
 				display: none;
 			}
@@ -98,20 +101,21 @@
 
 		.image {
 			display: inline-block;
-      aspect-ratio: 16/9;			
-			background-color: moccasin;
+			aspect-ratio: 16/9;
+			margin-bottom: 0.5rem;
+			cursor: pointer;
+
+			> * {
+				width: 100%;
+				height: 100%;
+			}
 		}
 
-		.image+.image {
-			background-color: lightgoldenrodyellow;
-		}
-		.image+.image+.image {
-			background-color: antiquewhite;
-		}
 
 		&.subinfo {
 			grid-column: 1 / -1;
 			padding: 0.5em 0.8em;
+
 			@media (min-width: 35em) {
 				padding: 0.7em 2em;
 				grid-column: 1;
@@ -119,17 +123,19 @@
 
 			.MuiLinearProgress-root {
 				margin: -0.5em 0 1em -0.8em;
+
 				@media (min-width: 30em) {
 					margin: -0.7em -1em 1em -2em;
-				}				
+				}
 			}
 
 			.info {
 				display: inline-block;
 				padding-inline: 1em;
 				border-right: 0.1rem solid;
-				
-				&:last-child, &.noDivider  {
+
+				&:last-child,
+				&.noDivider {
 					border: none;
 					padding-right: 0;
 				}
@@ -158,7 +164,11 @@
 
 		.title {
 			font-size: 1.1em;
-			@media (min-width: 30em) { font-size: inherit;	}
+
+			@media (min-width: 30em) {
+				font-size: inherit;
+			}
+
 			width: 100%;
 			text-align: center;
 		}
@@ -166,7 +176,11 @@
 
 	.loginButton {
 		color: white;
-		[data-mui-color-scheme="dark"] & { color: black;}
+
+		[data-mui-color-scheme="dark"] & {
+			color: black;
+		}
+
 		margin-left: auto;
 		cursor: pointer;
 		white-space: nowrap;
@@ -177,23 +191,28 @@
 		@media (min-width: 30em) {
 			/* reset to MUI default */
 			font-size: 1.3rem;
-			padding: 8px 22px; 
+			padding: 8px 22px;
 		}
 
 		.MuiButton-icon {
 			font-size: 1.3rem;
+
 			@media (min-width: 30em) {
 				font-size: inherit;
 			}
 		}
+
 		.MuiButton-startIcon {
 			margin-left: 6px;
+
 			@media (min-width: 30em) {
 				margin-left: 0px;
 			}
 		}
+
 		.MuiButton-endIcon {
 			margin-left: 0;
+
 			@media (min-width: 30em) {
 				margin-left: 4px;
 			}
