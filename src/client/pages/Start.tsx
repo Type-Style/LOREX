@@ -8,6 +8,9 @@ import ModeSwitcher from '../components/ModeSwitcher';
 import Map from '../components/Map';
 import Status from '../components/Status';
 import LinearBuffer from "../components/LinearBuffer";
+import MiniMap from "../components/MiniMap";
+import { layers } from "../scripts/layers";
+
 
 function timeAgo(timestamp: number): string {
   if (!Number.isInteger(timestamp)) {
@@ -150,9 +153,11 @@ function Start() {
         <div className="grid-item theme"><ModeSwitcher /></div>
         <div className={`grid-item status ${entries.length ? "cut-after" : 'emptyData'}`}><Status entries={entries} /></div>
         <div className="grid-item images">
-          <div className="image">image1</div>
-          <div className="image">image2</div>
-          <div className="image">image3</div>
+          {entries.at(-1) && layers.map((layer, index) => {
+            return (
+              <MiniMap layer={layer} key={index} index={index} lastEntry={entries.at(-1)} />
+            )
+          })}
         </div>
 
         <div className="grid-item subinfo">
