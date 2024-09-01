@@ -150,7 +150,7 @@ Neutral: #131211
     
 		--bg: color-mix(in oklch, var(--neutral) 20%, black);
 		--text: color-mix(in oklch, var(--neutral) 20%, white);
-    --semiBg: #00000077;
+    --semiBg: #00000055;
 
     --contrastText: black;
     --contrastBackground: white;
