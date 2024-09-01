@@ -1,5 +1,5 @@
 import React from 'react'
-import { getMaxSpeed } from "../helper/maxSpeed";
+import { getMaxSpeed } from "../scripts/maxSpeed";
 import "../css/status.css";
 import StorageIcon from '@mui/icons-material/Storage';
 import NetworkCheckIcon from '@mui/icons-material/NetworkCheck';
@@ -81,7 +81,7 @@ function getStatusData(entries) {
 	}
 }
 
-function Map({ entries }: { entries: Models.IEntry[] }) {
+function Status({ entries }: { entries: Models.IEntry[] }) {
 	if (!entries?.length) {
 		return <span className="noData cut">No Data to be displayed</span>
 	}
@@ -90,55 +90,57 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 
 	return (
 		<table className="statusTable">
-			<tr>
-				<td><StorageIcon /></td>
-				<th>data</th>
-				<td>
-					{entries.length - statusData.ignoredEntries}<i className="strike" title="ignored">({statusData.ignoredEntries})</i>
-				</td>
-			</tr>
+			<tbody>
+				<tr>
+					<td><StorageIcon /></td>
+					<th>data</th>
+					<td>
+						{entries.length - statusData.ignoredEntries}<i className="strike" title="ignored">({statusData.ignoredEntries})</i>
+					</td>
+				</tr>
 
-			<tr>
-				<td><NetworkCheckIcon /></td>
-				<th>Ø upload</th>
-				<td>
-					{statusData.uploadMean}s
-				</td>
-			</tr>
+				<tr>
+					<td><NetworkCheckIcon /></td>
+					<th>Ø upload</th>
+					<td>
+						{statusData.uploadMean}s
+					</td>
+				</tr>
 
-			<tr>
-				<td><SpeedIcon /></td>
-				<th>Ø speed</th>
-				<td>
-					<span>GPS: {statusData.speedGPSMean}km/h</span> <span>Calc: {statusData.speedCalcMean == "NaN" ? " - " : statusData.speedCalcMean}km/h</span>
-				</td>
-			</tr>
+				<tr>
+					<td><SpeedIcon /></td>
+					<th>Ø speed</th>
+					<td>
+						<span>GPS: {statusData.speedGPSMean}km/h</span> <span>Calc: {statusData.speedCalcMean == "NaN" ? " - " : statusData.speedCalcMean}km/h</span>
+					</td>
+				</tr>
 
-			<tr>
-				<td><BoltIcon /></td>
-				<th>maxSpeed</th>
-				<td>
-					<span>{statusData.maxSpeed}km/h</span>
-				</td>
-			</tr>
+				<tr>
+					<td><BoltIcon /></td>
+					<th>maxSpeed</th>
+					<td>
+						<span>{statusData.maxSpeed}km/h</span>
+					</td>
+				</tr>
 
-			<tr>
-				<td><ShowChartIcon /></td>
-				<th>vertical</th>
-				<td>
-					<span>{statusData.verticalCalc[0]}km up</span>,  <span>{statusData.verticalCalc[1]}km down</span>
-				</td>
-			</tr>
+				<tr>
+					<td><ShowChartIcon /></td>
+					<th>vertical</th>
+					<td>
+						<span>{statusData.verticalCalc[0]}km up</span>,  <span>{statusData.verticalCalc[1]}km down</span>
+					</td>
+				</tr>
 
-			<tr>
-				<td><EastIcon /></td>
-				<th>Distance</th>
-				<td>
-					<span>{statusData.distance}km</span>
-				</td>
-			</tr>
+				<tr>
+					<td><EastIcon /></td>
+					<th>Distance</th>
+					<td>
+						<span>{statusData.distance}km</span>
+					</td>
+				</tr>
+			</tbody>
 		</table>
 	)
 }
 
-export default Map
+export default Status
