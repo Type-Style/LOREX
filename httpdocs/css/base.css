@@ -119,7 +119,7 @@ Danger: #ff0000
 Success: #59ec04
 Neutral: #131211
 */
-:root {
+:root, [data-mui-color-scheme="light"] {
 	--main: oklch(77.2% 0.1738 64.55); 
 	--info: oklch(50% 0.2838 268.01); 
 	--alert: oklch(62.5% 0.2577 29.23); 
@@ -132,6 +132,8 @@ Neutral: #131211
   --semiBg: #ffffffbb;
   --contrastText: white;
   --contrastBackground: black;
+  --semiContrastBackground: #00000077;
+
 
   --baseFontWeightModifier: 50;
 
@@ -140,7 +142,7 @@ Neutral: #131211
   accent-color: var(--main);
 
   /* dark theme, initial state (prefers mq) by react */
-  &[data-mui-color-scheme="dark"] {
+  &[data-mui-color-scheme="dark"], [data-mui-color-scheme="dark"] {
     --main: oklch(75% 0.1738 64.55); 
     --info: oklch(47.5% 0.2838 268.01); 
     --alert: oklch(60% 0.2577 29.23); 
@@ -152,6 +154,7 @@ Neutral: #131211
 
     --contrastText: black;
     --contrastBackground: white;
+    --semiContrastBackground: #ffffffbb;
 
     --baseFontWeightModifier: -50;
 	}
