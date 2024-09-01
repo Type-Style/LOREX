@@ -37,7 +37,7 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/leaflet": "^1.9.12",
     "@types/node": "^20.11.30",
-    "@types/react": "^18.2.74",
+    "@types/react": "^18.3.4",
     "@types/react-dom": "^18.2.24",
     "@types/toobusy-js": "^0.5.4",
     "@typescript-eslint/eslint-plugin": "^6.18.1",
@@ -63,6 +63,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "@changey/react-leaflet-markercluster": "^4.0.0-rc1",
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.11.5",
     "@mui/icons-material": "^5.16.5",
@@ -84,7 +85,6 @@
     "jsonwebtoken": "^9.0.2",
     "leaflet": "^1.9.4",
     "leaflet-defaulticon-compatibility": "^0.1.2",
-    "leaflet-polycolor": "^2.0.5",
     "leaflet-rotatedmarker": "^0.2.0",
     "module-alias": "^2.2.3",
     "react": "^18.3.1",
