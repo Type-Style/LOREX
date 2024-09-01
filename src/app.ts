@@ -66,7 +66,7 @@ app.use('/login', loginRouter);
 
 // use httpdocs as static folder
 app.use('/', express.static(path.join(__dirname, 'httpdocs'), {
-  extensions: ['html', 'txt', "pdf"],
+  extensions: ['html', 'txt', "pdf", "css", "js"],
   index: ["start.html", "start.txt"],
 }));
 
