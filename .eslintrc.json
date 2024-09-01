@@ -2,7 +2,7 @@
   "root": true,
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaVersion": 2024,
+    "ecmaVersion": "latest",
     "sourceType": "module",
     "project": "tsconfig.json"
   },
@@ -22,6 +22,6 @@
     //"@typescript-eslint/no-unused-vars": "warn"
     "jest/no-conditional-expect": "off"    
   },
-  "ignorePatterns": ["dist", "jest.config.js", "httpdocs"]
+  "ignorePatterns": ["dist", "jest.config.js", "httpdocs", "webpack.config.js", "src/client"]
 
 }

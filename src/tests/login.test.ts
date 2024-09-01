@@ -19,22 +19,31 @@ const userDataWithToken = {
 };
 
 describe('Login', () => {
-  it('form available', async () => {
+  it('csrf available', async () => {
     let serverStatus = {};
     let response = { data: "", status: "" };
     try {
-      response = await axios.get('http://localhost:80/login');
+      response = await axios({
+        method: "post",
+        url: "http://localhost:80/login/csrf",
+        headers: { 
+          "content-type": "application/x-www-form-urlencoded",
+          "x-requested-with": "XMLHttpRequest"
+        }
+      })
       serverStatus = response.status;
     } catch (error) {
       console.error(error);
+      throw Error("fail");
     }
 
+
     expect(serverStatus).toBe(200);
-    expect(response.data).toContain('<form');
-    const regex = /name="csrfToken" value="([^"]*)"/;
-    const match = response.data.match(regex);
-    csrfToken = match ? match[1] : '';
-    expect(csrfToken.length).toBeGreaterThan(4);
+    expect(response.data).toBeTruthy();
+    const regex = /^[a-f0-9]{32}$/;
+    expect(response.data).toMatch(regex);
+    csrfToken = response.data;
+    expect(csrfToken.length).toBeGreaterThan(30);
   })
 
   it('server is blocking requests with large body', async () => {
@@ -71,7 +80,8 @@ describe('Login', () => {
 
   it('test invalid credentials to return error', async () => {
     try {
-      userDataWithToken.csrfToken = csrfToken
+      userDataWithToken.csrfToken = csrfToken;
+      console.log("csrfToken %o", userDataWithToken.csrfToken);
       await axios.post('http://localhost:80/login', qs.stringify(userDataWithToken));
     } catch (error) {
       const axiosError = error as AxiosError;

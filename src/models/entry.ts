@@ -21,6 +21,7 @@ export const entry = {
     }
     const entries = fileObj.content.entries;
     const lastEntry = fileObj.content.entries.at(-1);
+    let previousEntry = fileObj.content.entries.at(-1); // potentially overwritten if entry is set to ignore
     const entry = {} as Models.IEntry;
 
     entry.altitude = Number(req.query.altitude);
@@ -32,11 +33,32 @@ export const entry = {
     entry.user = req.query.user as string;
     entry.ignore = false;
 
-    if (lastEntry) { // so there is a previous entry
-      entry.time = getTime(Number(req.query.timestamp), lastEntry);
-      lastEntry.ignore = getIgnore(lastEntry, entry);
-      entry.angle = getAngle(lastEntry, entry);
-      entry.distance = getDistance(entry, lastEntry)
+    if (lastEntry && previousEntry) {
+      entry.time = getTime(Number(req.query.timestamp), lastEntry); // time data is needed for ignore calculation
+
+      if (entries.length > 1) { // the very first entry one shall never be ignored
+        lastEntry.ignore = getIgnore(lastEntry, entry);
+      } else {
+        lastEntry.ignore = false;
+      }
+
+      if (lastEntry.ignore) { // rectify or replace previousEntry with last non ignored element
+        for (let i = entries.length - 1; i >= 0; i--) {
+          if (!entries[i].ignore) {
+            previousEntry = entries[i];
+            break;
+          }
+        }
+        
+        if (previousEntry === fileObj.content.entries.at(-1)) {
+          logger.error("previousEntry was not replaced");
+        }
+
+      }
+
+      entry.time = getTime(Number(req.query.timestamp), previousEntry); // overwrite time in case previousEnty was changed
+      entry.angle = getAngle(previousEntry, entry);
+      entry.distance = getDistance(entry, previousEntry)
       entry.speed = getSpeed(Number(req.query.speed), entry);
     } else {
       entry.angle = undefined;
@@ -46,7 +68,7 @@ export const entry = {
 
     if (entries.length >= 1000) {
       logger.log(`File over 1000 lines: ${fileObj.path}`);
-      if (entry.hdop < 12 || (lastEntry && entry.hdop < lastEntry.hdop)) {
+      if (entry.hdop < 12 || (previousEntry && entry.hdop < previousEntry.hdop)) {
         entries[entries.length - 1] = entry; // replace last entry
       }
     } else {

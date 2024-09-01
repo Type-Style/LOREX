@@ -7,11 +7,15 @@ import { createJWT, createCSRF, validateCSRF } from '@src/scripts/token';
 
 const router = express.Router();
 
-router.get("/", baseSlowDown, baseRateLimiter, async function login(req: Request, res: Response, next: NextFunction) {
+router.post("/csrf", baseSlowDown, baseRateLimiter, async function csrf(req: Request, res: Response, next: NextFunction) {
   loginLimiter(req, res, () => {
+    if (req.headers['x-requested-with'] !== 'XMLHttpRequest') {
+      return createError(res, 403, "Unable to provide token", next);
+    }
     const csrfToken = createCSRF(res, next);
-    res.locals = {...res.locals, text: 'start', csrfToken: csrfToken};
-    res.render("login-form");
+    if (csrfToken) {
+      res.json(csrfToken);
+    }
   });
 });
 
@@ -23,7 +27,7 @@ router.post("/", loginSlowDown, async function postLogin(req: Request, res: Resp
     const password = req.body.password;
     let userFound = false;
     if (!user || !password) { return createError(res, 422, "Body does not contain all expected information", next); }
-    if (!token || !validateCSRF(req.body.csrfToken)) { return createError(res, 403, "Invalid CSRF Token", next); }
+    if (!token || !validateCSRF(req.body.csrfToken)) { return createError(res, 403, "Invalid CSRF Token \n retry in 5 Minuits", next); }
 
     // Loop through all environment variables
     for (const key in process.env) {

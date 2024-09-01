@@ -1,0 +1,143 @@
+@keyframes move-it {
+	to {
+		background-position: 200px 0px;
+	}
+}
+
+.login {
+	--text: color-mix(in oklch, var(--neutral) 50%, black);
+
+	[data-mui-color-scheme="dark"] & {
+		--text: var(--main);
+	}
+
+	min-height: 100%;
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	flex-wrap: wrap;
+
+	color: var(--text);
+
+	.fixed {
+		position: fixed;
+		inset: 1rem 1rem auto auto;
+	}
+
+	.wrapper {
+		max-width: 50em;
+		padding: 2.5em;
+		margin: 2.5em;
+		position: relative;
+		filter: drop-shadow(10px 10px var(--semiBg));
+		[data-mui-color-scheme="dark"] & {
+			filter: none;
+			&::after { box-shadow: var(--text) 0 0 1em;}
+		}
+
+		&::after {
+			content: "";
+			position: absolute;
+			inset: 0;
+			background: var(--semiBg);
+			
+			filter: url(#rough-edges);
+			z-index: -1;
+		}
+
+		--cut: 3em;
+		.cut { /* reset for child elements */
+			--cut: 1.1em
+		}
+
+		
+	}
+
+	.headline {
+		margin-inline: auto;
+		padding-block: 1em;
+		text-align: center;
+		font-size: 3.5rem;
+
+		&.sub {
+			font-size: 2.1em;
+		}
+	}
+
+	form {
+		display: flex;
+		flex-flow: nowrap column;
+		gap: 2em;
+		margin-bottom: 10vh;
+
+		.MuiSvgIcon-root {
+			font-size: 2.7rem;
+			max-height: 100%;
+		}
+
+		.MuiInputAdornment-root {
+			max-height: 100%;
+			height: 4.15em;
+		}
+
+		p {
+			margin-top: 0.5em;
+		}
+	}
+
+	input {
+		font-size: 2.2rem;
+	}
+
+	label {
+		font-size: 1.8rem;
+		margin-bottom: 0.5em;
+
+		&.Mui-focused {
+			color: var(--text);
+		}
+	}
+
+	.subWrapper {
+		display: flex;
+		width: 100%;
+		align-items: center;
+	}
+
+	.submit {
+		font-size: 1.5rem;
+		margin-left: auto;
+		min-width: 9em;
+		min-height: 3.5em;
+		border-radius: 0;
+
+		[data-mui-color-scheme="light"] &:not([disabled]) {
+			color: var(--main);
+			background-color: color-mix(in oklch, var(--neutral) 90%, transparent);
+		}
+
+		.MuiButton-icon {
+			font-size: 0.8em;
+		}
+	}
+
+	.message {
+		font-size: 1.8em;
+		font-style: italics;
+		margin: 0;
+
+		strong {
+			display: inline-block;
+			vertical-align: middle;
+			margin-right: 0.4em;
+		}
+	}
+	.message--error {
+		color: var(--alert);
+	}
+	.message--success {
+		color: var(--success);
+	}
+
+
+}

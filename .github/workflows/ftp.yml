@@ -17,6 +17,9 @@ jobs:
       run: npm i
     - name: Build
       run: npm run build:prod
+    - name: copy views to be deployed
+      run: |
+        cp -R views/ dist/
     - name: Upload ftp
       uses: airvzxf/ftp-deployment-action@latest
       with:

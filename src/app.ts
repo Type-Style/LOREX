@@ -19,6 +19,7 @@ import { cleanupCSRF } from "@src/scripts/token";
 config(); // dotenv
 
 const app = express();
+app.disable("x-powered-by");
 
 app.set('view engine', 'ejs');
 
@@ -38,7 +39,9 @@ app.use((req, res, next) => { // clean up IPv6 Addresses
   }
 })
 
-app.use(helmet({ contentSecurityPolicy: { directives: { "default-src": "'self'", "img-src": "*" } } }));
+if (process.env.NODE_ENV != "development") {
+  app.use(helmet({ contentSecurityPolicy: { directives: { "default-src": "'self'", "img-src": "*" } } }));
+}
 app.use(cache);
 app.use(compression())
 app.use(hpp());
@@ -52,9 +55,9 @@ app.use((req, res, next) => { // limit body for specific http methods
 
 
 // routes
-app.get('/', (req, res) => {
+app.get(['/', '/login'], (req, res) => {
   logger.log(req.ip + " - " + res.locals.ip, true);
-  res.send('Hello World, via TypeScript and Node.js! ' + `ENV: ${process.env.NODE_ENV}`);
+  res.render("index");
 });
 
 app.use('/write', writeRouter);

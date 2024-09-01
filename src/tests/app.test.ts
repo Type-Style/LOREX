@@ -9,8 +9,24 @@ const randomData = qs.stringify({
 describe('Server Status', () => {
   it('The server is running', async () => {
     let serverStatus;
+    let response;
     try {
-      const response = await axios.get('http://localhost:80/');
+      response = await axios.get('http://localhost:80/');
+      serverStatus = response.status;
+    } catch (error) {
+      console.error(error);
+      return;
+    }
+
+    expect(serverStatus).toBe(200);
+    expect(response.data).toContain("js/bundle.js");
+  })
+
+  it('bundle.js exists', async () => {
+    let serverStatus;
+    let response;
+    try {
+      response = await axios.get('http://localhost:80/js/bundle.js');
       serverStatus = response.status;
     } catch (error) {
       console.error(error);

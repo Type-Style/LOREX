@@ -1,7 +1,7 @@
 {
 	"extends": "@tsconfig/node20/tsconfig.json",
 	"include": ["src/**/*"],
-	"exclude": ["node_modules"],
+	"exclude": ["node_modules", "src/client/"],
 	"compilerOptions": {
 			"rootDir": "src",
 			"outDir": "dist",
