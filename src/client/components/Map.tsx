@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react'
-import { MapContainer, Marker, Polyline, Popup, TileLayer, useMap } from 'react-leaflet'
-import leafletPolycolor from 'leaflet-polycolor';
+import React, { useContext, useEffect, useState } from 'react'
+import { Context } from "../components/App";
+import { LayersControl, MapContainer, Marker, Polyline, Popup, TileLayer, useMap, useMapEvents } from 'react-leaflet'
 import { toGamut, parse, Oklch, formatCss } from 'culori';
 import L from 'leaflet';
 import 'leaflet-rotatedmarker';
 import 'leaflet/dist/leaflet.css';
 import "../css/map.css";
 import { getMaxSpeed } from "../helper/maxSpeed";
-leafletPolycolor(L);
-
+import MarkerClusterGroup from "@changey/react-leaflet-markercluster";
+import "@changey/react-leaflet-markercluster/dist/styles.min.css";
 
 // Used to recenter the map to new coordinates
 const MapRecenter = ({ lat, lon, zoom }: { lat: number, lon: number, zoom: number }) => {
@@ -19,8 +19,6 @@ const MapRecenter = ({ lat, lon, zoom }: { lat: number, lon: number, zoom: numbe
 	}, [lat, lon]);
 	return null;
 };
-
-
 
 const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] }) => {
 	const [useRelativeColors] = useState<boolean>(true); // Change candidate; Use color in range to maximum speed, like from 0 to max, rather than fixed range
@@ -51,15 +49,15 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 
 		let strokeDashArray = null;
 
-		if (entry.time.diff > 100) { strokeDashArray = "4 8";}
+		if (entry.time.diff > 100) { strokeDashArray = "4 8"; }
 		return (<Polyline
 			key={entry.time.created * 1.1 + Math.random()} // random to force rerender while new data is incoming (maxSpeed might have changed)
 			positions={[[previousEntry.lat, previousEntry.lon], [entry.lat, entry.lon]]}
-			color={formatCss(correctedColor)} 
+			color={formatCss(correctedColor)}
 			weight={5}
 			dashArray={strokeDashArray}
 			lineCap={"butt"}
-			
+
 		/>)
 	});
 }
@@ -68,15 +66,18 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 	if (!entries?.length) {
 		return <span className="noData cut">No Data to be displayed</span>
 	}
+	const [, , , , mode] = useContext(Context);
+	const [mapStyle, setMapStyle] = useState(mode);
 
 	const lastEntry = entries.at(-1);
 	const cleanEntries = entries.filter((entry) => !entry.ignore);
+	const cleanEntriesWithoutLast = cleanEntries.slice(0, -1);
 
 
 	// Function to create custom icon with dynamic className
 	function createCustomIcon(entry: Models.IEntry) {
-		let className = "";
-		let iconSize = 15;
+		let className = "none";
+		let iconSize = 14;
 		if (entry.index == 0 || entry.time.diff >= 300) {
 			className = "start"
 		}
@@ -84,7 +85,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 			className = "end"
 		}
 
-		if (className) {
+		if (className != "none") {
 			iconSize = 22;
 		}
 
@@ -104,34 +105,127 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 		});
 	}
 
+	const layers = [
+		{
+			name: "OSM DE",
+			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+			url: 'https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png',
+			markerStyle: mode
+		},
+		{
+			name: "ArcGis WorldImagery",
+			attribution: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+			url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+			markerStyle: "dark"
+		},
+		// {
+		// 	name: "OpenRailway",
+		// 	attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Map style: &copy; <a href="https://www.OpenRailwayMap.org',
+		// 	url: 'https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png',
+		// 	markerStyle: mode
+		// },
+		{
+			name: "Carto Voyager Light",
+			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+			url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+			markerStyle: "light",
+			default: mode == "light"
+		},
+		{
+			name: "Stadia AlidadeSmoothDark",
+			attribution: '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+			url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',
+			markerStyle: "dark",
+			default: mode == "dark"
+		},
+		{
+			name: "Stadia AlidadeSatelite",
+			attribution: '&copy; CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data) | &copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+			url: 'https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}{r}.jpg',
+			markerStyle: "dark"
+		},
+		{
+			name: "Mapbox Satelite Streets",
+			attribution: '&copy; <a href="https://www.mapbox.com/" target="_blank">Mapbox</a>',
+			url: 'https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoidHlwZS1zdHlsZSIsImEiOiJjbGJ4aG14enEwZ2toM3BvNW5uanhuOGRvIn0.7TUEM9vA-EYSt3WW_bcsAA',
+			markerStyle: "dark"
+		}
+	]
+
+
+	// custom hook to handle map events and track active layer
+	// used to switch marker design
+	const LayerChangeHandler = () => {
+		useMapEvents({
+			baselayerchange: (event) => {
+				const newLayer = layers.filter((layer) => layer.name == event.name);
+				console.log(newLayer);
+				if (newLayer[0].markerStyle != mapStyle) {
+					setMapStyle(newLayer[0].markerStyle);
+				}
+			},
+		});
+		return null;
+	};
+
+
 	return (
-		<MapContainer className="mapContainer" center={[lastEntry.lat, lastEntry.lon]} zoom={13}>
-			<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} zoom={13} />
-			<TileLayer
-				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-				url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-			/>
-			{cleanEntries.map((entry) => {
-				return (
-					<div key={entry.time.created}>
-						<Marker
-							key={entry.index}
-							position={[entry.lat, entry.lon]}
-							icon={createCustomIcon(entry)}
-							rotationAngle={entry.heading}
-							rotationOrigin="center"
-						>
-							<Popup>
-								<pre>{JSON.stringify(entry, null, 2)}</pre>
-							</Popup>
-						</Marker>
-					</div>
-				)
-			})}
+		<div className="mapStyle" data-mui-color-scheme={mapStyle}>
+			<MapContainer className="mapContainer" center={[lastEntry.lat, lastEntry.lon]} zoom={13}>
+				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} zoom={13} />
+				<LayerChangeHandler />
+				<LayersControl position="bottomright">
+					{layers.map((layer, index) => {
+						return (
+							<LayersControl.BaseLayer
+								key={index}
+								checked={layer.default ? true : false}
+								name={layer.name}
+							>
+								<TileLayer
+									attribution={layer.attribution}
+									url={layer.url}
+								/>
+							</LayersControl.BaseLayer>
+						)
+					})}
+				</LayersControl>
 
-			<MultiColorPolyline cleanEntries={cleanEntries} />
+				<MarkerClusterGroup>
+					{cleanEntriesWithoutLast.map((entry) => {
+						return (
+							<Marker
+								key={entry.time.created}
+								position={[entry.lat, entry.lon]}
+								icon={createCustomIcon(entry)}
+								rotationAngle={entry.heading}
+								rotationOrigin="center"
+							>
+								<Popup>
+									<pre>{JSON.stringify(entry, null, 2)}</pre>
+								</Popup>
+							</Marker>
+						)
+					})}
+				</MarkerClusterGroup>
 
-		</MapContainer>
+
+				{/* lastEntry */}
+				<Marker
+					key={lastEntry.time.created}
+					position={[lastEntry.lat, lastEntry.lon]}
+					icon={createCustomIcon(lastEntry)}
+					rotationAngle={lastEntry.heading}
+					rotationOrigin="center"
+				>
+					<Popup>
+						<pre>{JSON.stringify(lastEntry, null, 2)}</pre>
+					</Popup>
+				</Marker>
+
+				<MultiColorPolyline cleanEntries={cleanEntries} />
+			</MapContainer>
+		</div>
 	)
 }
 
