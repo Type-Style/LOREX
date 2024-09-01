@@ -54,3 +54,17 @@
 		padding-inline: 0.2rem;
 	}
 }
+
+@container (max-width: 20rem) {
+	.statusTable {
+		padding: 0.3rem 0.1rem;
+		font-size: 1.15rem;
+	}
+
+	td {
+		padding: 0 0 0 0.1rem;
+		font-stretch: 100%;
+		font-weight: 400;
+		letter-spacing: normal;
+	}
+}
