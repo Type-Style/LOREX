@@ -15,8 +15,12 @@ jobs:
         node-version: 20
     - name: Install dependencies
       run: npm i
+    - name: preBuild
+      run: npm run prebuild
     - name: Build
       run: npm run build:prod
+    - name: postBuild
+      run: npm run postbuild
     - name: copy views to be deployed
       run: |
         cp -R views/ dist/
