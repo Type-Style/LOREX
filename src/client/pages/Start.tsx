@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext, useRef } from 'react'
 import "../css/start.css";
 import axios from 'axios';
-import { LoginContext } from "../components/App";
+import { Context } from "../components/App";
 import { HighlightOff, Check } from '@mui/icons-material';
 import { Button } from '@mui/material';
 import ModeSwitcher from '../components/ModeSwitcher';
@@ -35,7 +35,7 @@ function timeAgo(timestamp: number): string {
 }
 
 function Start() {
-  const [isLoggedIn, setLogin, userInfo] = useContext(LoginContext);
+  const [isLoggedIn, setLogin, userInfo] = useContext(Context);
   const [entries, setEntries] = useState<Models.IEntry[]>([]);
   const [messageObj, setMessageObj] = useState({ isError: null, status: null, message: null });
   const [lastFetch, setLastFetch] = useState<number>();

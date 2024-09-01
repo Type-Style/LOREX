@@ -1,11 +1,11 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { TextField, Button, InputAdornment, CircularProgress } from '@mui/material';
 import { AccountCircle, Lock, HighlightOff, Login as LoginIcon, Check } from '@mui/icons-material';
 import "../css/login.css";
 import ModeSwitcher from '../components/ModeSwitcher';
 import axios from 'axios';
 import qs from 'qs';
-import { LoginContext, convertJwt } from '../components/App';
+import { Context, convertJwt } from '../components/App';
 import { useNavigate } from 'react-router-dom';
 import LinearBuffer from '../components/LinearBuffer';
 
@@ -13,7 +13,7 @@ function Login() {
   const [finish, setFinish] = useState(1);
   const [start, setStart] = useState(1);
   const navigate = useNavigate();
-  const [isLoggedIn, setLogin, userInfo, setUserInfo] = useContext(LoginContext);
+  const [isLoggedIn, setLogin, userInfo, setUserInfo] = useContext(Context);
   const [formInfo, updateFormInfo] = useState({
     user: {
       isError: false,
