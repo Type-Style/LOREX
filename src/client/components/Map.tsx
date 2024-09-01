@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react'
 import { Context } from "../components/App";
-import { LayersControl, MapContainer, Marker, Polyline, Popup, TileLayer, useMap, useMapEvents } from 'react-leaflet'
+import { LayersControl, MapContainer, Marker, Polyline, Popup, TileLayer, useMapEvents } from 'react-leaflet'
 import { toGamut, parse, Oklch, formatCss } from 'culori';
 import L from 'leaflet';
 import 'leaflet-rotatedmarker';
