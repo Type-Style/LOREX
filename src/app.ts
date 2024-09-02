@@ -53,6 +53,7 @@ app.use((req, res, next) => { // limit body for specific http methods
   next();
 });
 
+app.set('trust proxy',true); 
 
 // routes
 app.get(['/', '/login'], (req, res) => {
