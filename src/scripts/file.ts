@@ -5,11 +5,11 @@ import { create as createError } from '@src/middleware/error';
 import { NextFunction, Response } from 'express';
 import logger from '@src/scripts/logger';
 
-export const getFile = (res: Response, next: NextFunction): File.Obj => {
+export const getFile = (res: Response, next: NextFunction, method: File.method): File.Obj => {
 	const date = new Date();
 	const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 	const dirPath = path.resolve(__dirname, '../data');
-	const filePath = path.resolve(dirPath, `data-${formattedDate}.json`);
+	let filePath = path.resolve(dirPath, `data-${formattedDate}.json`);
 
 	if (!fs.existsSync(dirPath)) {
 		fs.mkdirSync(dirPath, { recursive: true });
@@ -17,17 +17,24 @@ export const getFile = (res: Response, next: NextFunction): File.Obj => {
 	}
 
 	let fileExisted = true;
-	if (!fs.existsSync(filePath)) { // check if file exist
+	let olderFile = false;
+	if (!fs.existsSync(filePath)) { // if file does not exist
 		fileExisted = false;
-		try {
-			fs.writeFileSync(filePath, '{"entries": []}');
-			logger.log(`file: ${filePath} did not exist, but created now`);
-		} catch (err) {
-			createError(res, 500, "File cannot be written to", next);
+		const mostRecentFile = findMostRecentFile(dirPath);
+		if (method == "read" && mostRecentFile) { // when reading check old files
+			olderFile = true;
+			filePath = mostRecentFile;
+		} else if (method == "write") {
+			try {
+				fs.writeFileSync(filePath, '{"entries": []}');
+				logger.log(`file: ${filePath} did not exist, but created now`);
+			} catch (err) {
+				createError(res, 500, "File cannot be written to", next);
+			}
 		}
 	}
 
-	return { path: filePath, content: fileExisted ? undefined : JSON.parse('{"entries": []}') }; // if the file did not exist before, the content is emptyString
+	return { path: filePath, content: method == "read" ? (fileExisted || olderFile) : JSON.parse('{"entries": []}') };
 };
 
 
@@ -39,24 +46,58 @@ export async function readAsJson(res: Response, filePath: string, next: NextFunc
 	try {
 		return JSON.parse(data);
 	} catch (err) {
-		createError(res, 500, "File contains wrong content: " + filePath, next);
+		createError(res, 500, "File contains wrong content: " + path.basename(filePath), next);
 	}
 }
 
 
-export const write = (res:Response, fileObj:File.Obj, next: NextFunction) => {
+export const write = (res: Response, fileObj: File.Obj, next: NextFunction) => {
 
 	if (!fs.existsSync(fileObj.path)) { // check if file exist
 		createError(res, 500, "Can not write to file that does not exist: " + fileObj.path, next);
 	}
+
+	if (typeof fileObj.content == "boolean") {
+		createError(res, 500, `File (${fileObj.path}) cannot be written to, contents are not correct type`, next);
+	}
+
 	try {
 		const content = JSON.stringify(fileObj.content, undefined, 2);
 		fs.writeFileSync(fileObj.path, content);
 		fileObj.content = JSON.parse(content);
-		logger.log(`written to file: ${fileObj.path} ${fileObj.content ? fileObj.content?.entries.length - 1 : ''}`);
+		if (typeof fileObj.content != "boolean") {
+			logger.log(`written to file: ${fileObj.path} ${fileObj.content?.entries ? fileObj.content.entries.length - 1 : ''}`);
+		}
 	} catch (err) {
 		createError(res, 500, `File (${fileObj.path}) cannot be written to`, next);
-	}	
+	}
 
-	return fileObj; // if the file did not exist before, the content is emptyString
+
+	return fileObj;
 };
+
+const findMostRecentFile = (directoryPath: string) => {
+	// read all files from the directory
+	const files = fs.readdirSync(directoryPath);
+
+	// initialize variables to keep track of the most recent file
+	let mostRecentFile = null;
+	let mostRecentTime = 0;
+
+	files.forEach((file) => {
+		const filePath = path.join(directoryPath, file);
+
+		// get file stats (including modified time)
+		const stats = fs.statSync(filePath);
+
+		// check if it is a file (and not a directory) and most recent
+		if (stats.isFile() && stats.mtimeMs > mostRecentTime) {
+			if (stats.mtimeMs > mostRecentTime) {
+				mostRecentTime &&= stats.mtimeMs;
+				mostRecentFile = filePath;
+			}
+		}
+	});
+
+	return mostRecentFile;
+}
