@@ -24,8 +24,10 @@ namespace Response {
 namespace File {
 	interface Obj {
 		path: string,
-		content?: Models.IEntries;
+		content?: Models.IEntries | boolean;
 	}
+
+	type method = 'read' | 'write';	
 }
 
 namespace Models {

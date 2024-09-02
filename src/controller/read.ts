@@ -17,7 +17,10 @@ router.get('/',
       return createError(res, 400, JSON.stringify({ errors: errors.array() }), next)
     }
 
-    const fileObj: File.Obj = file.getFile(res, next);
+    const fileObj: File.Obj = file.getFile(res, next, "read");
+    // no content and no file found show empty data and exit 
+    if (fileObj.content == false) { res.json(JSON.parse('{"entries": []}')); return }
+
     fileObj.content = await file.readAsJson(res, fileObj.path, next)
     if (!fileObj.content || !Array.isArray(fileObj.content.entries)) {
       return createError(res, undefined, `File corrupt: ${fileObj.path}`, next);
