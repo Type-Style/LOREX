@@ -13,12 +13,13 @@ import logger from '@src/scripts/logger';
 
 export const entry = {
   create: async (req: Request, res: Response, next: NextFunction) => {
-    const fileObj: File.Obj = file.getFile(res, next);
+    const fileObj: File.Obj = file.getFile(res, next, "write");
+    if (!fileObj.content) { return createError(res, 500, "File does not exist: " + fileObj.path, next);  }
+   
     fileObj.content = await file.readAsJson(res, fileObj.path, next);
 
-    if (!fileObj.content?.entries) {
-      return createError(res, 500, "File Content unavailable: " + fileObj.path, next);
-    }
+    if (!fileObj.content?.entries) {return createError(res, 500, "File Content unavailable: " + fileObj.path, next); }
+   
     const entries = fileObj.content.entries;
     const lastEntry = fileObj.content.entries.at(-1);
     let previousEntry = fileObj.content.entries.at(-1); // potentially overwritten if entry is set to ignore
