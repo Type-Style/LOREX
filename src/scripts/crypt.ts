@@ -12,7 +12,7 @@ export const compare = async function (password: string, hash: string) {
 }
 
 function pepper(password: string) {
-	const key = process.env.KEYA;
-	if (!key) { throw new Error('KEYA is not defined in the environment variables'); }
+	const key = process.env.KEY;
+	if (!key) { throw new Error('KEY is not defined in the environment variables'); }
 	return password + crypto.createHmac('sha256', key).digest("base64");
 }

@@ -81,7 +81,6 @@ describe('Login', () => {
   it('test invalid credentials to return error', async () => {
     try {
       userDataWithToken.csrfToken = csrfToken;
-      console.log("csrfToken %o", userDataWithToken.csrfToken);
       await axios.post('http://localhost:80/login', qs.stringify(userDataWithToken));
     } catch (error) {
       const axiosError = error as AxiosError;
