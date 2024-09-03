@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 import { checkExact, query } from 'express-validator';
-import { compare } from '@src/scripts/crypt';
 import { create as createError } from '@src/middleware/error';
 import * as file from '@src/scripts/file';
 import { getTime } from '@src/scripts/time';
@@ -138,12 +137,12 @@ export function checkTime(value: string) {
 
 async function checkKey(value: string) {
   if (!value) { throw new Error('Key required'); }
-  if (!process.env.KEYB) { throw new Error('Configuration wrong'); }
+  if (!process.env.KEY) { throw new Error('Configuration wrong: KEY is missing in environment variables'); }
   if (process.env.NODE_ENV != "production" && value == "test") {
     return true; // dev testing convenience 
   }
 
-  const result = await compare(decodeURIComponent(value), process.env.KEYB);
+  const result = Buffer.from(encodeURIComponent(value)).toString('base64') == process.env.KEY;
 
   if (!result) {
     throw new Error('Key does not match');

@@ -44,7 +44,7 @@ export function cleanupCSRF() {
 }
 
 export function validateJWT(req: Request) {
-  const key = process.env.KEYA;
+  const key = process.env.KEY;
   const header = req.header('Authorization');
   const [type, token] = header ? header.split(' ') : "";
   let payload: string | jwt.JwtPayload = "";
@@ -78,7 +78,7 @@ export function validateJWT(req: Request) {
 }
 
 export function createJWT(req: Request, res: Response) {
-  const key = process.env.KEYA;
+  const key = process.env.KEY;
   if (!key) { throw new Error('Configuration is wrong'); }
   const today = new Date();
   const dateString = today.toLocaleDateString("de-DE", { weekday: "short", year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
