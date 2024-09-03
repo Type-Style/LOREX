@@ -27,6 +27,7 @@ Build and start can be combined using
 
 ### Generating Key and Password
 `Error Message: KEY is missing in environment variables`
+
 Before you are able to login and use the webapplication, environment variables need to be setup.
 Therefore you need to create a file `.env` and place it in the root of the project.
 This file will be filled with secrets to protect your instance of LOREX.
@@ -87,7 +88,8 @@ a;`
 ## Using on Production
 ### A note on security
 This application is not developed with https built in support.
-> [!WARNING] It is advised to run this application in `production` mode behind a proxy that uses https for security reasons
+> [!WARNING] 
+It is advised to run this application in `production` mode behind a proxy that uses https for security reasons
 
 ### Getting data
 Similar to the section Generating Data and Calling writing route manually, the application relies on data being provided using a webhook.
