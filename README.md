@@ -31,14 +31,14 @@ Before you are able to login and use the webapplication, environment variables n
 Therefore you need to create a file `.env` and place it in the root of the project.
 This file will be filled with secrets to protect your instance of LOREX.
 
-####1st. Generate Key
+#### 1st. Generate Key
 Usage: open console run:  node init/generateKey.js
 type desired key and hit enter
 copy output to .env add a line starting with:
 KEY=
 directly followed by your output
 
-####2nd Generate Password(s)
+#### 2nd Generate Password(s)
 Prerequisite: KEY already generated!
 _(may require server restart)_
 Run the build command from the package.json (npm run build)
