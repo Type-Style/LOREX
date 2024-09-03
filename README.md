@@ -100,5 +100,6 @@ This application is designed to be used with the [OSMAND+ mobile app]([url](http
 Due to a plugin called [Triprecording]([url](https://osmand.net/docs/user/plugins/trip-recording/))
 Using the above link or by [clicking here](https://osmand.net/docs/user/plugins/trip-recording#recording-settings) more information can be found to setup webtracking or "online tracking"
 
-
- 
+## DEMO
+At this point, there is no demo, but here is a screenshot:
+![Demo LOREX, markers on a map in berlin, information about speed and distance on the right](image.png)
