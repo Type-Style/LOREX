@@ -56,7 +56,7 @@ export const errorRateLimiter = rateLimit({
 
 export const loginLimiter = rateLimit({
   ...baseRateLimitOptions,
-  limit: 3,
+  limit: 5,
   message: 'Too many attempts without valid login',
 });
 
