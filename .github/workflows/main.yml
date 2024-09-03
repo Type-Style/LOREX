@@ -12,8 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NODE_ENV: ${{ vars.NODE_ENV }}
-      LOCALHOST: ${{ vars.LOCALHOST }}
-      LOCALHOSTV6: ${{ vars.LOCALHOSTV6 }}
       KEY: ${{ secrets.KEY }}
       USER_TEST: ${{ secrets.USER_TEST }}
 
