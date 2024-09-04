@@ -77,7 +77,7 @@ app.use(error.handler);
 
 // init server
 const server = app.listen(80, () => {
-  logger.log(`Server running //localhost:80, ENV: ${process.env.NODE_ENV}`, true);
+  logger.log(`Server running //localhost:80, NODE_ENV: ${process.env.NODE_ENV}`, true);
 });
 
 // scheduled cleanup

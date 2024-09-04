@@ -27,7 +27,7 @@ jobs:
     - run: npm run build --if-present
     - name: Start server
       run: |
-        sudo NODE_ENV=$NODE_ENV LOCALHOST=$LOCALHOST LOCALHOSTV6=$LOCALHOSTV6 KEY=$KEY USER_TEST=$USER_TEST npm start &
+        sudo NODE_ENV=$NODE_ENV KEY=$KEY USER_TEST=$USER_TEST npm start &
         sleep 16 # Give server some time to start
     - name: Check if server is running
       run: |
