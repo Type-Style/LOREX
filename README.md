@@ -102,4 +102,4 @@ Using the above link or by [clicking here](https://osmand.net/docs/user/plugins/
 
 ## DEMO
 At this point, there is no demo, but here is a screenshot:
-![Demo LOREX, markers on a map in berlin, information about speed and distance on the right](https://github.com/Type-Stle/LOREX/blob/dev/demo.png?raw=true)
+![Demo LOREX, markers on a map in berlin, information about speed and distance on the right](https://raw.githubusercontent.com/Type-Style/LOREX/dev/demo.png)
