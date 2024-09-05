@@ -21,6 +21,13 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
+
+if (!process.env.KEY) {
+  console.error("KEY is missing! Please provide Environment Variable KEY. \nExample: KEY=your-key node ./init/generatePassword.js");
+  return;
+}
+
+
 // Prompt user for input
 rl.question('Enter Password to be generated: ', async (input) => {
   const cryptedPassword = await crypt(input);
