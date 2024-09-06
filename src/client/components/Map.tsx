@@ -54,18 +54,20 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 	});
 }
 
+
 function Map({ entries }: { entries: Models.IEntry[] }) {
 	if (!entries?.length) {
 		return <span className="noData cut">No Data to be displayed</span>
 	}
-	const [, , , , mode] = useContext(Context);
+
+	const [, , , , mode, , , mapToken] = useContext(Context);
 	const [mapStyle, setMapStyle] = useState(mode);
 
 	const lastEntry = entries.at(-1);
 	const cleanEntries = entries.filter((entry) => !entry.ignore);
 	const cleanEntriesWithoutLast = cleanEntries.slice(0, -1);
 
-
+	const replaceKeyword = "XXXREPLACEXXX";
 
 	// Function to create custom icon with dynamic className
 	function createCustomIcon(entry: Models.IEntry) {
@@ -128,7 +130,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 							>
 								<TileLayer
 									attribution={layer.attribution}
-									url={layer.url}
+									url={layer.url.includes(replaceKeyword) ? layer.url.replace(replaceKeyword, mapToken) : layer.url}
 									tileSize={layer.size || 256}
 									zoomOffset={layer.zoomOffset || 0}
 

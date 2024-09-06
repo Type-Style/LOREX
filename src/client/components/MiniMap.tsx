@@ -1,8 +1,14 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { MapContainer, TileLayer } from "react-leaflet";
 import { MapRecenter } from "./MapCenter";
+import { Context } from "./App";
 
 export default function MiniMap({ layer, lastEntry, index }: client.MiniMapProps) {
+
+	const [, , , , , , , mapToken] = useContext(Context);
+
+	const replaceKeyword = "XXXREPLACEXXX";
+
 	function handleClick() {
 		const elements = document.querySelectorAll('input.leaflet-control-layers-selector');
 		const el = elements[index] as HTMLInputElement | null;
@@ -24,7 +30,7 @@ export default function MiniMap({ layer, lastEntry, index }: client.MiniMapProps
 				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} zoom={15} fly={false} />
 				<TileLayer
 					attribution={layer.attribution}
-					url={layer.url}
+					url={layer.url.includes(replaceKeyword) ? layer.url.replace(replaceKeyword, mapToken) : layer.url}
 					tileSize={layer.size || 256}
 					zoomOffset={layer.zoomOffset || 0}
 				/>

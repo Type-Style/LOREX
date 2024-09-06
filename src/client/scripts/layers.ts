@@ -40,7 +40,7 @@ export const layers:client.Layer[] = [
 	{
 		name: "Mapbox Satelite Streets",
 		attribution: '&copy; <a href="https://www.mapbox.com/" target="_blank">Mapbox</a>',
-		url: 'https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoidHlwZS1zdHlsZSIsImEiOiJjbGJ4aG14enEwZ2toM3BvNW5uanhuOGRvIn0.7TUEM9vA-EYSt3WW_bcsAA',
+		url: `https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/{z}/{x}/{y}?access_token=XXXREPLACEXXX`,
 		markerStyle: "dark",
 		size: 512,
 		zoomOffset: -1
