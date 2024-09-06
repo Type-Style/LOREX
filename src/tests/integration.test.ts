@@ -335,4 +335,27 @@ describe('read and login', () => {
     expect(response.status).toBe(200);
     expect(response.data.entries.length).toBe(1);
   });
+
+
+
+  test(`unable to get maptoken without logged in`, async () => {
+    try {
+      await axios.get("http://localhost:80/read/maptoken");
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        expect(axiosError.response.status).toBe(401);
+      } else {
+        console.error(axiosError);
+      }
+    }
+   });
+
+   test(`get maptoken with login`, async () => {
+    const response = await verifiedRequest("http://localhost:80/read/maptoken", token);
+    expect(response.status).toBe(200);
+    expect(response.data).toBeTruthy();
+    expect(response.data.mapbox).toBeTruthy();
+    expect(typeof response.data.mapbox).toBe('string');
+  });
 });
