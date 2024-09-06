@@ -100,6 +100,11 @@ This application is designed to be used with the [OSMAND+ mobile app]([url](http
 Due to a plugin called [Triprecording]([url](https://osmand.net/docs/user/plugins/trip-recording/))
 Using the above link or by [clicking here](https://osmand.net/docs/user/plugins/trip-recording#recording-settings) more information can be found to setup webtracking or "online tracking"
 
+## Mapbox	
+Mapbox requires an access token.
+These can be created for free [register required]([url](https://tiles.mapbox.com/signup))
+Once available, add it to the envrionment variables.
+
 ## DEMO
 At this point, there is no demo, but here is a screenshot:
 ![Demo LOREX, markers on a map in berlin, information about speed and distance on the right](https://raw.githubusercontent.com/Type-Style/LOREX/dev/demo.png)
