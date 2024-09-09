@@ -5,7 +5,7 @@ dotenv.config();
 
 const MODE = process.env.MODE;
 const SERVER = MODE == "PROD" ? process.env.ROOT : 'http://localhost:80';
-const environmentKey =  process.env.KEYA as string;
+const environmentKey =  process.env.KEY as string ;
 const key = MODE == "PROD" ?  Buffer.from(environmentKey, 'base64').toString('utf-8') : "test";
 console.log("Sending Test Data to: " + SERVER);
 
