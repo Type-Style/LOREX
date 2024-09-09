@@ -40,7 +40,7 @@ app.use((req, res, next) => { // clean up IPv6 Addresses
 })
 
 if (process.env.NODE_ENV != "development") {
-  app.use(helmet({ contentSecurityPolicy: { directives: { "default-src": "'self'", "img-src": "*" } } }));
+  app.use(helmet({ contentSecurityPolicy: { directives: { "default-src": "'self'", "img-src": "*" } },  referrerPolicy: { policy: "strict-origin-when-cross-origin" } }));
 }
 app.use(cache);
 app.use(compression())
@@ -58,7 +58,7 @@ app.set('trust proxy',true);
 // routes
 app.get(['/', '/login'], (req, res) => {
   logger.log(req.ip + " - " + res.locals.ip, true);
-  res.render("index");
+  res.render("index", {"mapbox": process.env.MAPBOX, "root": process.env.ROOT});
 });
 
 app.use('/write', writeRouter);

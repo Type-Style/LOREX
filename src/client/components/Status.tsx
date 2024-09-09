@@ -30,7 +30,6 @@ function getStatusData(entries) {
 
 		}, 0) / divider; // now that all values have been added together, devide by amount of them
 
-		//console.log(prop + ": " + value + " divider: " + divider);
 		return value;
 	}
 
@@ -56,7 +55,6 @@ function getStatusData(entries) {
 
 	function getDistance() {
 		return cleanEntries.reduce((accumulatorValue: number, entry) => {
-			console.log(accumulatorValue);
 			if (!entry.distance) { return accumulatorValue }
 			return accumulatorValue + parseFloat(entry.distance.horizontal);
 		}, 0) / 1000;

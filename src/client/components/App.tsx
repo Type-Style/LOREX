@@ -4,6 +4,7 @@ import { useColorScheme } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
 import Start from '../pages/Start';
 import Login from '../pages/Login';
+import axios from "axios";
 
 export const Context = createContext([]);
 
@@ -38,18 +39,41 @@ const router = createBrowserRouter([
   }
 ]);
 
+
 const App = () => {
   const [userInfo, setUserInfo] = useState(convertJwt());
   const [isLoggedIn, setLogin] = useState(loginDefault(userInfo));
   const { mode, setMode } = useColorScheme();
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const [mapToken, setMapToken] = useState<string | null>(null);
 
   useEffect(() => {
     setMode(prefersDarkMode ? "dark" : "light");
   }, [prefersDarkMode, setMode]);
 
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    const fetchToken = async () => {
+      try {
+        const token = localStorage.getItem("jwt");
+        const response = await axios.get("/read/maptoken", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setMapToken(response.data.mapbox);
+      } catch (error) {
+        console.error("Error fetching map token:", error);
+      }
+    };
+
+    fetchToken();
+  }, [isLoggedIn]);
+
   return (
-    <Context.Provider value={[isLoggedIn, setLogin, userInfo, setUserInfo, mode, setMode, prefersDarkMode]}>
+    <Context.Provider value={[isLoggedIn, setLogin, userInfo, setUserInfo, mode, setMode, prefersDarkMode, mapToken]}>
       <RouterProvider router={router} />
     </Context.Provider>
   );
