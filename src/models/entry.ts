@@ -13,12 +13,12 @@ import logger from '@src/scripts/logger';
 export const entry = {
   create: async (req: Request, res: Response, next: NextFunction) => {
     const fileObj: File.Obj = file.getFile(res, next, "write");
-    if (!fileObj.content) { return createError(res, 500, "File does not exist: " + fileObj.path, next);  }
-   
+    if (!fileObj.content) { return createError(res, 500, "File does not exist: " + fileObj.path, next); }
+
     fileObj.content = await file.readAsJson(res, fileObj.path, next);
 
-    if (!fileObj.content?.entries) {return createError(res, 500, "File Content unavailable: " + fileObj.path, next); }
-   
+    if (!fileObj.content?.entries) { return createError(res, 500, "File Content unavailable: " + fileObj.path, next); }
+
     const entries = fileObj.content.entries;
     const lastEntry = fileObj.content.entries.at(-1);
     let previousEntry = fileObj.content.entries.at(-1); // potentially overwritten if entry is set to ignore
@@ -52,7 +52,7 @@ export const entry = {
             break;
           }
         }
-        
+
         if (previousEntry === fileObj.content.entries.at(-1)) {
           logger.error("previousEntry was not replaced");
         }
@@ -85,12 +85,12 @@ export const entry = {
     query('user').isLength({ min: 2, max: 2 }),
     query('lat').custom(checkNumber(-90, 90)),
     query('lon').custom(checkNumber(-180, 180)),
-    query('timestamp').custom(checkTime),
+    query('timestamp').custom((value) => checkTime(value)),
     query('hdop').custom(checkNumber(0, 100)),
     query('altitude').custom(checkNumber(0, 10000)),
     query('speed').custom(checkNumber(0, 300)),
     query('heading').custom(checkNumber(0, 360, "integer")),
-    query('eta').optional().custom(checkTime),
+    query('eta').optional().custom((value) => checkTime(value, { allowZero: true })),
     query('eda').optional().custom(checkNumber(0, 10000000)),
     query("key").custom(checkKey),
     checkExact()
@@ -115,8 +115,9 @@ export function checkNumber(min: number, max: number, type: string = "float") {
   };
 }
 
-export function checkTime(value: string) {
+export function checkTime(value: string, { allowZero = false } = {}) {
   const timestamp = parseFloat(value);
+  if (allowZero && value === '0') { return true; }
 
   // Check if it's a number
   if (isNaN(timestamp)) {

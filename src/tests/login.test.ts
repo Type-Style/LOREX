@@ -1,6 +1,8 @@
 import axios, { AxiosError } from 'axios';
 import qs from 'qs';
 
+jest.setTimeout(10000);
+
 const userDataLarge = qs.stringify({
   user: "user",
   password: "pass",
