@@ -3,11 +3,17 @@ import qs from 'qs';
 import fs from "fs";
 import path from "path";
 
-async function callServer(timestamp = new Date().getTime(), query: string, expectStatus: number = 200, method: string = "HEAD") {
+async function callServer(timestamp = new Date().getTime(), query: string, expectStatus: number = 200, method: string = "HEAD", replaceETA: boolean = false,) {
   const url = new URL("http://localhost:80/write?");
   url.search = "?" + query;
   const params = new URLSearchParams(url.search);
-  params.set("timestamp", timestamp.toString());
+  if (replaceETA) {
+    const nowTimestamp = new Date().getTime(); // two days ago
+    params.set("eta", timestamp.toString());
+    params.set("timestamp", nowTimestamp.toString());
+  } else {
+    params.set("timestamp", timestamp.toString());
+  }
   url.search = params.toString();
 
 
@@ -56,7 +62,7 @@ async function verifiedRequest(url: string, token: string) {
 
 
 
-describe('HEAD /write', () => {
+describe('/write', () => {
   // eslint-disable-next-line jest/expect-expect
   it('with all parameters correctly set it should succeed', async () => {
     await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 200);
@@ -106,6 +112,37 @@ describe('HEAD /write', () => {
   // eslint-disable-next-line jest/expect-expect
   it('with heading not between 0 and 360 it sends 422', async () => {
     await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=361.0&key=test", 422);
+  });
+
+  // eslint-disable-next-line jest/expect-expect
+  it('with eta not a number it sends 422', async () => {
+    await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=361.0&eta=abc&key=test", 422);
+  });
+
+  // eslint-disable-next-line jest/expect-expect
+  it('with eda not a number it sends 422', async () => {
+    await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=361.0&eta=abc&key=test", 422);
+  });
+
+  // eslint-disable-next-line jest/expect-expect
+  it('with eda to big it sends 422', async () => {
+    await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=361.0&eta=100000001&key=test", 422);
+  });
+
+  // eslint-disable-next-line jest/expect-expect
+  it('with eda to old it sends 422', async () => {
+    const timestamp = new Date().getTime() - 24 * 60 * 60 * 1000 * 2; // two days ago
+    await callServer(timestamp, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&eda=R3Pl4C3&key=test", 422, undefined, true);
+  });
+
+  // eslint-disable-next-line jest/expect-expect
+  it('with eta correct it sends 200', async () => {
+    await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&eta=R3Pl4C3&key=test", 200, undefined, true);
+  });
+
+  // eslint-disable-next-line jest/expect-expect
+  it('with eda correct it sends 200', async () => {
+    await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&eta=R3Pl4C3&eda=1000&key=test", 200, undefined, true);
   });
 });
 
@@ -245,12 +282,12 @@ describe('read and login', () => {
   }
 
   it('get csrfToken', async () => {
-    let response = {data:""};
+    let response = { data: "" };
     try {
       response = await axios({
         method: "post",
         url: "http://localhost/login/csrf",
-        headers: { 
+        headers: {
           "content-type": "application/x-www-form-urlencoded",
           "x-requested-with": "XMLHttpRequest"
         }
@@ -258,11 +295,11 @@ describe('read and login', () => {
     } catch (error) {
       console.error(error);
     }
-    
+
     testData.csrfToken = response.data;
     expect(testData.csrfToken).toBeTruthy();
   })
-  
+
   test(`redirect without logged in`, async () => {
     try {
       await axios.get("http://localhost:80/read/");
@@ -274,7 +311,7 @@ describe('read and login', () => {
         console.error(axiosError);
       }
     }
-   });
+  });
 
   it('test user can login', async () => {
     const response = await axios.post('http://localhost:80/login', qs.stringify(testData));
@@ -349,9 +386,9 @@ describe('read and login', () => {
         console.error(axiosError);
       }
     }
-   });
+  });
 
-   test(`get maptoken with login`, async () => {
+  test(`get maptoken with login`, async () => {
     const response = await verifiedRequest("http://localhost:80/read/maptoken", token);
     expect(response.status).toBe(200);
     expect(response.data).toBeTruthy();
