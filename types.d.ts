@@ -96,7 +96,17 @@ namespace Models {
 		/**
 		* user as recieved
 		*/
-		user: string
+		user: string,
+
+		/**
+		* estimated time arrival in unix ms
+		*/
+		eta?: number,
+
+		/**
+		* estimated distance in meters
+		*/
+		eda?: number
 	}
 
 	interface ITime {

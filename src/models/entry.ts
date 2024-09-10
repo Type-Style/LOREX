@@ -32,6 +32,9 @@ export const entry = {
     entry.lon = Number(req.query.lon);
     entry.user = req.query.user as string;
     entry.ignore = false;
+    entry.eta = req.query.eta ? Number(req.query.eta) : undefined;
+    entry.eda = req.query.eda ? Number(req.query.eda) : undefined;
+
 
     if (lastEntry && previousEntry) {
       entry.time = getTime(Number(req.query.timestamp), lastEntry); // time data is needed for ignore calculation
@@ -87,6 +90,8 @@ export const entry = {
     query('altitude').custom(checkNumber(0, 10000)),
     query('speed').custom(checkNumber(0, 300)),
     query('heading').custom(checkNumber(0, 360, "integer")),
+    query('eta').optional().custom(checkTime),
+    query('eda').optional().custom(checkNumber(0, 10000000)),
     query("key").custom(checkKey),
     checkExact()
     // INFO: if message or any string gets added remember to escape

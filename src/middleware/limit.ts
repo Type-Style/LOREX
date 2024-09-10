@@ -43,8 +43,8 @@ export const baseSlowDown = slowDown(baseSlowDownOptions);
 
 export const loginSlowDown = slowDown({
   ...baseSlowDownOptions,
-  delayAfter: 1, // no delay for amount of attempts
-  delayMs: (used: number) => (used - 1) * 250, // Add delay after delayAfter is reached
+  delayAfter: 2, // no delay for amount of attempts
+  delayMs: (used: number) => (used - 1) * 500, // Add delay after delayAfter is reached
 });
 
 export const baseRateLimiter = rateLimit(baseRateLimitOptions);
@@ -56,7 +56,7 @@ export const errorRateLimiter = rateLimit({
 
 export const loginLimiter = rateLimit({
   ...baseRateLimitOptions,
-  limit: 5,
+  limit: 8,
   message: 'Too many attempts without valid login',
 });
 
