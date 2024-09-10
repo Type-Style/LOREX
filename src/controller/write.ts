@@ -4,7 +4,7 @@ import { validationResult } from 'express-validator';
 import { create as createError } from '@src/middleware/error';
 import { baseSlowDown, errorRateLimiter } from '@src/middleware/limit';
 
-// example call: /write?user=xx&lat=00.000&lon=00.000&timestamp=1704063600000&hdop=0.0&altitude=0.000&speed=0.000&heading=000.0
+// example call: /write?user=xx&lat=00.000&lon=00.000&timestamp=1704063600000&hdop=0.0&altitude=0.000&speed=0.000&heading=000.0&eta=1704064000000&eda=1000
 
 function errorChecking(req: Request, res: Response, next: NextFunction) {
   const errors = validationResult(req);
