@@ -7,6 +7,8 @@ import SpeedIcon from '@mui/icons-material/Speed';
 import BoltIcon from '@mui/icons-material/Bolt';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import EastIcon from '@mui/icons-material/East';
+import WatchIcon from '@mui/icons-material/WatchLaterOutlined';
+import Finish from '@mui/icons-material/SportsScore';
 
 function getStatusData(entries) {
 	const cleanEntries = entries.filter((entry: Models.IEntry) => !entry.ignore);
@@ -60,6 +62,15 @@ function getStatusData(entries) {
 		}, 0) / 1000;
 	}
 
+	function getEta() {
+		const lastEntry = cleanEntries.at(-1);
+		const eta = lastEntry.eta;
+		if (!eta) { return undefined }
+
+		const diffMinutes = (eta - lastEntry.time.created) / 60000;
+		return diffMinutes >= 60 ? (diffMinutes / 60).toFixed(1) + ' hours' : diffMinutes.toFixed(1) + ' minutes';
+	}
+
 	const ignoredEntries = entries.length - cleanEntries.length;
 	const uploadMean = getMean("time.uploadDuration").toFixed(3);
 	const speedGPSMean = (getMean("speed.gps") * 3.6).toFixed(1);
@@ -67,6 +78,8 @@ function getStatusData(entries) {
 	const verticalCalc = getVertical();
 	const maxSpeed = getMaxSpeed(cleanEntries);
 	const distance = getDistance().toFixed(2);
+	const eta = getEta();
+	const eda = cleanEntries.at(-1).eda ? (cleanEntries.at(-1).eda / 1000).toFixed(2) : undefined;
 
 	return {
 		ignoredEntries,
@@ -75,7 +88,9 @@ function getStatusData(entries) {
 		speedCalcMean,
 		maxSpeed,
 		verticalCalc,
-		distance
+		distance,
+		eta,
+		eda
 	}
 }
 
@@ -136,6 +151,27 @@ function Status({ entries }: { entries: Models.IEntry[] }) {
 						<span>{statusData.distance}km</span>
 					</td>
 				</tr>
+
+				{statusData.eda &&
+					<tr>
+						<td><Finish /></td>
+						<th>EDA</th>
+						<td>
+							<span>{statusData.eda}km</span>
+						</td>
+					</tr>
+				}
+
+				{statusData.eta &&
+					<tr>
+						<td><WatchIcon /></td>
+						<th>ETA</th>
+						<td>
+							<span>{statusData.eta}</span>
+						</td>
+					</tr>
+				}
+
 			</tbody>
 		</table>
 	)

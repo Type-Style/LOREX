@@ -142,7 +142,7 @@ describe('/write', () => {
 
   // eslint-disable-next-line jest/expect-expect
   it('eda & eta can be 0 it sends 200', async () => {
-    await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&eta=0&eda=0key=test", 200, undefined);
+    await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=5000.000&speed=150.000&heading=180.0&eta=0&eda=0&key=test", 200, undefined);
   });
 
   // eslint-disable-next-line jest/expect-expect
