@@ -89,7 +89,7 @@
 
 		&.images {
 			grid-column: 2;
-			grid-row: 3 / span 2;
+			grid-row: 3 / span 3;
 
 			display: grid;
 			overflow: auto;
@@ -118,7 +118,7 @@
 
 			@media (min-width: 35em) {
 				padding: 0.7em 2em;
-				grid-column: 1;
+				grid-column: 1 / 2;
 			}
 
 			.MuiLinearProgress-root {
