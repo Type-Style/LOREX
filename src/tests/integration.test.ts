@@ -100,8 +100,13 @@ describe('/write', () => {
   });
 
   // eslint-disable-next-line jest/expect-expect
-  it('with altitude not between 0 and 10000 it sends 422', async () => {
+  it('with altitude higher 10000 it sends 422', async () => {
     await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=10001.000&speed=150.000&heading=180.0&key=test", 422);
+  });
+
+  // eslint-disable-next-line jest/expect-expect
+  it('altitude can be below 0 it sends 200', async () => {
+    await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=-99&speed=150.000&heading=180.0&key=test", 422);
   });
 
   // eslint-disable-next-line jest/expect-expect

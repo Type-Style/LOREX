@@ -76,7 +76,7 @@ function getStatusData(entries) {
 	const speedGPSMean = (getMean("speed.gps") * 3.6).toFixed(1);
 	const speedCalcMean = (getMean("speed.horizontal") * 3.6).toFixed(1);
 	const verticalCalc = getVertical();
-	const maxSpeed = getMaxSpeed(cleanEntries);
+	const maxSpeed = getMaxSpeed(cleanEntries).toFixed(1);
 	const distance = getDistance().toFixed(2);
 	const eta = getEta();
 	const eda = cleanEntries.at(-1).eda ? (cleanEntries.at(-1).eda / 1000).toFixed(2) : undefined;

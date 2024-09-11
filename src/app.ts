@@ -57,8 +57,7 @@ app.set('trust proxy',true);
 
 // routes
 app.get(['/', '/login'], (req, res) => {
-  logger.log(req.ip + " - " + res.locals.ip, true);
-  res.render("index", {"mapbox": process.env.MAPBOX, "root": process.env.ROOT});
+  res.render("index", {"root": process.env.ROOT});
 });
 
 app.use('/write', writeRouter);
