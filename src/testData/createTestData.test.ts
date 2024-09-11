@@ -46,6 +46,7 @@ describe('test Data', () => {
   const start = { lat: 52.51625, lon: 13.37661 };
   const end = { lat: 52.50960, lon: 13.27457 };
   const diff = {lat: end.lat - start.lat, lon: end.lon - start.lon};
+  const eta = Date.now() + 180 * 1000;
 
   // eslint-disable-next-line jest/expect-expect
   it('create ' + entries + ' entries', () => {
@@ -55,7 +56,7 @@ describe('test Data', () => {
         const lat = (start.lat + (diff.lat / (entries - 1) * i)).toFixed(8);
         const lon = (start.lon + (diff.lon / (entries - 1) * i)).toFixed(8);
         setTimeout(async () => {
-          await callServer(undefined, `user=xx&lat=${lat}&lon=${lon}&timestamp=R3Pl4C3&hdop=${Math.floor(Math.random() * 15) + 1}&altitude=${i+1}&speed=${39 + i*2.5}&heading=${262 + Math.floor(Math.random() * 20) - 10}&key=${key}`, 200, "GET");
+          await callServer(undefined, `user=xx&lat=${lat}&lon=${lon}&timestamp=R3Pl4C3&hdop=${Math.floor(Math.random() * 15) + 1}&altitude=${i+1}&speed=${39 + i*2.5}&heading=${262 + Math.floor(Math.random() * 20) - 10}&eta=${eta + Math.round(Math.random() * 10000)}&eda=${(6.94*1000 * ((entries - i) / entries)).toFixed(1)}&key=${key}`, 200, "GET");
           console.log("called server " + (i + 1) + "/" + entries);
 
         }, 1000 * 30 * i);

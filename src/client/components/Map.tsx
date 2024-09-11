@@ -41,7 +41,7 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 
 		let strokeDashArray = null;
 
-		if (entry.time.diff > 100) { strokeDashArray = "4 8"; }
+		if (entry.time.diff > 100 || entry.time.diff < 25) { strokeDashArray = "4 8"; }
 		return (<Polyline
 			key={entry.time.created * 1.1 + Math.random()} // random to force rerender while new data is incoming (maxSpeed might have changed)
 			positions={[[previousEntry.lat, previousEntry.lon], [entry.lat, entry.lon]]}
@@ -117,7 +117,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 
 	return (
 		<div className="mapStyle" data-mui-color-scheme={mapStyle}>
-			<MapContainer className="mapContainer" center={[lastEntry.lat, lastEntry.lon]} zoom={13}>
+			<MapContainer className="mapContainer" center={[lastEntry.lat, lastEntry.lon]} zoom={13} maxZoom={19}>
 				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} zoom={13} fly={true} />
 				<LayerChangeHandler />
 				<LayersControl position="bottomright">
