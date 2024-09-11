@@ -3,6 +3,7 @@ import { create as createError } from '@src/middleware/error';
 import { crypt, compare } from '@src/scripts/crypt';
 import { loginSlowDown, loginLimiter, baseSlowDown, baseRateLimiter } from '@src/middleware/limit';
 import { createJWT, createCSRF, validateCSRF } from '@src/scripts/token';
+import logger from "@src/scripts/logger";
 
 
 const router = express.Router();
@@ -26,6 +27,9 @@ router.post("/", loginSlowDown, async function postLogin(req: Request, res: Resp
     const user = req.body.user;
     const password = req.body.password;
     let userFound = false;
+
+    logger.log("user: " + user + " - " + res.locals.ip, true);
+
     if (!user || !password) { return createError(res, 422, "Body does not contain all expected information", next); }
     if (!token || !validateCSRF(req.body.csrfToken)) { return createError(res, 403, "Invalid CSRF Token \n retry in 5 Minuits", next); }
 
