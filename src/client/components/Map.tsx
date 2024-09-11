@@ -133,6 +133,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 									url={layer.url.includes(replaceKeyword) ? layer.url.replace(replaceKeyword, mapToken) : layer.url}
 									tileSize={layer.size || 256}
 									zoomOffset={layer.zoomOffset || 0}
+									maxZoom={19}
 
 								/>
 							</LayersControl.BaseLayer>
