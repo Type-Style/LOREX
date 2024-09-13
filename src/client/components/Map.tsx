@@ -3,6 +3,8 @@ import { Context } from "../components/App";
 import { LayersControl, MapContainer, Marker, Polyline, Popup, TileLayer, useMapEvents } from 'react-leaflet'
 import { toGamut, parse, Oklch, formatCss } from 'culori';
 import L from 'leaflet';
+import "leaflet-easybutton/src/easy-button.js";
+import "leaflet-easybutton/src/easy-button.css";
 import 'leaflet-rotatedmarker';
 import 'leaflet/dist/leaflet.css';
 import "../css/map.css";
@@ -11,6 +13,7 @@ import { layers } from "../scripts/layers";
 import MarkerClusterGroup from "@changey/react-leaflet-markercluster";
 import "@changey/react-leaflet-markercluster/dist/styles.min.css";
 import { MapRecenter } from "./MapCenter";
+import { LocationButton } from "./LocationButton";
 
 const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] }) => {
 	const [useRelativeColors] = useState<boolean>(true); // Change candidate; Use color in range to maximum speed, like from 0 to max, rather than fixed range
@@ -59,7 +62,6 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 	if (!entries?.length) {
 		return <span className="noData cut">No Data to be displayed</span>
 	}
-
 	const [, , , , mode, , , mapToken] = useContext(Context);
 	const [mapStyle, setMapStyle] = useState(mode);
 
@@ -115,67 +117,69 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 	};
 
 
+
 	return (
 		<div className="mapStyle" data-mui-color-scheme={mapStyle}>
 			<MapContainer className="mapContainer" center={[lastEntry.lat, lastEntry.lon]} zoom={13} maxZoom={19}>
-				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} zoom={13} fly={true} />
-				<LayerChangeHandler />
-				<LayersControl position="bottomright">
-					{layers.map((layer, index) => {
-						return (
-							<LayersControl.BaseLayer
-								key={index}
-								checked={layer.default == mode}
-								name={layer.name}
-							>
-								<TileLayer
-									attribution={layer.attribution}
-									url={layer.url.includes(replaceKeyword) ? layer.url.replace(replaceKeyword, mapToken) : layer.url}
-									tileSize={layer.size || 256}
-									zoomOffset={layer.zoomOffset || 0}
-									maxZoom={19}
+			<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} zoom={13} fly={true} />
+			<LocationButton lat={lastEntry.lat} lon={lastEntry.lon} />
+			<LayerChangeHandler />
+			<LayersControl position="bottomright">
+				{layers.map((layer, index) => {
+					return (
+						<LayersControl.BaseLayer
+							key={index}
+							checked={layer.default == mode}
+							name={layer.name}
+						>
+							<TileLayer
+								attribution={layer.attribution}
+								url={layer.url.includes(replaceKeyword) ? layer.url.replace(replaceKeyword, mapToken) : layer.url}
+								tileSize={layer.size || 256}
+								zoomOffset={layer.zoomOffset || 0}
+								maxZoom={19}
 
-								/>
-							</LayersControl.BaseLayer>
-						)
-					})}
-				</LayersControl>
+							/>
+						</LayersControl.BaseLayer>
+					)
+				})}
+			</LayersControl>
 
-				<MarkerClusterGroup>
-					{cleanEntriesWithoutLast.map((entry) => {
-						return (
-							<Marker
-								key={entry.time.created}
-								position={[entry.lat, entry.lon]}
-								icon={createCustomIcon(entry)}
-								rotationAngle={entry.heading}
-								rotationOrigin="center"
-							>
-								<Popup>
-									<pre>{JSON.stringify(entry, null, 2)}</pre>
-								</Popup>
-							</Marker>
-						)
-					})}
-				</MarkerClusterGroup>
+			<MarkerClusterGroup>
+				{cleanEntriesWithoutLast.map((entry) => {
+					return (
+						<Marker
+							key={entry.time.created}
+							position={[entry.lat, entry.lon]}
+							icon={createCustomIcon(entry)}
+							rotationAngle={entry.heading}
+							rotationOrigin="center"
+						>
+							<Popup>
+								<pre>{JSON.stringify(entry, null, 2)}</pre>
+							</Popup>
+						</Marker>
+					)
+				})}
+			</MarkerClusterGroup>
 
 
-				{/* lastEntry */}
-				<Marker
-					key={lastEntry.time.created}
-					position={[lastEntry.lat, lastEntry.lon]}
-					icon={createCustomIcon(lastEntry)}
-					rotationAngle={lastEntry.heading}
-					rotationOrigin="center"
-				>
-					<Popup>
-						<pre>{JSON.stringify(lastEntry, null, 2)}</pre>
-					</Popup>
-				</Marker>
+			{/* lastEntry */}
+			<Marker
+				key={lastEntry.time.created}
+				position={[lastEntry.lat, lastEntry.lon]}
+				icon={createCustomIcon(lastEntry)}
+				rotationAngle={lastEntry.heading}
+				rotationOrigin="center"
+			>
+				<Popup>
+					<pre>{JSON.stringify(lastEntry, null, 2)}</pre>
+				</Popup>
+			</Marker>
 
-				<MultiColorPolyline cleanEntries={cleanEntries} />
-			</MapContainer>
-		</div>
+			<MultiColorPolyline cleanEntries={cleanEntries} />
+		</MapContainer>
+		</div >
 	)
 }
 
