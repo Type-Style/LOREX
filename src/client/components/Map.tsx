@@ -3,6 +3,8 @@ import { Context } from "../components/App";
 import { LayersControl, MapContainer, Marker, Polyline, Popup, TileLayer, useMapEvents } from 'react-leaflet'
 import { toGamut, parse, Oklch, formatCss } from 'culori';
 import L from 'leaflet';
+import "leaflet-easybutton/src/easy-button.js";
+import "leaflet-easybutton/src/easy-button.css";
 import 'leaflet-rotatedmarker';
 import 'leaflet/dist/leaflet.css';
 import "../css/map.css";
@@ -11,6 +13,7 @@ import { layers } from "../scripts/layers";
 import MarkerClusterGroup from "@changey/react-leaflet-markercluster";
 import "@changey/react-leaflet-markercluster/dist/styles.min.css";
 import { MapRecenter } from "./MapCenter";
+import { LocationButton } from "./LocationButton";
 
 const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] }) => {
 	const [useRelativeColors] = useState<boolean>(true); // Change candidate; Use color in range to maximum speed, like from 0 to max, rather than fixed range
@@ -29,7 +32,8 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 	}
 
 	return cleanEntries.map((entry, index) => {
-		if (!index) { return false; }
+		if (!index || entry.time.diff > 300) { return false; }
+
 		const previousEntry = cleanEntries[index - 1];
 		const color = startColor;
 		const currentSpeed = entry.speed.gps * 3.6; // convert to km/h
@@ -49,7 +53,6 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 			weight={5}
 			dashArray={strokeDashArray}
 			lineCap={"butt"}
-
 		/>)
 	});
 }
@@ -59,18 +62,14 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 	if (!entries?.length) {
 		return <span className="noData cut">No Data to be displayed</span>
 	}
-
 	const [, , , , mode, , , mapToken] = useContext(Context);
 	const [mapStyle, setMapStyle] = useState(mode);
 
 	const lastEntry = entries.at(-1);
 	const cleanEntries = entries.filter((entry) => !entry.ignore);
-	const cleanEntriesWithoutLast = cleanEntries.slice(0, -1);
-
 	const replaceKeyword = "XXXREPLACEXXX";
 
-	// Function to create custom icon with dynamic className
-	function createCustomIcon(entry: Models.IEntry) {
+	function getClassName(entry: Models.IEntry) {
 		let className = "none";
 		let iconSize = 14;
 		if (entry.index == 0 || entry.time.diff >= 300) {
@@ -84,6 +83,15 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 			iconSize = 22;
 		}
 
+		return {
+			className,
+			iconSize
+		}
+	}
+
+
+	// Function to create custom icon with dynamic className
+	function createCustomIcon(entry: Models.IEntry, iconObj: { className: string, iconSize: number }) {
 		return L.divIcon({
 			html: `
 			<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -93,10 +101,10 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 			shadowUrl: null,
 			shadowSize: null,
 			shadowAnchor: null,
-			iconSize: [iconSize, iconSize],
-			iconAnchor: [iconSize / 2, iconSize / 2],
+			iconSize: [iconObj.iconSize, iconObj.iconSize],
+			iconAnchor: [iconObj.iconSize / 2, iconObj.iconSize / 2],
 			popupAnchor: [0, 0],
-			className: `customMarkerIcon ${className}`,
+			className: `customMarkerIcon ${iconObj.className}`,
 		});
 	}
 
@@ -114,11 +122,29 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 		return null;
 	};
 
+	function renderMarker(entry: Models.IEntry, iconObj: { className: string, iconSize: number }) {
+		return (
+			<Marker
+				key={entry.time.created}
+				position={[entry.lat, entry.lon]}
+				icon={createCustomIcon(entry, iconObj)}
+				rotationAngle={entry.heading}
+				rotationOrigin="center"
+			>
+				<Popup>
+					<pre>{JSON.stringify(entry, null, 2)}</pre>
+				</Popup>
+			</Marker>
+		)
+	}
+
+
 
 	return (
 		<div className="mapStyle" data-mui-color-scheme={mapStyle}>
 			<MapContainer className="mapContainer" center={[lastEntry.lat, lastEntry.lon]} zoom={13} maxZoom={19}>
-				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} zoom={13} fly={true} />
+				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} fly={true} />
+				<LocationButton lat={lastEntry.lat} lon={lastEntry.lon} />
 				<LayerChangeHandler />
 				<LayersControl position="bottomright">
 					{layers.map((layer, index) => {
@@ -142,40 +168,26 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 				</LayersControl>
 
 				<MarkerClusterGroup>
-					{cleanEntriesWithoutLast.map((entry) => {
-						return (
-							<Marker
-								key={entry.time.created}
-								position={[entry.lat, entry.lon]}
-								icon={createCustomIcon(entry)}
-								rotationAngle={entry.heading}
-								rotationOrigin="center"
-							>
-								<Popup>
-									<pre>{JSON.stringify(entry, null, 2)}</pre>
-								</Popup>
-							</Marker>
-						)
+					{cleanEntries.map((entry) => {
+						const iconObj = getClassName(entry);
+						if (iconObj.className != "none") { return } // exclude start and end from being in cluster group;
+
+						return renderMarker(entry, iconObj);
 					})}
 				</MarkerClusterGroup>
 
 
-				{/* lastEntry */}
-				<Marker
-					key={lastEntry.time.created}
-					position={[lastEntry.lat, lastEntry.lon]}
-					icon={createCustomIcon(lastEntry)}
-					rotationAngle={lastEntry.heading}
-					rotationOrigin="center"
-				>
-					<Popup>
-						<pre>{JSON.stringify(lastEntry, null, 2)}</pre>
-					</Popup>
-				</Marker>
+				{/* (re)start and end end markers */}
+				{cleanEntries.map((entry) => {
+					const iconObj = getClassName(entry);
+					if (iconObj.className == "none") { return } // exclude already rendered markers;
+
+					return renderMarker(entry, iconObj);
+				})}
 
 				<MultiColorPolyline cleanEntries={cleanEntries} />
 			</MapContainer>
-		</div>
+		</div >
 	)
 }
 

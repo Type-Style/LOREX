@@ -68,6 +68,7 @@ function getStatusData(entries) {
 		if (!eta) { return undefined }
 
 		const diffMinutes = (eta - lastEntry.time.created) / 60000;
+		if (diffMinutes <= 0) { return undefined; }
 		return diffMinutes >= 60 ? (diffMinutes / 60).toFixed(1) + ' hours' : diffMinutes.toFixed(1) + ' minutes';
 	}
 
