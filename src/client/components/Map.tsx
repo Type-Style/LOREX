@@ -121,7 +121,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 	return (
 		<div className="mapStyle" data-mui-color-scheme={mapStyle}>
 			<MapContainer className="mapContainer" center={[lastEntry.lat, lastEntry.lon]} zoom={13} maxZoom={19}>
-			<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} zoom={13} fly={true} />
+			<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} fly={true} />
 			<LocationButton lat={lastEntry.lat} lon={lastEntry.lon} />
 			<LayerChangeHandler />
 			<LayersControl position="bottomright">
