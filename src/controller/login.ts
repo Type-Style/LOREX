@@ -28,7 +28,7 @@ router.post("/", loginSlowDown, async function postLogin(req: Request, res: Resp
     const password = req.body.password;
     let userFound = false;
 
-    logger.log("user: " + user + " - " + res.locals.ip, true);
+    logger.log("[LOGIN] user: " + user + " - " + res.locals.ip, true);
 
     if (!user || !password) { return createError(res, 422, "Body does not contain all expected information", next); }
     if (!token || !validateCSRF(req.body.csrfToken)) { return createError(res, 403, "Invalid CSRF Token \n retry in 5 Minuits", next); }
