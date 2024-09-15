@@ -8,7 +8,7 @@
 
 .leaflet-control-layers-base {
 	font-size: 1.4rem;
-	
+
 	label {
 		cursor: pointer;
 		margin-bottom: 0.3em;
@@ -24,16 +24,20 @@
 	min-width: min-content;
 }
 
-.leaflet-overlay-pane canvas { /* polyline */
+.leaflet-overlay-pane canvas {
+	/* polyline */
 	filter: drop-shadow(0px 0px 3px var(--neutral));
 }
 
-.marker-cluster[class] { /* overwrite default cluster style */
+.marker-cluster[class] {
+	/* overwrite default cluster style */
 	background: none;
+
 	div {
 		background-color: var(--semiContrastBackground);
 		font-weight: bold;
 		box-shadow: inset 0 0 2px 2px var(--contrastBackground);
+
 		span {
 			color: var(--contrastText);
 			font-size: 1.5rem;
@@ -41,9 +45,16 @@
 	}
 }
 
+.easy-button-button {
+	&.active {
+		color: red;
+	}
+}
+
 .customMarkerIcon {
-	
-	&.start,	&.end {
+
+	&.start,
+	&.end {
 		display: flex;
 		place-content: center;
 		border: 2px solid var(--contrastBackground);
@@ -65,5 +76,14 @@
 		filter: drop-shadow(0 0 5px var(--contrastBackground));
 	}
 
-	
+	&.geoLocation {
+		border-radius: 50%;
+		background: transparent;
+		color: var(--info);
+		border: none;
+		outline-color: currentColor;
+		outline-offset: 1px;
+	}
+
+
 }

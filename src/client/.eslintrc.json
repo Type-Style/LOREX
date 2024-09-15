@@ -28,5 +28,7 @@
 	},
 	"rules": {
 		//"react/jsx-key": false
-	}
+	},
+	"ignorePatterns": ["types_easyButton.d.ts" ]
+
 }
