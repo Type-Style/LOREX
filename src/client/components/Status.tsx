@@ -73,7 +73,8 @@ function getStatusData(entries) {
 	}
 
 	const ignoredEntries = entries.length - cleanEntries.length;
-	const uploadMean = getMean("time.uploadDuration").toFixed(3);
+	let uploadMean: number | string = getMean("time.uploadDuration");
+	if (uploadMean <= 0) { uploadMean = undefined } else { uploadMean = uploadMean.toFixed(3); }
 	const speedGPSMean = (getMean("speed.gps") * 3.6).toFixed(1);
 	const speedCalcMean = (getMean("speed.horizontal") * 3.6).toFixed(1);
 	const verticalCalc = getVertical();
@@ -113,13 +114,15 @@ function Status({ entries }: { entries: Models.IEntry[] }) {
 					</td>
 				</tr>
 
-				<tr>
-					<td><NetworkCheckIcon /></td>
-					<th>Ø upload</th>
-					<td>
-						{statusData.uploadMean}s
-					</td>
-				</tr>
+				{statusData.uploadMean &&
+					<tr>
+						<td><NetworkCheckIcon /></td>
+						<th>Ø upload</th>
+						<td>
+							{statusData.uploadMean}s
+						</td>
+					</tr>
+				}
 
 				<tr>
 					<td><SpeedIcon /></td>
