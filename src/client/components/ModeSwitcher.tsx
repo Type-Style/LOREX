@@ -1,26 +1,26 @@
-import React, { useContext} from 'react';
+import React, { useContext } from 'react';
 import { Context } from "../components/App";
 import { Button } from '@mui/material';
 import { LightMode, Nightlight } from '@mui/icons-material';
 import * as css from "../css/modeSwticher.module.css";
 
 function ModeSwitcher() {
-  const [, , , , mode, setMode] = useContext(Context);
+  const [contextObj] = useContext(Context);
 
-   return (
+  return (
     <Button
       className={css.modeSwitcher}
       variant='outlined' size='large'
-      startIcon={mode === 'dark' ? <Nightlight /> : <LightMode />}
+      startIcon={contextObj.mode === 'dark' ? <Nightlight /> : <LightMode />}
       onClick={() => {
-        if (mode === 'light') {
-          setMode('dark');
+        if (contextObj.mode === 'light') {
+          contextObj.setMode('dark');
         } else {
-          setMode('light');
+          contextObj.setMode('light');
         }
       }}
     >
-      {mode} {/* is empty but why? */}
+      {contextObj.mode} {/* is empty but why? */}
     </Button>
   );
 }

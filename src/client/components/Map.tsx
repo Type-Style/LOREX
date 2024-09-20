@@ -19,27 +19,44 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 	const [useRelativeColors] = useState<boolean>(true); // Change candidate; Use color in range to maximum speed, like from 0 to max, rather than fixed range
 
 	let maxSpeed = 0;
-	const startColor = parse('oklch(62.8% 0.2577 29.23)') as Oklch; // red
-	const calculateHue = function (baseHue, maxSpeed, currentSpeed) {
-		// range of currentSpeed and maxSpeed transfered to range from 0 to 360
-		const hueOffset = (currentSpeed / maxSpeed) * 360;
-		// add  baseHue to the hueOffset and overflow at 360
-		return (baseHue + hueOffset) % 360;
+	const startColor = parse('oklch(62.8% 0.2577 10)') as Oklch;
+	const calculateHue = function (currentSpeed, maxSpeed, calcSpeed) {
+		let speed = currentSpeed;
+		if (calcSpeed > currentSpeed) {
+			speed = Math.sqrt(currentSpeed * calcSpeed);
+		}
+		const hue = (speed / maxSpeed) * 200;
+
+		return hue;
+	}
+
+	const calculateLightness = function (hue: number) {
+		const baseLightness = 60;
+		if (hue > 30) { // max 200
+			const lightness = (baseLightness + ((hue - 30) / (200 - 30)) * (100 - baseLightness)) / 100;
+			return lightness;
+		} else {
+			return baseLightness / 100;
+		}
 	}
 
 	if (useRelativeColors) {
 		maxSpeed = getMaxSpeed(cleanEntries);
 	}
-
+	console.group();
 	return cleanEntries.map((entry, index) => {
 		if (!index || entry.time.diff > 300) { return false; }
 
 		const previousEntry = cleanEntries[index - 1];
-		const color = startColor;
+		const color = structuredClone(startColor);
 		const currentSpeed = entry.speed.gps * 3.6; // convert to km/h
+		const calcSpeed = entry.speed.horizontal * 3.6;
 
-		color.h = calculateHue(color.h, maxSpeed, currentSpeed);
-		color.l = currentSpeed > maxSpeed * 0.75 ? color.l = currentSpeed / maxSpeed : color.l;
+		color.h = calculateHue(currentSpeed, maxSpeed, calcSpeed);
+		color.l = calculateLightness(color.h);
+
+		console.log("index: " + index + "\t speed: " + currentSpeed.toFixed(1) + "\t hue: " + color.h.toFixed(1) + "\t light: " + color.l.toFixed(1));
+
 
 		const correctedColor = toGamut('rgb', 'oklch', null)(color); // map OKLCH to the RGB gamut
 
@@ -55,6 +72,7 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 			lineCap={"butt"}
 		/>)
 	});
+
 }
 
 
@@ -62,8 +80,8 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 	if (!entries?.length) {
 		return <span className="noData cut">No Data to be displayed</span>
 	}
-	const [, , , , mode, , , mapToken] = useContext(Context);
-	const [mapStyle, setMapStyle] = useState(mode);
+	const [contextObj] = useContext(Context);
+	const [mapStyle, setMapStyle] = useState(contextObj.mode);
 
 	const lastEntry = entries.at(-1);
 	const cleanEntries = entries.filter((entry) => !entry.ignore);
@@ -151,12 +169,12 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 						return (
 							<LayersControl.BaseLayer
 								key={index}
-								checked={layer.default == mode}
+								checked={layer.default == contextObj.mode}
 								name={layer.name}
 							>
 								<TileLayer
 									attribution={layer.attribution}
-									url={layer.url.includes(replaceKeyword) ? layer.url.replace(replaceKeyword, mapToken) : layer.url}
+									url={layer.url.includes(replaceKeyword) ? layer.url.replace(replaceKeyword, contextObj.mapToken) : layer.url}
 									tileSize={layer.size || 256}
 									zoomOffset={layer.zoomOffset || 0}
 									maxZoom={19}

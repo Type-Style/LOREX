@@ -1,21 +1,28 @@
 {
 	"extends": "@tsconfig/node20/tsconfig.json",
-	"include": ["src/**/*"],
-	"exclude": ["node_modules", "src/client/"],
+	"include": [
+		"src/**/*"
+	],
+	"exclude": [
+		"node_modules",
+		"src/client/"
+	],
 	"compilerOptions": {
-			"rootDir": "src",
-			"outDir": "dist",
-			"module": "CommonJS",
-			"moduleResolution": "node",
-			"target": "ES6",
-			"sourceMap": true,
-			"baseUrl": "./src",
-			"esModuleInterop": true,
-			"paths": {
-				"@src/*": ["./*"],
-			}
+		"rootDir": "src",
+		"outDir": "dist",
+		"module": "CommonJS",
+		"moduleResolution": "node",
+		"target": "ES6",
+		"sourceMap": true,
+		"baseUrl": "./src",
+		"esModuleInterop": true,
+		"paths": {
+			"@src/*": [
+				"./*"
+			],
+		}
 	},
 	"files": [
-    "types.d.ts"
-  ]
+		"types.d.ts"
+	]
 }

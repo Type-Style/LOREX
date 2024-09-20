@@ -1,1 +1,137 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="346" height="602" viewBox="0 0 346 602"><style>:root{margin:15px}rect{width:40px;height:52px}.base{outline:1px solid #000;outline-offset:-1px}.base--invert{outline-color:#ddd}.lables text{height:52px;fill:#6d6781;font-size:12px;text-anchor:start}.lables--top text{height:40px;text-anchor:middle}</style><g class="lables"><text x="0" y="-20" transform="translate(0, 40)"><tspan x="0" dy=".355em">HEX</tspan></text><text x="0" y="26" transform="translate(0, 40)"><tspan x="0" dy=".355em">main</tspan></text><text x="0" y="78" transform="translate(0, 40)"><tspan x="0" dy=".355em">info</tspan></text><text x="0" y="130" transform="translate(0, 40)"><tspan x="0" dy=".355em">alert</tspan></text><text x="0" y="182" transform="translate(0, 40)"><tspan x="0" dy=".355em">success</tspan></text><text x="0" y="234" transform="translate(0, 40)"><tspan x="0" dy=".355em">neutral</tspan></text><text x="0" y="275" transform="translate(0, 40)"><tspan x="0" dy=".355em">OKLCH</tspan></text></g><g class="lables lables--top"><text x="20" y="20" transform="translate(64, 0)"><tspan x="20" dy=".355em">900</tspan></text><text x="60" y="20" transform="translate(64, 0)"><tspan x="60" dy=".355em">750</tspan></text><text x="100" y="20" transform="translate(64, 0)"><tspan x="100" dy=".355em">625</tspan></text><text x="140" y="20" transform="translate(64, 0)"><tspan x="140" dy=".355em">500</tspan></text><text x="180" y="20" transform="translate(64, 0)"><tspan x="180" dy=".355em">375</tspan></text><text x="220" y="20" transform="translate(64, 0)"><tspan x="220" dy=".355em">250</tspan></text><text x="260" y="20" transform="translate(64, 0)"><tspan x="260" dy=".355em">100</tspan></text></g><g transform="translate(64, 40)"><rect id="main/900" x="0" y="0" fill="#070200"/><rect id="info/900" x="0" y="52" fill="#010116"/><rect id="alert/900" x="0" y="104" fill="#0c0000"/><rect id="success/900" x="0" y="156" fill="#010500"/><rect id="neutral/900" x="0" y="208" fill="#030303"/><rect id="main/750" x="40" y="0" fill="#341b00"/><rect id="info/750" x="40" y="52" fill="#0a066b"/><rect id="alert/750" x="40" y="104" fill="#470000"/><rect id="success/750" x="40" y="156" fill="#072a00"/><rect id="neutral/750" x="40" y="208" fill="#131211" class="base base--invert"/><rect id="main/625" x="80" y="0" fill="#5f3600"/><rect id="info/625" x="80" y="52" fill="#1912bb"/><rect id="alert/625" x="80" y="104" fill="#7f0000"/><rect id="success/625" x="80" y="156" fill="#144f00"/><rect id="neutral/625" x="80" y="208" fill="#43403e"/><rect id="main/500" x="120" y="0" fill="#8f5300"/><rect id="info/500" x="120" y="52" fill="#231aee" class="base"/><rect id="alert/500" x="120" y="104" fill="#af0000"/><rect id="success/500" x="120" y="156" fill="#206f00"/><rect id="neutral/500" x="120" y="208" fill="#5f5b58"/><rect id="main/375" x="160" y="0" fill="#c17200"/><rect id="info/375" x="160" y="52" fill="#577cf9"/><rect id="alert/375" x="160" y="104" fill="red" class="base"/><rect id="success/375" x="160" y="156" fill="#32a300"/><rect id="neutral/375" x="160" y="208" fill="#8b8782"/><rect id="main/250" x="200" y="0" fill="#f90" class="base"/><rect id="info/250" x="200" y="52" fill="#97b2fb"/><rect id="alert/250" x="200" y="104" fill="#fe9283"/><rect id="success/250" x="200" y="156" fill="#59ec04" class="base"/><rect id="neutral/250" x="200" y="208" fill="#bab4ae"/><rect id="main/100" x="240" y="0" fill="#fbd7b5"/><rect id="info/100" x="240" y="52" fill="#d3defa"/><rect id="alert/100" x="240" y="104" fill="#fbd4cd"/><rect id="success/100" x="240" y="156" fill="#93fd73"/><rect id="neutral/100" x="240" y="208" fill="#e0dddb"/></g><g transform="translate(64, 330)"><rect id="main/900" x="0" y="0" fill="oklch(10% 0.02 64.55)"/><rect id="info/900" x="0" y="52" fill="oklch(10% 0.055 268.01)"/><rect id="alert/900" x="0" y="104" fill="oklch(10% 0.036 29.23)"/><rect id="success/900" x="0" y="156" fill="oklch(10% 0.029 138.96)"/><rect id="neutral/900" x="0" y="208" fill="oklch(10% 0.001 67.66)"/><rect id="main/750" x="40" y="0" fill="oklch(25% 0.056 64.55)"/><rect id="info/750" x="40" y="52" fill="oklch(25% 0.158 268.01)"/><rect id="alert/750" x="40" y="104" fill="oklch(25% 0.103 29.23)"/><rect id="success/750" x="40" y="156" fill="oklch(25% 0.083 138.96)"/><rect id="neutral/750" x="40" y="208" fill="oklch(18.3% 0.0026 67.66)" class="base base--invert"/><rect id="main/625" x="80" y="0" fill="oklch(37.5% 0.085 64.55)"/><rect id="info/625" x="80" y="52" fill="oklch(37.5% 0.237 268.01)"/><rect id="alert/625" x="80" y="104" fill="oklch(37.5% 0.154 29.23)"/><rect id="success/625" x="80" y="156" fill="oklch(37.5% 0.124 138.96)"/><rect id="neutral/625" x="80" y="208" fill="oklch(37.5% 0.006 67.66)"/><rect id="main/500" x="120" y="0" fill="oklch(50% 0.114 64.55)"/><rect id="info/500" x="120" y="52" fill="oklch(44.87% 0.2838 268.01)" class="base"/><rect id="alert/500" x="120" y="104" fill="oklch(47.4% 0.195 29.23)"/><rect id="success/500" x="120" y="156" fill="oklch(47.4% 0.157 138.96)"/><rect id="neutral/500" x="120" y="208" fill="oklch(47.4% 0.007 67.66)"/><rect id="main/375" x="160" y="0" fill="oklch(62.5% 0.142 64.55)"/><rect id="info/375" x="160" y="52" fill="oklch(62.5% 0.19 268.01)"/><rect id="alert/375" x="160" y="104" fill="oklch(62.8% 0.2577 29.23)" class="base"/><rect id="success/375" x="160" y="156" fill="oklch(62.5% 0.208 138.96)"/><rect id="neutral/375" x="160" y="208" fill="oklch(62.5% 0.009 67.66)"/><rect id="main/250" x="200" y="0" fill="oklch(77.2% 0.1738 64.55)" class="base"/><rect id="info/250" x="200" y="52" fill="oklch(77.2% 0.109 268.01)"/><rect id="alert/250" x="200" y="104" fill="oklch(77.2% 0.133 29.23)"/><rect id="success/250" x="200" y="156" fill="oklch(83% 0.2607 138.96)" class="base"/><rect id="neutral/250" x="200" y="208" fill="oklch(77.2% 0.011 67.66)"/><rect id="main/100" x="240" y="0" fill="oklch(90% 0.06 64.55)"/><rect id="info/100" x="240" y="52" fill="oklch(90% 0.04 268.01)"/><rect id="alert/100" x="240" y="104" fill="oklch(90% 0.045 29.23)"/><rect id="success/100" x="240" y="156" fill="oklch(90% 0.201 138.96)"/><rect id="neutral/100" x="240" y="208" fill="oklch(90% 0.004 67.66)"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="346" height="602" viewBox="0 0 346 602">
+	<style>
+		:root {
+			margin: 15px
+		}
+
+		rect {
+			width: 40px;
+			height: 52px
+		}
+
+		.base {
+			outline: 1px solid #000;
+			outline-offset: -1px
+		}
+
+		.base--invert {
+			outline-color: #ddd
+		}
+
+		.lables text {
+			height: 52px;
+			fill: #6d6781;
+			font-size: 12px;
+			text-anchor: start
+		}
+
+		.lables--top text {
+			height: 40px;
+			text-anchor: middle
+		}
+	</style>
+	<g class="lables"><text x="0" y="-20" transform="translate(0, 40)">
+			<tspan x="0" dy=".355em">HEX</tspan>
+		</text><text x="0" y="26" transform="translate(0, 40)">
+			<tspan x="0" dy=".355em">main</tspan>
+		</text><text x="0" y="78" transform="translate(0, 40)">
+			<tspan x="0" dy=".355em">info</tspan>
+		</text><text x="0" y="130" transform="translate(0, 40)">
+			<tspan x="0" dy=".355em">alert</tspan>
+		</text><text x="0" y="182" transform="translate(0, 40)">
+			<tspan x="0" dy=".355em">success</tspan>
+		</text><text x="0" y="234" transform="translate(0, 40)">
+			<tspan x="0" dy=".355em">neutral</tspan>
+		</text><text x="0" y="275" transform="translate(0, 40)">
+			<tspan x="0" dy=".355em">OKLCH</tspan>
+		</text></g>
+	<g class="lables lables--top"><text x="20" y="20" transform="translate(64, 0)">
+			<tspan x="20" dy=".355em">900</tspan>
+		</text><text x="60" y="20" transform="translate(64, 0)">
+			<tspan x="60" dy=".355em">750</tspan>
+		</text><text x="100" y="20" transform="translate(64, 0)">
+			<tspan x="100" dy=".355em">625</tspan>
+		</text><text x="140" y="20" transform="translate(64, 0)">
+			<tspan x="140" dy=".355em">500</tspan>
+		</text><text x="180" y="20" transform="translate(64, 0)">
+			<tspan x="180" dy=".355em">375</tspan>
+		</text><text x="220" y="20" transform="translate(64, 0)">
+			<tspan x="220" dy=".355em">250</tspan>
+		</text><text x="260" y="20" transform="translate(64, 0)">
+			<tspan x="260" dy=".355em">100</tspan>
+		</text></g>
+	<g transform="translate(64, 40)">
+		<rect id="main/900" x="0" y="0" fill="#070200" />
+		<rect id="info/900" x="0" y="52" fill="#010116" />
+		<rect id="alert/900" x="0" y="104" fill="#0c0000" />
+		<rect id="success/900" x="0" y="156" fill="#010500" />
+		<rect id="neutral/900" x="0" y="208" fill="#030303" />
+		<rect id="main/750" x="40" y="0" fill="#341b00" />
+		<rect id="info/750" x="40" y="52" fill="#0a066b" />
+		<rect id="alert/750" x="40" y="104" fill="#470000" />
+		<rect id="success/750" x="40" y="156" fill="#072a00" />
+		<rect id="neutral/750" x="40" y="208" fill="#131211" class="base base--invert" />
+		<rect id="main/625" x="80" y="0" fill="#5f3600" />
+		<rect id="info/625" x="80" y="52" fill="#1912bb" />
+		<rect id="alert/625" x="80" y="104" fill="#7f0000" />
+		<rect id="success/625" x="80" y="156" fill="#144f00" />
+		<rect id="neutral/625" x="80" y="208" fill="#43403e" />
+		<rect id="main/500" x="120" y="0" fill="#8f5300" />
+		<rect id="info/500" x="120" y="52" fill="#231aee" class="base" />
+		<rect id="alert/500" x="120" y="104" fill="#af0000" />
+		<rect id="success/500" x="120" y="156" fill="#206f00" />
+		<rect id="neutral/500" x="120" y="208" fill="#5f5b58" />
+		<rect id="main/375" x="160" y="0" fill="#c17200" />
+		<rect id="info/375" x="160" y="52" fill="#577cf9" />
+		<rect id="alert/375" x="160" y="104" fill="red" class="base" />
+		<rect id="success/375" x="160" y="156" fill="#32a300" />
+		<rect id="neutral/375" x="160" y="208" fill="#8b8782" />
+		<rect id="main/250" x="200" y="0" fill="#f90" class="base" />
+		<rect id="info/250" x="200" y="52" fill="#97b2fb" />
+		<rect id="alert/250" x="200" y="104" fill="#fe9283" />
+		<rect id="success/250" x="200" y="156" fill="#59ec04" class="base" />
+		<rect id="neutral/250" x="200" y="208" fill="#bab4ae" />
+		<rect id="main/100" x="240" y="0" fill="#fbd7b5" />
+		<rect id="info/100" x="240" y="52" fill="#d3defa" />
+		<rect id="alert/100" x="240" y="104" fill="#fbd4cd" />
+		<rect id="success/100" x="240" y="156" fill="#93fd73" />
+		<rect id="neutral/100" x="240" y="208" fill="#e0dddb" />
+	</g>
+	<g transform="translate(64, 330)">
+		<rect id="main/900" x="0" y="0" fill="oklch(10% 0.02 64.55)" />
+		<rect id="info/900" x="0" y="52" fill="oklch(10% 0.055 268.01)" />
+		<rect id="alert/900" x="0" y="104" fill="oklch(10% 0.036 29.23)" />
+		<rect id="success/900" x="0" y="156" fill="oklch(10% 0.029 138.96)" />
+		<rect id="neutral/900" x="0" y="208" fill="oklch(10% 0.001 67.66)" />
+		<rect id="main/750" x="40" y="0" fill="oklch(25% 0.056 64.55)" />
+		<rect id="info/750" x="40" y="52" fill="oklch(25% 0.158 268.01)" />
+		<rect id="alert/750" x="40" y="104" fill="oklch(25% 0.103 29.23)" />
+		<rect id="success/750" x="40" y="156" fill="oklch(25% 0.083 138.96)" />
+		<rect id="neutral/750" x="40" y="208" fill="oklch(18.3% 0.0026 67.66)" class="base base--invert" />
+		<rect id="main/625" x="80" y="0" fill="oklch(37.5% 0.085 64.55)" />
+		<rect id="info/625" x="80" y="52" fill="oklch(37.5% 0.237 268.01)" />
+		<rect id="alert/625" x="80" y="104" fill="oklch(37.5% 0.154 29.23)" />
+		<rect id="success/625" x="80" y="156" fill="oklch(37.5% 0.124 138.96)" />
+		<rect id="neutral/625" x="80" y="208" fill="oklch(37.5% 0.006 67.66)" />
+		<rect id="main/500" x="120" y="0" fill="oklch(50% 0.114 64.55)" />
+		<rect id="info/500" x="120" y="52" fill="oklch(44.87% 0.2838 268.01)" class="base" />
+		<rect id="alert/500" x="120" y="104" fill="oklch(47.4% 0.195 29.23)" />
+		<rect id="success/500" x="120" y="156" fill="oklch(47.4% 0.157 138.96)" />
+		<rect id="neutral/500" x="120" y="208" fill="oklch(47.4% 0.007 67.66)" />
+		<rect id="main/375" x="160" y="0" fill="oklch(62.5% 0.142 64.55)" />
+		<rect id="info/375" x="160" y="52" fill="oklch(62.5% 0.19 268.01)" />
+		<rect id="alert/375" x="160" y="104" fill="oklch(62.8% 0.2577 29.23)" class="base" />
+		<rect id="success/375" x="160" y="156" fill="oklch(62.5% 0.208 138.96)" />
+		<rect id="neutral/375" x="160" y="208" fill="oklch(62.5% 0.009 67.66)" />
+		<rect id="main/250" x="200" y="0" fill="oklch(77.2% 0.1738 64.55)" class="base" />
+		<rect id="info/250" x="200" y="52" fill="oklch(77.2% 0.109 268.01)" />
+		<rect id="alert/250" x="200" y="104" fill="oklch(77.2% 0.133 29.23)" />
+		<rect id="success/250" x="200" y="156" fill="oklch(83% 0.2607 138.96)" class="base" />
+		<rect id="neutral/250" x="200" y="208" fill="oklch(77.2% 0.011 67.66)" />
+		<rect id="main/100" x="240" y="0" fill="oklch(90% 0.06 64.55)" />
+		<rect id="info/100" x="240" y="52" fill="oklch(90% 0.04 268.01)" />
+		<rect id="alert/100" x="240" y="104" fill="oklch(90% 0.045 29.23)" />
+		<rect id="success/100" x="240" y="156" fill="oklch(90% 0.201 138.96)" />
+		<rect id="neutral/100" x="240" y="208" fill="oklch(90% 0.004 67.66)" />
+	</g>
+</svg>
