@@ -15,7 +15,7 @@ module.exports = (args) => {
               configFile: 'src/client/tsconfig.json'
             }
           },
-          exclude: /node_modules/,
+          exclude: /node_modules/
         },
         {
           test: /\.css$/,
@@ -34,16 +34,16 @@ module.exports = (args) => {
         {
           test: /\.css$/,
           use: ["style-loader", "css-loader"],
-          exclude: /\.module\.css$/,
+          exclude: /\.module\.css$/
         },
       ],
     },
     resolve: {
-      extensions: ['.tsx', '.ts', '.js'],
+      extensions: ['.tsx', '.ts', '.js']
     },
     output: {
       filename: 'bundle.js',
-      path: path.resolve(__dirname, 'dist/httpdocs/js'),
+      path: path.resolve(__dirname, 'dist/httpdocs/js')
     }
   }
 };

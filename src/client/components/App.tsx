@@ -47,6 +47,8 @@ const App = () => {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [mapToken, setMapToken] = useState<string | null>(null);
 
+  const contextObj = {isLoggedIn, setLogin, userInfo, setUserInfo, mode, setMode, prefersDarkMode, mapToken}
+
   useEffect(() => {
     setMode(prefersDarkMode ? "dark" : "light");
   }, [prefersDarkMode, setMode]);
@@ -73,7 +75,7 @@ const App = () => {
   }, [isLoggedIn]);
 
   return (
-    <Context.Provider value={[isLoggedIn, setLogin, userInfo, setUserInfo, mode, setMode, prefersDarkMode, mapToken]}>
+    <Context.Provider value={[contextObj]}>
       <RouterProvider router={router} />
     </Context.Provider>
   );

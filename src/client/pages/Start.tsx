@@ -38,7 +38,9 @@ function timeAgo(timestamp: number): string {
 }
 
 function Start() {
-  const [isLoggedIn, setLogin, userInfo] = useContext(Context);
+  //const [isLoggedIn, setLogin, userInfo] = useContext(Context);
+  const [contextObj] = useContext(Context);
+
   const [entries, setEntries] = useState<Models.IEntry[]>([]);
   const [messageObj, setMessageObj] = useState({ isError: null, status: null, message: null });
   const [lastFetch, setLastFetch] = useState<number>();
@@ -54,7 +56,7 @@ function Start() {
     let response;
 
     if (!token) {
-      setLogin(false);
+      contextObj.setLogin(false);
       setMessageObj({ isError: true, status: "403", message: "No valid login" })
       return false;
     }
@@ -101,7 +103,7 @@ function Start() {
         return;
       }
 
-      if (error.response.status == 403) { setLogin(false) }
+      if (error.response.status == 403) { contextObj.setLogin(false) }
 
       setMessageObj({ isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message });
 
@@ -112,11 +114,11 @@ function Start() {
   };
 
   useEffect(() => {
-    if (isLoggedIn) {
+    if (contextObj.isLoggedIn) {
       getData();
       intervalID.current = setInterval(getData, fetchIntervalMs); // capture interval ID as return from setInterval and pass to state
       return () => { console.log("cleanup"); clearInterval(intervalID.current); intervalID.current = null; };
-    } else if (userInfo) { // no valid login but userInfo
+    } else if (contextObj.userInfo) { // no valid login but userInfo
       setMessageObj({ isError: true, status: "403", message: "Login expired" })
     }
   }, []);
@@ -130,22 +132,22 @@ function Start() {
               <strong className="title">{messageObj.status}</strong> <span className="fadeIn">{messageObj.message}</span>
             </div>
           }
-          {!messageObj.isError && userInfo &&
+          {!messageObj.isError && contextObj.userInfo &&
             <div className="message">
-              <strong className="title">{userInfo.user}</strong> <span className="fade">Welcome back</span>
+              <strong className="title">{contextObj.userInfo.user}</strong> <span className="fade">Welcome back</span>
             </div>
           }
           <Button
-            className={`loginButton ${isLoggedIn ? "loginButton--loggedIn" : ''} cut`}
+            className={`loginButton ${contextObj.isLoggedIn ? "loginButton--loggedIn" : ''} cut`}
             variant="contained"
-            href={isLoggedIn ? null : "/login"}
-            onClick={isLoggedIn ? () => { setLogin(false); localStorage.clear(); } : null}
-            endIcon={isLoggedIn ? <Check /> : null}
-            startIcon={isLoggedIn ? null : <HighlightOff />}
-            color={isLoggedIn ? "success" : "error"}
+            href={contextObj.isLoggedIn ? null : "/login"}
+            onClick={contextObj.isLoggedIn ? () => { contextObj.setLogin(false); localStorage.clear(); } : null}
+            endIcon={contextObj.isLoggedIn ? <Check /> : null}
+            startIcon={contextObj.isLoggedIn ? null : <HighlightOff />}
+            color={contextObj.isLoggedIn ? "success" : "error"}
             size="large"
           >
-            {isLoggedIn ? "Logged In" : "Logged Out"}
+            {contextObj.isLoggedIn ? "Logged In" : "Logged Out"}
           </Button>
         </div>
 
@@ -161,10 +163,10 @@ function Start() {
         </div>
 
         <div className="grid-item subinfo">
-          {isLoggedIn && intervalID &&
+          {contextObj.isLoggedIn && intervalID &&
             <LinearBuffer msStart={lastFetch} msFinish={nextFetch} variant="determinate" />
           }
-          {isLoggedIn && intervalID && entries?.length > 0 &&
+          {contextObj.isLoggedIn && intervalID && entries?.length > 0 &&
             <>
               <strong className="info noDivider">GPS:</strong>
               <span className="info">{entries.at(-1).lat} / {entries.at(-1).lon}</span>

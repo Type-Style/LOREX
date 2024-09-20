@@ -80,8 +80,8 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 	if (!entries?.length) {
 		return <span className="noData cut">No Data to be displayed</span>
 	}
-	const [, , , , mode, , , mapToken] = useContext(Context);
-	const [mapStyle, setMapStyle] = useState(mode);
+	const [contextObj] = useContext(Context);
+	const [mapStyle, setMapStyle] = useState(contextObj.mode);
 
 	const lastEntry = entries.at(-1);
 	const cleanEntries = entries.filter((entry) => !entry.ignore);
@@ -169,12 +169,12 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 						return (
 							<LayersControl.BaseLayer
 								key={index}
-								checked={layer.default == mode}
+								checked={layer.default == contextObj.mode}
 								name={layer.name}
 							>
 								<TileLayer
 									attribution={layer.attribution}
-									url={layer.url.includes(replaceKeyword) ? layer.url.replace(replaceKeyword, mapToken) : layer.url}
+									url={layer.url.includes(replaceKeyword) ? layer.url.replace(replaceKeyword, contextObj.mapToken) : layer.url}
 									tileSize={layer.size || 256}
 									zoomOffset={layer.zoomOffset || 0}
 									maxZoom={19}

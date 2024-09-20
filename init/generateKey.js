@@ -24,7 +24,7 @@ rl.question('Enter the string to be encoded: ', (input) => {
   const base64String = Buffer.from(escapedString).toString('base64');
 
   // print the result
-  console.log('Base64 Encoded String:', base64String);
+  console.log('encoded String:', base64String);
 
   rl.close();
 });

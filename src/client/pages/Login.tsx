@@ -13,12 +13,13 @@ function Login() {
   const [finish, setFinish] = useState(1);
   const [start, setStart] = useState(1);
   const navigate = useNavigate();
-  const [isLoggedIn, setLogin, userInfo, setUserInfo] = useContext(Context);
+  const [contextObj] = useContext(Context);
+
   const [formInfo, updateFormInfo] = useState({
     user: {
       isError: false,
       message: "Minimum 2",
-      value: userInfo?.user || ""
+      value: contextObj.userInfo?.user || ""
     },
     password: {
       isError: false,
@@ -88,14 +89,14 @@ function Login() {
       })
       const token = response.data.token;
       localStorage.setItem("jwt", token);
-      setLogin(true);
+      contextObj.setLogin(true);
       setMessageObj({ isError: false, status: <Check />, message: "Success!" })
 
       // update linearBar for delay until redirect
       const date = new Date();
       setStart(date.getTime());
       setFinish(new Date(date.getTime() + 1000).getTime());
-      setUserInfo(convertJwt());
+      contextObj.setUserInfo(convertJwt());
 
       // redirect back to main page
       setTimeout(() => { setLoading(false); navigate("/") }, 1000);
@@ -116,8 +117,8 @@ function Login() {
         <h1 className="headline">
           Login Page
         </h1>
-        {isLoggedIn &&
-         <h2 className="headline sub">You are logged in</h2>
+        {contextObj.isLoggedIn &&
+          <h2 className="headline sub">You are logged in</h2>
         }
         <form action="/login" method="post" onSubmit={submit}>
           <TextField
@@ -129,7 +130,7 @@ function Login() {
             error={formInfo.user.isError}
             helperText={formInfo.user.isError ? formInfo.user.message : false}
             required
-            autoFocus={!userInfo?.user}
+            autoFocus={!contextObj.userInfo?.user}
             InputProps={{
               classes: {
                 root: "cut",
@@ -158,7 +159,7 @@ function Login() {
             required
             error={formInfo.password.isError}
             helperText={formInfo.password.isError ? formInfo.password.message : false}
-            autoFocus={!!userInfo?.user}
+            autoFocus={!!contextObj.userInfo?.user}
             InputProps={{
               classes: {
                 root: "cut",
