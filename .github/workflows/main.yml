@@ -39,6 +39,7 @@ jobs:
       run: npm run test:login
     - name: Run unit tests
       run: npm run test:unit
+    - run: echo "--- base tests complete ---"
     - name: Run integration tests
       run: npm run test:integration
       
