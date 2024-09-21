@@ -7,7 +7,8 @@ import logger from '@src/scripts/logger';
 
 export const getFile = (res: Response, next: NextFunction, method: File.method): File.Obj => {
 	const date = new Date();
-	const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+	const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
 	const dirPath = path.resolve(__dirname, '../data');
 	let filePath = path.resolve(dirPath, `data-${formattedDate}.json`);
 
@@ -93,7 +94,7 @@ const findMostRecentFile = (directoryPath: string) => {
 		// check if it is a file (and not a directory) and most recent
 		if (stats.isFile() && stats.mtimeMs > mostRecentTime) {
 			if (stats.mtimeMs > mostRecentTime) {
-				mostRecentTime &&= stats.mtimeMs;
+				mostRecentTime = stats.mtimeMs;
 				mostRecentFile = filePath;
 			}
 		}
