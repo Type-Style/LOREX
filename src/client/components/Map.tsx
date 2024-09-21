@@ -185,7 +185,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 					})}
 				</LayersControl>
 
-				<MarkerClusterGroup>
+				<MarkerClusterGroup disableClusteringAtZoom={15}>
 					{cleanEntries.map((entry) => {
 						const iconObj = getClassName(entry);
 						if (iconObj.className != "none") { return } // exclude start and end from being in cluster group;

@@ -68,6 +68,10 @@
 		}
 	}
 
+	&.end {
+		z-index: 999; /* over cluster group */
+	}
+
 	&.start {
 		outline: none;
 	}
