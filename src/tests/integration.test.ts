@@ -159,7 +159,8 @@ describe('/write', () => {
 
 describe("GET /write", () => {
   const date = new Date();
-  const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+	const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
   const dirPath = path.resolve(__dirname, '../../dist/data/');
   const filePath = path.resolve(dirPath, `data-${formattedDate}.json`);
 
@@ -274,7 +275,7 @@ describe('API calls', () => {
 
   test(`length of json should not exceed 1000`, async () => {
     const date = new Date();
-    const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     const dirPath = path.resolve(__dirname, '../../dist/data/');
     const filePath = path.resolve(dirPath, `data-${formattedDate}.json`);
     const jsonData = getData(filePath);
