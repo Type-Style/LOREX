@@ -1,12 +1,12 @@
-import * as React from 'react';
 import LinearProgress from '@mui/material/LinearProgress';
+import React, { useState, useRef, useEffect } from "react";
 
 export default function LinearBuffer({ msStart, msFinish, variant = "buffer" }: { msStart: number, msFinish: number, variant?: "buffer" | "determinate" }) {
-  const [progress, setProgress] = React.useState(0);
-  const [buffer, setBuffer] = React.useState(10);
+  const [progress, setProgress] = useState(0);
+  const [buffer, setBuffer] = useState(10);
 
-  const progressRef = React.useRef(() => { });
-  React.useEffect(() => {
+  const progressRef = useRef(() => { });
+  useEffect(() => {
     if (!msStart || !msFinish) {
       console.log("LinearProgress did not recieve correct data")
     }
@@ -30,7 +30,7 @@ export default function LinearBuffer({ msStart, msFinish, variant = "buffer" }: 
     };
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setInterval(() => {
       progressRef.current();
     }, 300);
