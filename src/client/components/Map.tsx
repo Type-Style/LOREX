@@ -23,7 +23,7 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 	const calculateHue = function (currentSpeed, maxSpeed, calcSpeed) {
 		let speed = currentSpeed;
 		if (calcSpeed > currentSpeed) {
-			speed = Math.sqrt(currentSpeed * calcSpeed);
+			speed = 2 * (currentSpeed * calcSpeed) / (currentSpeed + calcSpeed); // Harmonic Meangit
 		}
 		const hue = (speed / maxSpeed) * 200;
 
