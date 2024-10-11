@@ -43,7 +43,7 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 	if (useRelativeColors) {
 		maxSpeed = getMaxSpeed(cleanEntries);
 	}
-	console.group();
+
 	return cleanEntries.map((entry, index) => {
 		if (!index || entry.time.diff > 300) { return false; }
 
@@ -54,9 +54,6 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 
 		color.h = calculateHue(currentSpeed, maxSpeed, calcSpeed);
 		color.l = calculateLightness(color.h);
-
-		console.log("index: " + index + "\t speed: " + currentSpeed.toFixed(1) + "\t hue: " + color.h.toFixed(1) + "\t light: " + color.l.toFixed(1));
-
 
 		const correctedColor = toGamut('rgb', 'oklch', null)(color); // map OKLCH to the RGB gamut
 
@@ -189,7 +186,6 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 					{cleanEntries.map((entry) => {
 						const iconObj = getClassName(entry);
 						if (iconObj.className != "none") { return } // exclude start and end from being in cluster group;
-
 						return renderMarker(entry, iconObj);
 					})}
 				</MarkerClusterGroup>
