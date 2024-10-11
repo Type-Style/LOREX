@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useRef } from 'react'
+import React, { useEffect, useState, useContext, useRef, useCallback } from 'react'
 import "../css/start.css";
 import axios from 'axios';
 import { Context } from "../components/App";
@@ -6,6 +6,7 @@ import { HighlightOff, Check } from '@mui/icons-material';
 import { Button } from '@mui/material';
 import ModeSwitcher from '../components/ModeSwitcher';
 import Map from '../components/Map';
+import { useGetData } from "../scripts/getData";
 import Status from '../components/Status';
 import LinearBuffer from "../components/LinearBuffer";
 import MiniMap from "../components/MiniMap";
@@ -38,90 +39,55 @@ function timeAgo(timestamp: number): string {
 }
 
 function Start() {
-  //const [isLoggedIn, setLogin, userInfo] = useContext(Context);
-  const [contextObj] = useContext(Context);
+  const fetchIntervalMs = 1000 * 55;
+  const index = useRef(0); // used to hold information on how many entries, for looping and refetching second to last entry (ignore check)
+  const initialRender = useRef(true);
+  const intervalID = useRef<NodeJS.Timeout>();
 
-  const [entries, setEntries] = useState<Models.IEntry[]>([]);
+  const [contextObj] = useContext(Context);
   const [messageObj, setMessageObj] = useState({ isError: null, status: null, message: null });
+  const [entries, setEntries] = useState<Models.IEntry[] | null>([]);
   const [lastFetch, setLastFetch] = useState<number>();
   const [nextFetch, setNextFetch] = useState<number>();
 
-  const index = useRef(0);
-  const intervalID = useRef<NodeJS.Timeout>();
 
-  const fetchIntervalMs = 1000 * 55;
+  const { fetchData } = useGetData(index, fetchIntervalMs, setEntries);
+  const getData = useCallback(async () => {
 
-  const getData = async () => {
-    const token = localStorage.getItem("jwt");
-    let response;
-
-    if (!token) {
-      contextObj.setLogin(false);
-      setMessageObj({ isError: true, status: "403", message: "No valid login" })
-      return false;
-    }
-
-    try {
-      const now = new Date().getTime();
-      setLastFetch(now);
-      response = await axios({
-        method: 'get',
-        url: "/read?index=" + (Math.max(index.current - 1, 0)) + "&noCache=" + now,
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const newEntries = response.data.entries;
-
-      if (newEntries.length) {
-        setEntries((prevEntries) => {
-          let allButLastPrevEntries, mergedEntries = [];
-
-          if (prevEntries.length) {
-            allButLastPrevEntries = prevEntries.slice(0, prevEntries.length - 1);
-            mergedEntries = [...allButLastPrevEntries, ...newEntries];
-          } else {
-            mergedEntries = newEntries;
-          }
-
-          index.current = mergedEntries.length;
-
-          return mergedEntries;
-        });
-
+    if (!contextObj.isLoggedIn) { 
+      if (contextObj.userInfo) { // no valid login but userInfo
+        setMessageObj({ isError: true, status: "403", message: "Login expired" })
       }
+      return; // no need to fetch if logged out
+    } 
 
-      setMessageObj({ isError: null, status: null, message: null });
-      setNextFetch(new Date().getTime() + fetchIntervalMs);
-    } catch (error) {
-      console.log("error fetching data %o", error);
+    const { isError, status, message, fetchTimeData } = await fetchData();
 
-      if (!error.response) {
-        setMessageObj({ isError: true, status: 499, message: error.message || "offline" });
-        setNextFetch(new Date().getTime() + fetchIntervalMs);
-        return;
-      }
+    setMessageObj({ isError, status, message });
 
-      if (error.response.status == 403) { contextObj.setLogin(false) }
-
-      setMessageObj({ isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message });
-
+    if (isError && status == 403) {
       clearInterval(intervalID.current); intervalID.current = null;
       console.info("cleared Interval");
-      setNextFetch(null);
     }
-  };
 
-  useEffect(() => {
-    if (contextObj.isLoggedIn) {
-      getData();
-      intervalID.current = setInterval(getData, fetchIntervalMs); // capture interval ID as return from setInterval and pass to state
-      return () => { console.log("cleanup"); clearInterval(intervalID.current); intervalID.current = null; };
-    } else if (contextObj.userInfo) { // no valid login but userInfo
-      setMessageObj({ isError: true, status: "403", message: "Login expired" })
+    if (fetchTimeData.last && fetchTimeData.next) {
+      setLastFetch(fetchTimeData.last);
+      setNextFetch(fetchTimeData.next);
     }
-  }, []);
+
+    if (initialRender.current) {
+      intervalID.current = setInterval(getData, fetchIntervalMs); // capture interval ID as return from setInterval
+    }
+
+    initialRender.current = false;
+  }, [fetchData]);
+
+  if (initialRender.current) {
+    getData();
+  }
+
+
+
 
   return (
     <>
@@ -161,9 +127,8 @@ function Start() {
             )
           })}
         </div>
-
         <div className="grid-item subinfo">
-          {contextObj.isLoggedIn && intervalID &&
+          {contextObj.isLoggedIn && intervalID && lastFetch && nextFetch &&
             <LinearBuffer msStart={lastFetch} msFinish={nextFetch} variant="determinate" />
           }
           {contextObj.isLoggedIn && intervalID && entries?.length > 0 &&
