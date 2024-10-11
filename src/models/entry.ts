@@ -86,7 +86,7 @@ export const entry = {
     query('lat').custom(checkNumber(-90, 90)),
     query('lon').custom(checkNumber(-180, 180)),
     query('timestamp').custom((value) => checkTime(value)),
-    query('hdop').custom(checkNumber(0, 100)),
+    query('hdop').custom(checkNumber(0, 500)),
     query('altitude').custom(checkNumber(-100, 10000)),
     query('speed').custom(checkNumber(0, 300)),
     query('heading').custom(checkNumber(0, 360, "integer")),
