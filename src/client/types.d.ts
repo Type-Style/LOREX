@@ -18,6 +18,13 @@ declare namespace client {
 		lastEntry: Models.IEntry
 		index?: number
 	}
+
+	interface entryData {
+		isError: boolean,
+		status: number,
+		message: string,
+		fetchTimeData: {last: number, next: number} | null
+	}
 }
 
 
