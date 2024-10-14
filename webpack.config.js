@@ -1,4 +1,5 @@
 const path = require('path');
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = (args) => {
   const mode = args.mode || 'development';
@@ -12,17 +13,17 @@ module.exports = (args) => {
           use: {
             loader: 'ts-loader',
             options: {
-              configFile: 'src/client/tsconfig.json'
-            }
+              configFile: 'src/client/tsconfig.json',
+            },
           },
-          exclude: /node_modules/
+          exclude: /node_modules/,
         },
         {
           test: /\.css$/,
           use: [
-            "style-loader",
+            'style-loader',
             {
-              loader: "css-loader",
+              loader: 'css-loader',
               options: {
                 importLoaders: 1,
                 modules: true,
@@ -33,17 +34,25 @@ module.exports = (args) => {
         },
         {
           test: /\.css$/,
-          use: ["style-loader", "css-loader"],
-          exclude: /\.module\.css$/
+          use: ['style-loader', 'css-loader'],
+          exclude: /\.module\.css$/,
         },
       ],
     },
     resolve: {
-      extensions: ['.tsx', '.ts', '.js']
+      extensions: ['.tsx', '.ts', '.js'],
     },
     output: {
       filename: 'bundle.js',
       path: path.resolve(__dirname, 'dist/httpdocs/js')
-    }
+    },
+
+    optimization: {
+      minimize: mode === 'production',
+    },
+    plugins: [
+      // Uncomment if you want to analyze the bundle
+      // new BundleAnalyzerPlugin(),
+    ],
   }
-};
+}

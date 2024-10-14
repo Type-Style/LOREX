@@ -1,10 +1,12 @@
-import React, { createContext, useEffect, useState } from 'react';
+import React, { Suspense, createContext, useEffect, useState } from 'react';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { useColorScheme } from '@mui/material/styles';
-import { useMediaQuery } from '@mui/material';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import Start from '../pages/Start';
-import Login from '../pages/Login';
 import axios from "axios";
+
+
+const Login = React.lazy(() => import('../pages/Login'));
 
 export const Context = createContext([]);
 
@@ -35,7 +37,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <Login />,
+    element: (
+      <Suspense fallback={<div>Loading...</div>}>
+        <Login />
+      </Suspense>
+    )
   }
 ]);
 

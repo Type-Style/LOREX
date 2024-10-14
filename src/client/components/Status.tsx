@@ -7,8 +7,9 @@ import SpeedIcon from '@mui/icons-material/Speed';
 import BoltIcon from '@mui/icons-material/Bolt';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import EastIcon from '@mui/icons-material/East';
-import WatchIcon from '@mui/icons-material/WatchLaterOutlined';
-import Finish from '@mui/icons-material/SportsScore';
+import WatchLaterOutlinedIcon from '@mui/icons-material/WatchLaterOutlined';
+import SportsScoreIcon from '@mui/icons-material/SportsScore';
+
 
 function getStatusData(entries) {
 	const cleanEntries = entries.filter((entry: Models.IEntry) => !entry.ignore);
@@ -158,7 +159,7 @@ function Status({ entries }: { entries: Models.IEntry[] }) {
 
 				{statusData.eda &&
 					<tr>
-						<td><Finish /></td>
+						<td><SportsScoreIcon /></td>
 						<th>EDA</th>
 						<td>
 							<span>{statusData.eda}km</span>
@@ -168,7 +169,7 @@ function Status({ entries }: { entries: Models.IEntry[] }) {
 
 				{statusData.eta &&
 					<tr>
-						<td><WatchIcon /></td>
+						<td><WatchLaterOutlinedIcon /></td>
 						<th>ETA</th>
 						<td>
 							<span>{statusData.eta}</span>

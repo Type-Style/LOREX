@@ -1,7 +1,9 @@
 import React, { useContext } from 'react';
 import { Context } from "../components/App";
-import { Button } from '@mui/material';
-import { LightMode, Nightlight } from '@mui/icons-material';
+import Button from '@mui/material/Button';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import NightlightIcon from '@mui/icons-material/Nightlight';
+
 import * as css from "../css/modeSwticher.module.css";
 
 function ModeSwitcher() {
@@ -11,7 +13,7 @@ function ModeSwitcher() {
     <Button
       className={css.modeSwitcher}
       variant='outlined' size='large'
-      startIcon={contextObj.mode === 'dark' ? <Nightlight /> : <LightMode />}
+      startIcon={contextObj.mode === 'dark' ? <NightlightIcon /> : <LightModeIcon />}
       onClick={() => {
         if (contextObj.mode === 'light') {
           contextObj.setMode('dark');
