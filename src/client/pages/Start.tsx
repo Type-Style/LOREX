@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useRef, useCallback, Suspense } from 'react'
+import React, { useState, useContext, useRef, useCallback, Suspense } from 'react'
 import "../css/start.css";
 import { Context } from "../components/App";
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
@@ -13,7 +13,6 @@ const Status = React.lazy(() => import('../components/Status'));
 const LinearBuffer = React.lazy(() => import('../components/LinearBuffer'));
 const MiniMap = React.lazy(() => import('../components/MiniMap'));
 const Map = React.lazy(() => import('../components/Map'));
-
 
 function timeAgo(timestamp: number): string {
   if (!Number.isInteger(timestamp)) {

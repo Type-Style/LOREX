@@ -1,10 +1,9 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { Context } from "../components/App";
 import axios from "axios";
 
-export const useGetData = (index: React.RefObject<number>, fetchIntervalMs: number, setEntries: Function) => {
+export const useGetData = (index: React.RefObject<number>, fetchIntervalMs: number, setEntries) => {
 	const [contextObj] = useContext(Context);
-
 
 	const fetchData = async function () {
 		const token = localStorage.getItem("jwt");
