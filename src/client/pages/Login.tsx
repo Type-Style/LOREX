@@ -1,6 +1,13 @@
 import React, { useContext, useState } from 'react';
-import { TextField, Button, InputAdornment, CircularProgress } from '@mui/material';
-import { AccountCircle, Lock, HighlightOff, Login as LoginIcon, Check } from '@mui/icons-material';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import InputAdornment from '@mui/material/InputAdornment';
+import CircularProgress from '@mui/material/CircularProgress';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LockIcon from '@mui/icons-material/Lock';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import LoginIcon from '@mui/icons-material/Login';
+import CheckIcon from '@mui/icons-material/Check';
 import "../css/login.css";
 import ModeSwitcher from '../components/ModeSwitcher';
 import axios from 'axios';
@@ -90,7 +97,7 @@ function Login() {
       const token = response.data.token;
       localStorage.setItem("jwt", token);
       contextObj.setLogin(true);
-      setMessageObj({ isError: false, status: <Check />, message: "Success!" })
+      setMessageObj({ isError: false, status: <CheckIcon />, message: "Success!" })
 
       // update linearBar for delay until redirect
       const date = new Date();
@@ -138,12 +145,12 @@ function Login() {
               name: "user",
               startAdornment: (
                 <InputAdornment position="start">
-                  <AccountCircle />
+                  <AccountCircleIcon />
                 </InputAdornment>
               ),
               endAdornment: formInfo.user.isError ? (
                 <InputAdornment position="end">
-                  <HighlightOff color="error" />
+                  <HighlightOffIcon color="error" />
                 </InputAdornment>
               ) : null
             }}
@@ -167,12 +174,12 @@ function Login() {
               name: "password",
               startAdornment: (
                 <InputAdornment position="start">
-                  <Lock />
+                  <LockIcon />
                 </InputAdornment>
               ),
               endAdornment: formInfo.password.isError ? (
                 <InputAdornment position="end">
-                  <HighlightOff color="error" />
+                  <HighlightOffIcon color="error" />
                 </InputAdornment>
               ) : null
             }}

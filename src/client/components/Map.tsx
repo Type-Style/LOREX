@@ -77,6 +77,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 	if (!entries?.length) {
 		return <span className="noData cut">No Data to be displayed</span>
 	}
+	
 	const [contextObj] = useContext(Context);
 	const [mapStyle, setMapStyle] = useState(contextObj.mode);
 
