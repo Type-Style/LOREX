@@ -66,11 +66,17 @@ function getStatusData(entries) {
 	function getEta() {
 		const lastEntry = cleanEntries.at(-1);
 		const eta = lastEntry.eta;
-		if (!eta) { return undefined }
+		if (!eta) { return undefined;	}
 
-		const diffMinutes = (eta - lastEntry.time.created) / 60000;
-		if (diffMinutes <= 0) { return undefined; }
-		return diffMinutes >= 60 ? (diffMinutes / 60).toFixed(1) + ' hours' : diffMinutes.toFixed(1) + ' minutes';
+		const currentTime = Date.now();
+		const diffMinutes = (eta - currentTime) / 60000; // Difference between eta and current time
+		const diffMinutesAtCreated = (eta - lastEntry.time.created) / 60000;
+
+		
+		const print = diffMinutes > 0 ? diffMinutes : diffMinutesAtCreated;		
+		if (print >= 0) { return undefined; }
+
+		return print >= 60 ? (print / 60).toFixed(1) + ' hours' : print.toFixed(1) + ' minutes';
 	}
 
 	const ignoredEntries = entries.length - cleanEntries.length;
