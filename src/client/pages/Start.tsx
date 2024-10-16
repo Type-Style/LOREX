@@ -53,7 +53,7 @@ function Start() {
 
   const { fetchData } = useGetData(index, fetchIntervalMs, setEntries);
   const getData = useCallback(async () => {
-
+    initialRender.current = false;
     if (!contextObj.isLoggedIn) {
       if (contextObj.userInfo) { // no valid login but userInfo
         setMessageObj({ isError: true, status: "403", message: "Login expired" })
@@ -67,7 +67,6 @@ function Start() {
 
     if (isError && status == 403) {
       clearInterval(intervalID.current); intervalID.current = null;
-      console.info("cleared Interval");
     }
 
     if (fetchTimeData.last && fetchTimeData.next) {
@@ -75,7 +74,7 @@ function Start() {
       setNextFetch(fetchTimeData.next);
     }
 
-    if (initialRender.current) {
+    if (typeof intervalID.current == "undefined") { // deliberately checking for undefined, to compare initial state vs set to null on errors
       intervalID.current = setInterval(getData, fetchIntervalMs); // capture interval ID as return from setInterval
     }
 
@@ -113,14 +112,12 @@ function Start() {
             {contextObj.isLoggedIn ? "Logged In" : "Logged Out"}
           </Button>
         </div>
-        
-        {contextObj.userInfo && (
+
         <div className="grid-item map cut">
           <Suspense fallback={<div>Loading Map...</div>}>
             <Map entries={entries} />
           </Suspense>
         </div>
-        )}
 
         <div className="grid-item theme"><ModeSwitcher /></div>
 

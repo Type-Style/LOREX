@@ -71,10 +71,9 @@ function getStatusData(entries) {
 		const currentTime = Date.now();
 		const diffMinutes = (eta - currentTime) / 60000; // Difference between eta and current time
 		const diffMinutesAtCreated = (eta - lastEntry.time.created) / 60000;
-
 		
 		const print = diffMinutes > 0 ? diffMinutes : diffMinutesAtCreated;		
-		if (print >= 0) { return undefined; }
+		if (print <= 0) { return undefined; }
 
 		return print >= 60 ? (print / 60).toFixed(1) + ' hours' : print.toFixed(1) + ' minutes';
 	}

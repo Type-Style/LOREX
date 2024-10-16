@@ -72,14 +72,20 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 
 }
 
-
 function Map({ entries }: { entries: Models.IEntry[] }) {
+	const [contextObj] = useContext(Context);
+	const [mapStyle, setMapStyle] = useState(contextObj.mode);
+
+	if (!contextObj.userInfo) {
+		return <strong className="noData cut">No Login</strong>
+	}
+	if (!entries?.length && contextObj.userInfo && !contextObj.isLoggedIn) {  // check for entries prevents hiding map when logged out due expired token
+		return ""; // empty here, since map is still there when entries, and expired message is shown in top row
+	}
 	if (!entries?.length) {
 		return <span className="noData cut">No Data to be displayed</span>
 	}
 	
-	const [contextObj] = useContext(Context);
-	const [mapStyle, setMapStyle] = useState(contextObj.mode);
 
 	const lastEntry = entries.at(-1);
 	const cleanEntries = entries.filter((entry) => !entry.ignore);
