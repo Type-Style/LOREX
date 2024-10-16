@@ -150,7 +150,7 @@ function Start() {
             <>
               <strong className="info noDivider">GPS:</strong>
               <span className="info">{entries.at(-1).lat} / {entries.at(-1).lon}</span>
-              <span className="info">{timeAgo(entries.at(-1).time.created)}</span>
+              <span className="info">{contextObj.isLoggedIn ? timeAgo(entries.at(-1).time.created) : entries.at(-1).time.createdString}</span>
             </>
           }
         </div>
