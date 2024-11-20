@@ -11,6 +11,7 @@ declare namespace client {
 		default?: MarkerStyle; // Optional property since not all layers have a default style
 		size?: number;
 		zoomOffset?: number;
+		overlay?: boolean;
 	}
 
 	interface MiniMapProps {

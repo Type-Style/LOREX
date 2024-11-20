@@ -85,7 +85,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 	if (!entries?.length) {
 		return <span className="noData cut">No Data to be displayed</span>
 	}
-	
+
 
 	const lastEntry = entries.at(-1);
 	const cleanEntries = entries.filter((entry) => !entry.ignore);
@@ -170,6 +170,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 				<LayerChangeHandler />
 				<LayersControl position="bottomright">
 					{layers.map((layer, index) => {
+						if (layer.overlay) { return }
 						return (
 							<LayersControl.BaseLayer
 								key={index}
@@ -182,11 +183,30 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 									tileSize={layer.size || 256}
 									zoomOffset={layer.zoomOffset || 0}
 									maxZoom={19}
-
 								/>
 							</LayersControl.BaseLayer>
 						)
 					})}
+
+					{/* overlays */
+						layers.map((layer, index) => {
+							if (!layer.overlay) { return }
+							return (
+								<LayersControl.Overlay
+									key={index}
+									checked={false}
+									name={layer.name}>
+									<TileLayer
+										attribution={layer.attribution}
+										url={layer.url.includes(replaceKeyword) ? layer.url.replace(replaceKeyword, contextObj.mapToken) : layer.url}
+										tileSize={layer.size || 256}
+										zoomOffset={layer.zoomOffset || 0}
+										maxZoom={19}
+									/>
+								</LayersControl.Overlay>
+							)
+						})}
+
 				</LayersControl>
 
 				<MarkerClusterGroup disableClusteringAtZoom={15} animateAddingMarkers={true} maxClusterRadius={45}>

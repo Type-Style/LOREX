@@ -6,7 +6,7 @@
 	height: 100%;
 }
 
-.leaflet-control-layers-base {
+.leaflet-control-layers-list {
 	font-size: 1.4rem;
 
 	label {
