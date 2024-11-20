@@ -52,8 +52,9 @@ const App = () => {
   const { mode, setMode } = useColorScheme();
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [mapToken, setMapToken] = useState<string | null>(null);
+  const [trafficToken, setTrafficToken] = useState<string | null>(null);
 
-  const contextObj = {isLoggedIn, setLogin, userInfo, setUserInfo, mode, setMode, prefersDarkMode, mapToken}
+  const contextObj = {isLoggedIn, setLogin, userInfo, setUserInfo, mode, setMode, prefersDarkMode, mapToken, trafficToken}
 
   useEffect(() => {
     setMode(prefersDarkMode ? "dark" : "light");
@@ -62,22 +63,24 @@ const App = () => {
 
   useEffect(() => {
     if (!isLoggedIn) return;
-    const fetchToken = async () => {
+    const fetchToken = async (path:string, setState:Function) => {
       try {
         const token = localStorage.getItem("jwt");
-        const response = await axios.get("/read/maptoken", {
+        const response = await axios.get(path, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
-        setMapToken(response.data.mapbox);
+        
+        setState(response.data.token);
       } catch (error) {
-        console.error("Error fetching map token:", error);
+        console.error(`Error fetching ${path}:`, error);
       }
     };
 
-    fetchToken();
+    fetchToken("/read/maptoken", setMapToken);
+    fetchToken("/read/traffictoken", setTrafficToken);
+    
   }, [isLoggedIn]);
 
   return (

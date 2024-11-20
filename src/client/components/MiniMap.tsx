@@ -7,7 +7,8 @@ export default function MiniMap({ layer, lastEntry, index }: client.MiniMapProps
 
 	const [contextObj] = useContext(Context);
 
-	const replaceKeyword = "XXXREPLACEXXX";
+	const mapToken = "XXXMaptoken";
+	const trafficToken = "XXXTraffictoken";
 
 	function handleClick(e) {
 		const name = (e.currentTarget as HTMLElement).dataset.name;
@@ -46,7 +47,8 @@ export default function MiniMap({ layer, lastEntry, index }: client.MiniMapProps
 				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} zoom={15} fly={false} />
 				<TileLayer
 					attribution={layer.attribution}
-					url={layer.url.includes(replaceKeyword) ? layer.url.replace(replaceKeyword, contextObj.mapToken) : layer.url}
+					url={layer.url.includes(mapToken) ? layer.url.replace(mapToken, contextObj.mapToken) :
+						layer.url.includes(trafficToken) ? layer.url.replace(trafficToken, contextObj.trafficToken) : layer.url}
 					tileSize={layer.size || 256}
 					zoomOffset={layer.zoomOffset || 0}
 				/>

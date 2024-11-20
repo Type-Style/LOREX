@@ -89,7 +89,8 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 
 	const lastEntry = entries.at(-1);
 	const cleanEntries = entries.filter((entry) => !entry.ignore);
-	const replaceKeyword = "XXXREPLACEXXX";
+	const mapToken = "XXXMaptoken";
+	const trafficToken = "XXXTraffictoken";
 
 	function getClassName(entry: Models.IEntry) {
 		let className = "none";
@@ -179,7 +180,8 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 							>
 								<TileLayer
 									attribution={layer.attribution}
-									url={layer.url.includes(replaceKeyword) ? layer.url.replace(replaceKeyword, contextObj.mapToken) : layer.url}
+									url={layer.url.includes(mapToken) ? layer.url.replace(mapToken, contextObj.mapToken) :
+										layer.url.includes(trafficToken) ? layer.url.replace(trafficToken, contextObj.trafficToken) : layer.url}
 									tileSize={layer.size || 256}
 									zoomOffset={layer.zoomOffset || 0}
 									maxZoom={19}
@@ -198,7 +200,8 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 									name={layer.name}>
 									<TileLayer
 										attribution={layer.attribution}
-										url={layer.url.includes(replaceKeyword) ? layer.url.replace(replaceKeyword, contextObj.mapToken) : layer.url}
+										url={layer.url.includes(mapToken) ? layer.url.replace(mapToken, contextObj.mapToken) :
+											layer.url.includes(trafficToken) ? layer.url.replace(trafficToken, contextObj.trafficToken) : layer.url}
 										tileSize={layer.size || 256}
 										zoomOffset={layer.zoomOffset || 0}
 										maxZoom={19}
