@@ -1,16 +1,18 @@
-import React, { useEffect, useState, useContext, useRef } from 'react'
+import React, { useState, useContext, useRef, useCallback, Suspense } from 'react'
 import "../css/start.css";
-import axios from 'axios';
 import { Context } from "../components/App";
-import { HighlightOff, Check } from '@mui/icons-material';
-import { Button } from '@mui/material';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import CheckIcon from '@mui/icons-material/Check';
+import Button from '@mui/material/Button';
 import ModeSwitcher from '../components/ModeSwitcher';
-import Map from '../components/Map';
-import Status from '../components/Status';
-import LinearBuffer from "../components/LinearBuffer";
-import MiniMap from "../components/MiniMap";
+import { useGetData } from "../scripts/getData";
 import { layers } from "../scripts/layers";
 
+// Lazy load the components
+const Status = React.lazy(() => import('../components/Status'));
+const LinearBuffer = React.lazy(() => import('../components/LinearBuffer'));
+const MiniMap = React.lazy(() => import('../components/MiniMap'));
+const Map = React.lazy(() => import('../components/Map'));
 
 function timeAgo(timestamp: number): string {
   if (!Number.isInteger(timestamp)) {
@@ -38,90 +40,50 @@ function timeAgo(timestamp: number): string {
 }
 
 function Start() {
-  //const [isLoggedIn, setLogin, userInfo] = useContext(Context);
-  const [contextObj] = useContext(Context);
+  const fetchIntervalMs = 1000 * 55;
+  const index = useRef(0); // used to hold information on how many entries, for looping and refetching second to last entry (ignore check)
+  const initialRender = useRef(true);
+  const intervalID = useRef<NodeJS.Timeout>();
 
-  const [entries, setEntries] = useState<Models.IEntry[]>([]);
+  const [contextObj] = useContext(Context);
   const [messageObj, setMessageObj] = useState({ isError: null, status: null, message: null });
+  const [entries, setEntries] = useState<Models.IEntry[] | null>([]);
   const [lastFetch, setLastFetch] = useState<number>();
   const [nextFetch, setNextFetch] = useState<number>();
 
-  const index = useRef(0);
-  const intervalID = useRef<NodeJS.Timeout>();
-
-  const fetchIntervalMs = 1000 * 55;
-
-  const getData = async () => {
-    const token = localStorage.getItem("jwt");
-    let response;
-
-    if (!token) {
-      contextObj.setLogin(false);
-      setMessageObj({ isError: true, status: "403", message: "No valid login" })
-      return false;
+  const { fetchData } = useGetData(index, fetchIntervalMs, setEntries);
+  const getData = useCallback(async () => {
+    initialRender.current = false;
+    if (!contextObj.isLoggedIn) {
+      if (contextObj.userInfo) { // no valid login but userInfo
+        setMessageObj({ isError: true, status: "403", message: "Login expired" })
+      }
+      return; // no need to fetch if logged out
     }
 
-    try {
-      const now = new Date().getTime();
-      setLastFetch(now);
-      response = await axios({
-        method: 'get',
-        url: "/read?index=" + (Math.max(index.current - 1, 0)) + "&noCache=" + now,
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+    const { isError, status, message, fetchTimeData } = await fetchData();
 
-      const newEntries = response.data.entries;
+    setMessageObj({ isError, status, message });
 
-      if (newEntries.length) {
-        setEntries((prevEntries) => {
-          let allButLastPrevEntries, mergedEntries = [];
-
-          if (prevEntries.length) {
-            allButLastPrevEntries = prevEntries.slice(0, prevEntries.length - 1);
-            mergedEntries = [...allButLastPrevEntries, ...newEntries];
-          } else {
-            mergedEntries = newEntries;
-          }
-
-          index.current = mergedEntries.length;
-
-          return mergedEntries;
-        });
-
-      }
-
-      setMessageObj({ isError: null, status: null, message: null });
-      setNextFetch(new Date().getTime() + fetchIntervalMs);
-    } catch (error) {
-      console.log("error fetching data %o", error);
-
-      if (!error.response) {
-        setMessageObj({ isError: true, status: 499, message: error.message || "offline" });
-        setNextFetch(new Date().getTime() + fetchIntervalMs);
-        return;
-      }
-
-      if (error.response.status == 403) { contextObj.setLogin(false) }
-
-      setMessageObj({ isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message });
-
+    if (isError && status == 403) {
       clearInterval(intervalID.current); intervalID.current = null;
-      console.info("cleared Interval");
-      setNextFetch(null);
     }
-  };
 
-  useEffect(() => {
-    if (contextObj.isLoggedIn) {
-      getData();
-      intervalID.current = setInterval(getData, fetchIntervalMs); // capture interval ID as return from setInterval and pass to state
-      return () => { console.log("cleanup"); clearInterval(intervalID.current); intervalID.current = null; };
-    } else if (contextObj.userInfo) { // no valid login but userInfo
-      setMessageObj({ isError: true, status: "403", message: "Login expired" })
+    if (fetchTimeData.last && fetchTimeData.next) {
+      setLastFetch(fetchTimeData.last);
+      setNextFetch(fetchTimeData.next);
     }
-  }, []);
+
+    if (typeof intervalID.current == "undefined") { // deliberately checking for undefined, to compare initial state vs set to null on errors
+      intervalID.current = setInterval(getData, fetchIntervalMs); // capture interval ID as return from setInterval
+    }
+
+    initialRender.current = false;
+  }, [fetchData]);
+
+  if (initialRender.current) {
+    getData();
+  }
 
   return (
     <>
@@ -142,8 +104,8 @@ function Start() {
             variant="contained"
             href={contextObj.isLoggedIn ? null : "/login"}
             onClick={contextObj.isLoggedIn ? () => { contextObj.setLogin(false); localStorage.clear(); } : null}
-            endIcon={contextObj.isLoggedIn ? <Check /> : null}
-            startIcon={contextObj.isLoggedIn ? null : <HighlightOff />}
+            endIcon={contextObj.isLoggedIn ? <CheckIcon /> : null}
+            startIcon={contextObj.isLoggedIn ? null : <HighlightOffIcon />}
             color={contextObj.isLoggedIn ? "success" : "error"}
             size="large"
           >
@@ -151,30 +113,48 @@ function Start() {
           </Button>
         </div>
 
-        <div className="grid-item map cut"><Map entries={entries} /></div>
-        <div className="grid-item theme"><ModeSwitcher /></div>
-        <div className={`grid-item status ${entries.length ? "cut-after" : 'emptyData'}`}><Status entries={entries} /></div>
-        <div className="grid-item images">
-          {entries.at(-1) && layers.map((layer, index) => {
-            return (
-              <MiniMap layer={layer} key={index} index={index} lastEntry={entries.at(-1)} />
-            )
-          })}
+        <div className="grid-item map cut">
+          <Suspense fallback={<div>Loading Map...</div>}>
+            <Map entries={entries} />
+          </Suspense>
         </div>
 
+        <div className="grid-item theme"><ModeSwitcher /></div>
+
+        {contextObj.isLoggedIn && (
+          <div className={`grid-item status ${entries.length ? "cut-after" : 'emptyData'}`}>
+            <Suspense fallback={<div>Loading Status...</div>}>
+              <Status entries={entries} />
+            </Suspense>
+          </div>
+        )}
+
+        {contextObj.isLoggedIn && (<div className="grid-item images">
+          {entries.at(-1) && layers.map((layer, index) => {
+            return (
+              <Suspense fallback={<div>Loading MiniMap...</div>} key={index}>
+                <MiniMap layer={layer} index={index} lastEntry={entries.at(-1)} />
+              </Suspense>
+            )
+          })}
+        </div>)}
+
         <div className="grid-item subinfo">
-          {contextObj.isLoggedIn && intervalID &&
-            <LinearBuffer msStart={lastFetch} msFinish={nextFetch} variant="determinate" />
+          {contextObj.isLoggedIn && intervalID && lastFetch && nextFetch &&
+            <Suspense fallback={<div>Loading Progress...</div>}>
+              <LinearBuffer msStart={lastFetch} msFinish={nextFetch} variant="determinate" />
+            </Suspense>
           }
-          {contextObj.isLoggedIn && intervalID && entries?.length > 0 &&
+
+          {entries?.length > 0 &&
             <>
               <strong className="info noDivider">GPS:</strong>
               <span className="info">{entries.at(-1).lat} / {entries.at(-1).lon}</span>
-              <span className="info">{timeAgo(entries.at(-1).time.created)}</span>
+              <span className="info">{contextObj.isLoggedIn ? timeAgo(entries.at(-1).time.created) : entries.at(-1).time.createdString}</span>
             </>
           }
         </div>
-      </div>
+      </div >
       <svg className="bg-pattern" xmlns="http://www.w3.org/2000/svg">
         <rect width="100%" height="100%" fill="url(#repeatingGradient)" />
       </svg>

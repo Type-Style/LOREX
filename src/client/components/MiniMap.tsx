@@ -7,18 +7,35 @@ export default function MiniMap({ layer, lastEntry, index }: client.MiniMapProps
 
 	const [contextObj] = useContext(Context);
 
-	const replaceKeyword = "XXXREPLACEXXX";
+	const mapToken = "XXXMaptoken";
+	const trafficToken = "XXXTraffictoken";
 
-	function handleClick() {
+	function handleClick(e) {
+		const name = (e.currentTarget as HTMLElement).dataset.name;
+
+		// Select all input elements
 		const elements = document.querySelectorAll('input.leaflet-control-layers-selector');
-		const el = elements[index] as HTMLInputElement | null;
-		if (!elements || !el) { return; }
+		if (!elements) { return };
+		let element: HTMLInputElement | null = null;
 
-		el.click();
+		// Convert NodeList to an array and iterate using forEach
+		Array.from(elements).forEach((el) => {
+			const siblingSpan = el.nextElementSibling as HTMLElement | null;
+			if (siblingSpan && siblingSpan.textContent?.trim() === name) {
+				element = el as HTMLInputElement;
+			}
+		});
+
+		if (!element) {
+			console.warn(`No layer found with the name: ${name}`);
+		}
+
+		element.click();
 	}
 
+
 	return (
-		<div className="image cut" onClick={handleClick}>
+		<div className="image cut" data-name={layer.name} onClick={handleClick}>
 			<MapContainer className="miniMap" center={[lastEntry.lat, lastEntry.lon]} zoom={15}
 				attributionControl={false}
 				zoomControl={false}
@@ -30,7 +47,8 @@ export default function MiniMap({ layer, lastEntry, index }: client.MiniMapProps
 				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} zoom={15} fly={false} />
 				<TileLayer
 					attribution={layer.attribution}
-					url={layer.url.includes(replaceKeyword) ? layer.url.replace(replaceKeyword, contextObj.mapToken) : layer.url}
+					url={layer.url.includes(mapToken) ? layer.url.replace(mapToken, contextObj.mapToken) :
+						layer.url.includes(trafficToken) ? layer.url.replace(trafficToken, contextObj.trafficToken) : layer.url}
 					tileSize={layer.size || 256}
 					zoomOffset={layer.zoomOffset || 0}
 				/>

@@ -39,10 +39,20 @@ router.get('/',
 router.get('/maptoken',
   isLoggedIn,
   async function mapToken(req: Request, res: Response, next: NextFunction) {
-    const mapbox = process.env.MAPBOX;
-    if (!mapbox) { return createError(res, undefined, `Missing configuration, environment variable not defined`, next); }
+    const token = process.env.MAPBOX;
+    if (!token) { return createError(res, undefined, `Missing configuration, environment variable not defined`, next); }
 
-    res.json({ mapbox });
+    res.json({ token });
+  }
+);
+
+router.get('/traffictoken',
+  isLoggedIn,
+  async function mapToken(req: Request, res: Response, next: NextFunction) {
+    const token  = process.env.TOMTOM;
+    if (!token) { return createError(res, undefined, `Missing configuration, environment variable not defined`, next); }
+
+    res.json({ token });
   }
 );
 

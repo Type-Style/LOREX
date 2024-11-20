@@ -11,12 +11,20 @@ declare namespace client {
 		default?: MarkerStyle; // Optional property since not all layers have a default style
 		size?: number;
 		zoomOffset?: number;
+		overlay?: boolean;
 	}
 
 	interface MiniMapProps {
 		layer: client.Layer;
 		lastEntry: Models.IEntry
 		index?: number
+	}
+
+	interface entryData {
+		isError: boolean,
+		status: number,
+		message: string,
+		fetchTimeData: {last: number, next: number} | null
 	}
 }
 

@@ -1,5 +1,12 @@
 export const layers: client.Layer[] = [
 	{
+		name: "Traffic Flow",
+		overlay: true,
+		attribution: 'Map data: &copy; <a href="https://www.tomtom.com">Tom Tom</a>',
+		url: 'https://api.tomtom.com/traffic/map/4/tile/flow/relative/{z}/{x}/{y}.png?thickness=10&tileSize=256&key=XXXTraffictoken',
+		markerStyle: ""
+	},
+	{
 		name: "OSM DE",
 		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 		url: 'https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png',
@@ -25,18 +32,19 @@ export const layers: client.Layer[] = [
 		url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
 		markerStyle: "dark"
 	},
-	// {
-	// 	name: "OpenRailway",
-	// 	attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Map style: &copy; <a href="https://www.OpenRailwayMap.org',
-	// 	url: 'https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png',
-	// 	markerStyle: mode
-	// },	
 	{
 		name: "Mapbox Satelite Streets",
 		attribution: '&copy; <a href="https://www.mapbox.com/" target="_blank">Mapbox</a>',
-		url: `https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/{z}/{x}/{y}?access_token=XXXREPLACEXXX`,
+		url: `https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/{z}/{x}/{y}?access_token=XXXMaptoken`,
 		markerStyle: "dark",
 		size: 512,
 		zoomOffset: -1
+	},
+	{
+		name: "OpenRailway",
+		overlay: true,
+		attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Map style: &copy; <a href="https://www.OpenRailwayMap.org',
+		url: 'https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png',
+		markerStyle: ""
 	}
 ]

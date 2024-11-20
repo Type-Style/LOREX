@@ -7,8 +7,9 @@ import SpeedIcon from '@mui/icons-material/Speed';
 import BoltIcon from '@mui/icons-material/Bolt';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import EastIcon from '@mui/icons-material/East';
-import WatchIcon from '@mui/icons-material/WatchLaterOutlined';
-import Finish from '@mui/icons-material/SportsScore';
+import WatchLaterOutlinedIcon from '@mui/icons-material/WatchLaterOutlined';
+import SportsScoreIcon from '@mui/icons-material/SportsScore';
+
 
 function getStatusData(entries) {
 	const cleanEntries = entries.filter((entry: Models.IEntry) => !entry.ignore);
@@ -65,11 +66,16 @@ function getStatusData(entries) {
 	function getEta() {
 		const lastEntry = cleanEntries.at(-1);
 		const eta = lastEntry.eta;
-		if (!eta) { return undefined }
+		if (!eta) { return undefined;	}
 
-		const diffMinutes = (eta - lastEntry.time.created) / 60000;
-		if (diffMinutes <= 0) { return undefined; }
-		return diffMinutes >= 60 ? (diffMinutes / 60).toFixed(1) + ' hours' : diffMinutes.toFixed(1) + ' minutes';
+		const currentTime = Date.now();
+		const diffMinutes = (eta - currentTime) / 60000; // Difference between eta and current time
+		const diffMinutesAtCreated = (eta - lastEntry.time.created) / 60000;
+		
+		const print = diffMinutes > 0 ? diffMinutes : diffMinutesAtCreated;		
+		if (print <= 0) { return undefined; }
+
+		return print >= 60 ? (print / 60).toFixed(1) + ' hours' : print.toFixed(1) + ' minutes';
 	}
 
 	const ignoredEntries = entries.length - cleanEntries.length;
@@ -158,7 +164,7 @@ function Status({ entries }: { entries: Models.IEntry[] }) {
 
 				{statusData.eda &&
 					<tr>
-						<td><Finish /></td>
+						<td><SportsScoreIcon /></td>
 						<th>EDA</th>
 						<td>
 							<span>{statusData.eda}km</span>
@@ -168,7 +174,7 @@ function Status({ entries }: { entries: Models.IEntry[] }) {
 
 				{statusData.eta &&
 					<tr>
-						<td><WatchIcon /></td>
+						<td><WatchLaterOutlinedIcon /></td>
 						<th>ETA</th>
 						<td>
 							<span>{statusData.eta}</span>

@@ -23,7 +23,7 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 	const calculateHue = function (currentSpeed, maxSpeed, calcSpeed) {
 		let speed = currentSpeed;
 		if (calcSpeed > currentSpeed) {
-			speed = Math.sqrt(currentSpeed * calcSpeed);
+			speed = 2 * (currentSpeed * calcSpeed) / (currentSpeed + calcSpeed); // Harmonic Meangit
 		}
 		const hue = (speed / maxSpeed) * 200;
 
@@ -43,7 +43,7 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 	if (useRelativeColors) {
 		maxSpeed = getMaxSpeed(cleanEntries);
 	}
-	console.group();
+
 	return cleanEntries.map((entry, index) => {
 		if (!index || entry.time.diff > 300) { return false; }
 
@@ -54,9 +54,6 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 
 		color.h = calculateHue(currentSpeed, maxSpeed, calcSpeed);
 		color.l = calculateLightness(color.h);
-
-		console.log("index: " + index + "\t speed: " + currentSpeed.toFixed(1) + "\t hue: " + color.h.toFixed(1) + "\t light: " + color.l.toFixed(1));
-
 
 		const correctedColor = toGamut('rgb', 'oklch', null)(color); // map OKLCH to the RGB gamut
 
@@ -75,17 +72,25 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 
 }
 
-
 function Map({ entries }: { entries: Models.IEntry[] }) {
-	if (!entries?.length) {
-		return <span className="noData cut">No Data to be displayed</span>
-	}
 	const [contextObj] = useContext(Context);
 	const [mapStyle, setMapStyle] = useState(contextObj.mode);
 
+	if (!contextObj.userInfo) {
+		return <strong className="noData cut">No Login</strong>
+	}
+	if (!entries?.length && contextObj.userInfo && !contextObj.isLoggedIn) {  // check for entries prevents hiding map when logged out due expired token
+		return ""; // empty here, since map is still there when entries, and expired message is shown in top row
+	}
+	if (!entries?.length) {
+		return <span className="noData cut">No Data to be displayed</span>
+	}
+
+
 	const lastEntry = entries.at(-1);
 	const cleanEntries = entries.filter((entry) => !entry.ignore);
-	const replaceKeyword = "XXXREPLACEXXX";
+	const mapToken = "XXXMaptoken";
+	const trafficToken = "XXXTraffictoken";
 
 	function getClassName(entry: Models.IEntry) {
 		let className = "none";
@@ -166,6 +171,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 				<LayerChangeHandler />
 				<LayersControl position="bottomright">
 					{layers.map((layer, index) => {
+						if (layer.overlay) { return }
 						return (
 							<LayersControl.BaseLayer
 								key={index}
@@ -174,22 +180,42 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 							>
 								<TileLayer
 									attribution={layer.attribution}
-									url={layer.url.includes(replaceKeyword) ? layer.url.replace(replaceKeyword, contextObj.mapToken) : layer.url}
+									url={layer.url.includes(mapToken) ? layer.url.replace(mapToken, contextObj.mapToken) :
+										layer.url.includes(trafficToken) ? layer.url.replace(trafficToken, contextObj.trafficToken) : layer.url}
 									tileSize={layer.size || 256}
 									zoomOffset={layer.zoomOffset || 0}
 									maxZoom={19}
-
 								/>
 							</LayersControl.BaseLayer>
 						)
 					})}
+
+					{/* overlays */
+						layers.map((layer, index) => {
+							if (!layer.overlay) { return }
+							return (
+								<LayersControl.Overlay
+									key={index}
+									checked={false}
+									name={layer.name}>
+									<TileLayer
+										attribution={layer.attribution}
+										url={layer.url.includes(mapToken) ? layer.url.replace(mapToken, contextObj.mapToken) :
+											layer.url.includes(trafficToken) ? layer.url.replace(trafficToken, contextObj.trafficToken) : layer.url}
+										tileSize={layer.size || 256}
+										zoomOffset={layer.zoomOffset || 0}
+										maxZoom={19}
+									/>
+								</LayersControl.Overlay>
+							)
+						})}
+
 				</LayersControl>
 
-				<MarkerClusterGroup disableClusteringAtZoom={15}>
+				<MarkerClusterGroup disableClusteringAtZoom={15} animateAddingMarkers={true} maxClusterRadius={45}>
 					{cleanEntries.map((entry) => {
 						const iconObj = getClassName(entry);
 						if (iconObj.className != "none") { return } // exclude start and end from being in cluster group;
-
 						return renderMarker(entry, iconObj);
 					})}
 				</MarkerClusterGroup>

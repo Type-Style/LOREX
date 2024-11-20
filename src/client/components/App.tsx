@@ -1,10 +1,12 @@
-import React, { createContext, useEffect, useState } from 'react';
+import React, { Suspense, createContext, useEffect, useState } from 'react';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { useColorScheme } from '@mui/material/styles';
-import { useMediaQuery } from '@mui/material';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import Start from '../pages/Start';
-import Login from '../pages/Login';
 import axios from "axios";
+
+
+const Login = React.lazy(() => import('../pages/Login'));
 
 export const Context = createContext([]);
 
@@ -35,7 +37,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <Login />,
+    element: (
+      <Suspense fallback={<div>Loading...</div>}>
+        <Login />
+      </Suspense>
+    )
   }
 ]);
 
@@ -46,8 +52,9 @@ const App = () => {
   const { mode, setMode } = useColorScheme();
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [mapToken, setMapToken] = useState<string | null>(null);
+  const [trafficToken, setTrafficToken] = useState<string | null>(null);
 
-  const contextObj = {isLoggedIn, setLogin, userInfo, setUserInfo, mode, setMode, prefersDarkMode, mapToken}
+  const contextObj = {isLoggedIn, setLogin, userInfo, setUserInfo, mode, setMode, prefersDarkMode, mapToken, trafficToken}
 
   useEffect(() => {
     setMode(prefersDarkMode ? "dark" : "light");
@@ -56,22 +63,24 @@ const App = () => {
 
   useEffect(() => {
     if (!isLoggedIn) return;
-    const fetchToken = async () => {
+    const fetchToken = async (path:string, setState:Function) => {
       try {
         const token = localStorage.getItem("jwt");
-        const response = await axios.get("/read/maptoken", {
+        const response = await axios.get(path, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
-        setMapToken(response.data.mapbox);
+        
+        setState(response.data.token);
       } catch (error) {
-        console.error("Error fetching map token:", error);
+        console.error(`Error fetching ${path}:`, error);
       }
     };
 
-    fetchToken();
+    fetchToken("/read/maptoken", setMapToken);
+    fetchToken("/read/traffictoken", setTrafficToken);
+    
   }, [isLoggedIn]);
 
   return (
