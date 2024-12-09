@@ -73,7 +73,7 @@
     "@mui/icons-material": "^5.16.7",
     "@mui/material": "^5.16.7",
     "@types/leaflet-rotatedmarker": "^0.2.5",
-    "axios": "^1.7.7",
+    "axios": "^1.7.8",
     "bcrypt": "^5.1.1",
     "chalk": "^4.1.2",
     "compression": "^1.7.4",
