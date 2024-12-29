@@ -115,11 +115,14 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 
 	// Function to create custom icon with dynamic className
 	function createCustomIcon(entry: Models.IEntry, iconObj: { className: string, iconSize: number }) {
+		const defaultArrow = `<path fill="var(--contrastText, currentColor)" d="m34.11959,102.6673l-18.15083,-17.53097l31.75703,-30.64393l-31.75703,-30.64391l18.15083,-17.51581l49.91164,48.15972l-49.91164,48.1749z" transform="rotate(-90, 50, 54.5)"/>`
+		const triangleArrow = `<polygon fill="var(--contrastText, currentColor)" points="50,0 100,100 0,100" />`
+		
 		return L.divIcon({
 			html: `
 			<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
 				<title>Marker Arrow</title>
-				<polygon fill="var(--contrastText, currentColor)" points="50,0 100,100 0,100" />
+				${iconObj.className != "none" ? triangleArrow : defaultArrow}	
 			</svg>`,
 			shadowUrl: null,
 			shadowSize: null,
@@ -160,7 +163,6 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 			</Marker>
 		)
 	}
-
 
 
 	return (
@@ -212,7 +214,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 
 				</LayersControl>
 
-				<MarkerClusterGroup disableClusteringAtZoom={15} animateAddingMarkers={true} maxClusterRadius={45}>
+				<MarkerClusterGroup disableClusteringAtZoom={14} animateAddingMarkers={true} maxClusterRadius={25}>
 					{cleanEntries.map((entry) => {
 						const iconObj = getClassName(entry);
 						if (iconObj.className != "none") { return } // exclude start and end from being in cluster group;

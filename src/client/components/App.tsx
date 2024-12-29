@@ -63,7 +63,7 @@ const App = () => {
 
   useEffect(() => {
     if (!isLoggedIn) return;
-    const fetchToken = async (path:string, setState:Function) => {
+    const fetchToken = async (path:string, setState: React.Dispatch<React.SetStateAction<string | null>>) => {
       try {
         const token = localStorage.getItem("jwt");
         const response = await axios.get(path, {

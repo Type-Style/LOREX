@@ -3,7 +3,7 @@ import { MapContainer, TileLayer } from "react-leaflet";
 import { MapRecenter } from "./MapCenter";
 import { Context } from "./App";
 
-export default function MiniMap({ layer, lastEntry, index }: client.MiniMapProps) {
+export default function MiniMap({ layer, lastEntry }: client.MiniMapProps) {
 
 	const [contextObj] = useContext(Context);
 
