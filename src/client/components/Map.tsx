@@ -165,7 +165,6 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 	}
 
 
-
 	return (
 		<div className="mapStyle" data-mui-color-scheme={mapStyle}>
 			<MapContainer className="mapContainer" center={[lastEntry.lat, lastEntry.lon]} zoom={13} maxZoom={19}>
@@ -215,7 +214,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 
 				</LayersControl>
 
-				<MarkerClusterGroup disableClusteringAtZoom={15} animateAddingMarkers={true} maxClusterRadius={45}>
+				<MarkerClusterGroup disableClusteringAtZoom={14} animateAddingMarkers={true} maxClusterRadius={25}>
 					{cleanEntries.map((entry) => {
 						const iconObj = getClassName(entry);
 						if (iconObj.className != "none") { return } // exclude start and end from being in cluster group;
