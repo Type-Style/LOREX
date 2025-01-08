@@ -69,7 +69,7 @@
   "dependencies": {
     "@changey/react-leaflet-markercluster": "^4.0.0-rc1",
     "@emotion/react": "^11.13.5",
-    "@emotion/styled": "^11.11.5",
+    "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^5.16.7",
     "@mui/material": "^5.16.9",
     "@types/leaflet-rotatedmarker": "^0.2.5",
