@@ -78,7 +78,7 @@
     "chalk": "^4.1.2",
     "compression": "^1.7.5",
     "culori": "^4.0.1",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^5.0.1",
     "express-rate-limit": "^7.4.1",
