@@ -71,7 +71,7 @@
     "@emotion/react": "^11.13.5",
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^5.16.7",
-    "@mui/material": "^5.16.9",
+    "@mui/material": "^5.16.12",
     "@types/leaflet-rotatedmarker": "^0.2.5",
     "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
