@@ -43,7 +43,7 @@ function Start() {
   const fetchIntervalMs = 1000 * 55;
   const index = useRef(0); // used to hold information on how many entries, for looping and refetching second to last entry (ignore check)
   const initialRender = useRef(true);
-  const intervalID = useRef<NodeJS.Timeout>();
+  const intervalID = useRef<NodeJS.Timeout>(null);
 
   const [contextObj] = useContext(Context);
   const [messageObj, setMessageObj] = useState({ isError: null, status: null, message: null });
