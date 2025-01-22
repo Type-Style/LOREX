@@ -84,9 +84,9 @@ const App = () => {
   }, [isLoggedIn]);
 
   return (
-    <Context.Provider value={[contextObj]}>
+    <Context value={[contextObj]}>
       <RouterProvider router={router} />
-    </Context.Provider>
+    </Context>
   );
 }
 

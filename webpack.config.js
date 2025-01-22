@@ -44,9 +44,8 @@ module.exports = (args) => {
     },
     output: {
       filename: 'bundle.js',
-      path: path.resolve(__dirname, 'dist/httpdocs/js')
+      path: path.resolve(__dirname, 'dist/httpdocs/js'),
     },
-
     optimization: {
       minimize: mode === 'production',
     },

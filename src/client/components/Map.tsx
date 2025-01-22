@@ -10,8 +10,9 @@ import 'leaflet/dist/leaflet.css';
 import "../css/map.css";
 import { getMaxSpeed } from "../scripts/maxSpeed";
 import { layers } from "../scripts/layers";
-import MarkerClusterGroup from "@changey/react-leaflet-markercluster";
-import "@changey/react-leaflet-markercluster/dist/styles.min.css";
+import MarkerClusterGroup from "react-leaflet-markercluster";
+import 'leaflet/dist/leaflet.css'
+import 'react-leaflet-markercluster/styles'
 import { MapRecenter } from "./MapCenter";
 import { LocationButton } from "./LocationButton";
 
@@ -23,7 +24,7 @@ const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] })
 	const calculateHue = function (currentSpeed, maxSpeed, calcSpeed) {
 		let speed = currentSpeed;
 		if (calcSpeed > currentSpeed) {
-			speed = 2 * (currentSpeed * calcSpeed) / (currentSpeed + calcSpeed); // Harmonic Meangit
+			speed = 2 * (currentSpeed * calcSpeed) / (currentSpeed + calcSpeed); // Harmonic Mean
 		}
 		const hue = (speed / maxSpeed) * 200;
 
