@@ -1,77 +1,18 @@
 import React, { useContext, useState } from 'react'
 import { Context } from "../components/App";
-import { LayersControl, MapContainer, Marker, Polyline, Popup, TileLayer, useMapEvents } from 'react-leaflet'
-import { toGamut, parse, Oklch, formatCss } from 'culori';
-import L from 'leaflet';
+import { LayersControl, MapContainer, TileLayer, useMapEvents } from 'react-leaflet'
+import MarkerClusterGroup from "react-leaflet-markercluster";
+import { MapRecenter } from "./MapCenter";
+import { LocationButton } from "./LocationButton";
+import { MultiColorPolyline } from "./MultiColorPolyline";
+import { Marker } from "./Marker";
+import { layers } from "../scripts/layers";
 import "leaflet-easybutton/src/easy-button.js";
 import "leaflet-easybutton/src/easy-button.css";
 import 'leaflet-rotatedmarker';
 import 'leaflet/dist/leaflet.css';
-import "../css/map.css";
-import { getMaxSpeed } from "../scripts/maxSpeed";
-import { layers } from "../scripts/layers";
-import MarkerClusterGroup from "react-leaflet-markercluster";
-import 'leaflet/dist/leaflet.css'
 import 'react-leaflet-markercluster/styles'
-import { MapRecenter } from "./MapCenter";
-import { LocationButton } from "./LocationButton";
-
-const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Models.IEntry[] }) => {
-	const [useRelativeColors] = useState<boolean>(true); // Change candidate; Use color in range to maximum speed, like from 0 to max, rather than fixed range
-
-	let maxSpeed = 0;
-	const startColor = parse('oklch(62.8% 0.2577 10)') as Oklch;
-	const calculateHue = function (currentSpeed, maxSpeed, calcSpeed) {
-		let speed = currentSpeed;
-		if (calcSpeed > currentSpeed) {
-			speed = 2 * (currentSpeed * calcSpeed) / (currentSpeed + calcSpeed); // Harmonic Mean
-		}
-		const hue = (speed / maxSpeed) * 200;
-
-		return hue;
-	}
-
-	const calculateLightness = function (hue: number) {
-		const baseLightness = 60;
-		if (hue > 30) { // max 200
-			const lightness = (baseLightness + ((hue - 30) / (200 - 30)) * (100 - baseLightness)) / 100;
-			return lightness;
-		} else {
-			return baseLightness / 100;
-		}
-	}
-
-	if (useRelativeColors) {
-		maxSpeed = getMaxSpeed(cleanEntries);
-	}
-
-	return cleanEntries.map((entry, index) => {
-		if (!index || entry.time.diff > 300) { return false; }
-
-		const previousEntry = cleanEntries[index - 1];
-		const color = structuredClone(startColor);
-		const currentSpeed = entry.speed.gps * 3.6; // convert to km/h
-		const calcSpeed = entry.speed.horizontal * 3.6;
-
-		color.h = calculateHue(currentSpeed, maxSpeed, calcSpeed);
-		color.l = calculateLightness(color.h);
-
-		const correctedColor = toGamut('rgb', 'oklch', null)(color); // map OKLCH to the RGB gamut
-
-		let strokeDashArray = null;
-
-		if (entry.time.diff > 100 || entry.time.diff < 25) { strokeDashArray = "4 8"; }
-		return (<Polyline
-			key={entry.time.created * 1.1 + Math.random()} // random to force rerender while new data is incoming (maxSpeed might have changed)
-			positions={[[previousEntry.lat, previousEntry.lon], [entry.lat, entry.lon]]}
-			color={formatCss(correctedColor)}
-			weight={5}
-			dashArray={strokeDashArray}
-			lineCap={"butt"}
-		/>)
-	});
-
-}
+import "../css/map.css";
 
 function Map({ entries }: { entries: Models.IEntry[] }) {
 	const [contextObj] = useContext(Context);
@@ -87,56 +28,22 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 		return <span className="noData cut">No Data to be displayed</span>
 	}
 
-
 	const lastEntry = entries.at(-1);
 	const cleanEntries = entries.filter((entry) => !entry.ignore);
 	const mapToken = "XXXMaptoken";
 	const trafficToken = "XXXTraffictoken";
 
-	function getClassName(entry: Models.IEntry) {
-		let className = "none";
-		let iconSize = 14;
-		if (entry.index == 0 || entry.time.diff >= 300) {
-			className = "start"
-		}
-		if (entry == lastEntry) {
-			className = "end"
-		}
+	const getClassName = (entry: Models.IEntry) => {
+		const isStart = entry.index == 0 || entry.time.diff >= 300;
+		const isEnd = entry == lastEntry;
+		const className = isStart ? "start" : isEnd ? "end" : "none";
+		const iconSize = className != "none" ? 22 : 14;
 
-		if (className != "none") {
-			iconSize = 22;
-		}
-
-		return {
-			className,
-			iconSize
-		}
+		return { className, iconSize }
 	}
 
-
-	// Function to create custom icon with dynamic className
-	function createCustomIcon(entry: Models.IEntry, iconObj: { className: string, iconSize: number }) {
-		const defaultArrow = `<path fill="var(--contrastText, currentColor)" d="m34.11959,102.6673l-18.15083,-17.53097l31.75703,-30.64393l-31.75703,-30.64391l18.15083,-17.51581l49.91164,48.15972l-49.91164,48.1749z" transform="rotate(-90, 50, 54.5)"/>`
-		const triangleArrow = `<polygon fill="var(--contrastText, currentColor)" points="50,0 100,100 0,100" />`
-		
-		return L.divIcon({
-			html: `
-			<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-				<title>Marker Arrow</title>
-				${iconObj.className != "none" ? triangleArrow : defaultArrow}	
-			</svg>`,
-			shadowUrl: null,
-			shadowSize: null,
-			shadowAnchor: null,
-			iconSize: [iconObj.iconSize, iconObj.iconSize],
-			iconAnchor: [iconObj.iconSize / 2, iconObj.iconSize / 2],
-			popupAnchor: [0, 0],
-			className: `customMarkerIcon ${iconObj.className}`,
-		});
-	}
-
-	// custom hook to handle map events and track active layer
-	// used to switch marker design
+	/* handle map events and track active layer
+	used to switch marker design */ 
 	const LayerChangeHandler = () => {
 		useMapEvents({
 			baselayerchange: (event) => {
@@ -148,23 +55,6 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 		});
 		return null;
 	};
-
-	function renderMarker(entry: Models.IEntry, iconObj: { className: string, iconSize: number }) {
-		return (
-			<Marker
-				key={entry.time.created}
-				position={[entry.lat, entry.lon]}
-				icon={createCustomIcon(entry, iconObj)}
-				rotationAngle={entry.heading}
-				rotationOrigin="center"
-			>
-				<Popup>
-					<pre>{JSON.stringify(entry, null, 2)}</pre>
-				</Popup>
-			</Marker>
-		)
-	}
-
 
 	return (
 		<div className="mapStyle" data-mui-color-scheme={mapStyle}>
@@ -219,7 +109,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 					{cleanEntries.map((entry) => {
 						const iconObj = getClassName(entry);
 						if (iconObj.className != "none") { return } // exclude start and end from being in cluster group;
-						return renderMarker(entry, iconObj);
+						return Marker(entry, iconObj);
 					})}
 				</MarkerClusterGroup>
 
@@ -229,7 +119,7 @@ function Map({ entries }: { entries: Models.IEntry[] }) {
 					const iconObj = getClassName(entry);
 					if (iconObj.className == "none") { return } // exclude already rendered markers;
 
-					return renderMarker(entry, iconObj);
+					return Marker(entry, iconObj);
 				})}
 
 				<MultiColorPolyline cleanEntries={cleanEntries} />
