@@ -19,7 +19,8 @@
 	},
 	"plugins": [
 		"react",
-		"@typescript-eslint"
+		"@typescript-eslint",
+		"eslint-plugin-react-compiler"
 	],
 	"settings": {
 		"react": {
@@ -28,7 +29,9 @@
 	},
 	"rules": {
 		//"react/jsx-key": false
+		"react-compiler/react-compiler": "error"
 	},
-	"ignorePatterns": ["types_easyButton.d.ts" ]
-
+	"ignorePatterns": [
+		"types_easyButton.d.ts"
+	]
 }

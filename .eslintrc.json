@@ -19,6 +19,6 @@
   "rules": {
     "jest/no-conditional-expect": "off"    
   },
-  "ignorePatterns": ["dist", "jest.config.js", "httpdocs", "webpack.config.js", "src/client", "init", "jest.testData.config.js"]
+  "ignorePatterns": ["dist", "jest.config.js", "httpdocs", "webpack.config.js", "src/client", "scripts", "init", "jest.testData.config.js"]
 
 }
