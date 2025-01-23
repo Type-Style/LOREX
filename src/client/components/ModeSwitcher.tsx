@@ -15,14 +15,10 @@ function ModeSwitcher() {
       variant='outlined' size='large'
       startIcon={contextObj.mode === 'dark' ? <NightlightIcon /> : <LightModeIcon />}
       onClick={() => {
-        if (contextObj.mode === 'light') {
-          contextObj.setMode('dark');
-        } else {
-          contextObj.setMode('light');
-        }
+        contextObj.setMode(contextObj.mode === 'light' ? 'dark' : 'light');
       }}
     >
-      {contextObj.mode} {/* is empty but why? */}
+      {contextObj.mode}
     </Button>
   );
 }

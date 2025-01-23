@@ -30,9 +30,13 @@
 		margin: 2.5em;
 		position: relative;
 		filter: drop-shadow(10px 10px var(--semiBg));
+
 		[data-mui-color-scheme="dark"] & {
 			filter: none;
-			&::after { box-shadow: var(--text) 0 0 1em;}
+
+			&::after {
+				box-shadow: var(--text) 0 0 1em;
+			}
 		}
 
 		&::after {
@@ -40,17 +44,19 @@
 			position: absolute;
 			inset: 0;
 			background: var(--semiBg);
-			
+
 			filter: url(#rough-edges);
 			z-index: -1;
 		}
 
 		--cut: 3em;
-		.cut { /* reset for child elements */
+
+		.cut {
+			/* reset for child elements */
 			--cut: 1.1em
 		}
 
-		
+
 	}
 
 	.headline {
@@ -75,7 +81,12 @@
 			max-height: 100%;
 		}
 
+		.MuiInputBase-root {
+			background-color: var(--semiBg);
+		}
+
 		.MuiInputAdornment-root {
+			color: var(--semiContrastBackground);
 			max-height: 100%;
 			height: 4.15em;
 		}
@@ -111,9 +122,14 @@
 		min-height: 3.5em;
 		border-radius: 0;
 
+		&:disabled {
+			color: var(--semiContrastBackground);
+			background: var(--semiBg);
+		}
+		
 		[data-mui-color-scheme="light"] &:not([disabled]) {
-			color: var(--main);
-			background-color: color-mix(in oklch, var(--neutral) 90%, transparent);
+			color: var(--neutral);
+			background-color: var(--main);
 		}
 
 		.MuiButton-icon {
@@ -132,9 +148,11 @@
 			margin-right: 0.4em;
 		}
 	}
+
 	.message--error {
 		color: var(--alert);
 	}
+
 	.message--success {
 		color: var(--success);
 	}

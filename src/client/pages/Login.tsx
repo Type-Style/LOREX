@@ -12,7 +12,8 @@ import "../css/login.css";
 import ModeSwitcher from '../components/ModeSwitcher';
 import axios from 'axios';
 import qs from 'qs';
-import { Context, convertJwt } from '../components/App';
+import { Context } from '../components/App';
+import { convertJwt } from "../scripts/convertJwt";
 import { useNavigate } from 'react-router-dom';
 import LinearBuffer from '../components/LinearBuffer';
 

@@ -7,6 +7,8 @@ import Button from '@mui/material/Button';
 import ModeSwitcher from '../components/ModeSwitcher';
 import { useGetData } from "../scripts/getData";
 import { layers } from "../scripts/layers";
+import { timeAgo } from "../scripts/timeAgo";
+
 
 // Lazy load the components
 const Status = React.lazy(() => import('../components/Status'));
@@ -14,36 +16,12 @@ const LinearBuffer = React.lazy(() => import('../components/LinearBuffer'));
 const MiniMap = React.lazy(() => import('../components/MiniMap'));
 const Map = React.lazy(() => import('../components/Map'));
 
-function timeAgo(timestamp: number): string {
-  if (!Number.isInteger(timestamp)) {
-    return "";
-  }
-  const now = Date.now();
-  const diffInSeconds = Math.floor((now - timestamp) / 1000);
-
-  const seconds = diffInSeconds;
-  const minutes = Math.round(diffInSeconds / 60);
-  const hours = Math.round(diffInSeconds / 3600);
-  const days = Math.round(diffInSeconds / 86400);
-  const months = Math.round(diffInSeconds / 2592000);
-  const years = Math.round(diffInSeconds / 31536000);
-
-  if (seconds < 8) return "Instant";
-  else if (seconds < 25) return "Just now";
-  else if (seconds < 50) return "a moment ago";
-  else if (minutes < 60) return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ago`;
-  else if (hours < 24) return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
-  else if (days < 30) return `${days} ${days === 1 ? "day" : "days"} ago`;
-  else if (months < 12) return `${months} ${months === 1 ? "month" : "months"} ago`;
-  else return `${years} ${years === 1 ? "year" : "years"} ago`;
-
-}
 
 function Start() {
   const fetchIntervalMs = 1000 * 55;
-  const index = useRef(0); // used to hold information on how many entries, for looping and refetching second to last entry (ignore check)
+  const index = useRef(0); // used to hold information on how many entries, for looping and refetching second to last entry (the ignore check)
   const initialRender = useRef(true);
-  const intervalID = useRef<NodeJS.Timeout>();
+  const intervalID = useRef<NodeJS.Timeout>(null);
 
   const [contextObj] = useContext(Context);
   const [messageObj, setMessageObj] = useState({ isError: null, status: null, message: null });
@@ -67,6 +45,7 @@ function Start() {
 
     if (isError && status == 403) {
       clearInterval(intervalID.current); intervalID.current = null;
+      return;
     }
 
     if (fetchTimeData.last && fetchTimeData.next) {
@@ -74,7 +53,7 @@ function Start() {
       setNextFetch(fetchTimeData.next);
     }
 
-    if (typeof intervalID.current == "undefined") { // deliberately checking for undefined, to compare initial state vs set to null on errors
+    if (!intervalID.current) { // Setup Interval to fetch data
       intervalID.current = setInterval(getData, fetchIntervalMs); // capture interval ID as return from setInterval
     }
 
@@ -154,7 +133,7 @@ function Start() {
             </>
           }
         </div>
-      </div >
+      </div>
       <svg className="bg-pattern" xmlns="http://www.w3.org/2000/svg">
         <rect width="100%" height="100%" fill="url(#repeatingGradient)" />
       </svg>
