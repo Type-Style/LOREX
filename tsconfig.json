@@ -5,7 +5,9 @@
 	],
 	"exclude": [
 		"node_modules",
-		"src/client/"
+		"src/client/",
+		"src/tests",
+		"src/testData",
 	],
 	"compilerOptions": {
 		"rootDir": "src",
