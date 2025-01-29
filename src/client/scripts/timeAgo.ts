@@ -11,13 +11,13 @@ export function timeAgo(timestamp: number): string {
 	const months = Math.round(diffInSeconds / 2592000);
 	const years = Math.round(diffInSeconds / 31536000);
 
-	if (seconds < 8) return "Instant";
-	if (seconds < 25) return "Just now";
-	if (seconds < 50) return "a moment ago";
-	if (minutes < 60) return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ago`;
-	if (hours < 24) return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
-	if (days < 30) return `${days} ${days === 1 ? "day" : "days"} ago`;
-	if (months < 12) return `${months} ${months === 1 ? "month" : "months"} ago`;
+	if (seconds < 8) {return "Instant";}
+	if (seconds < 25) {return "Just now";}
+	if (seconds < 50) {return "a moment ago";}
+	if (minutes < 60) {return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ago`;}
+	if (hours < 24) {return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;}
+	if (days < 30) {return `${days} ${days === 1 ? "day" : "days"} ago`;}
+	if (months < 12) {return `${months} ${months === 1 ? "month" : "months"} ago`;}
 
 	return `${years} ${years === 1 ? "year" : "years"} ago`;
 }

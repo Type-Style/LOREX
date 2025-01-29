@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Context } from "../components/App";
+import { Context } from "../context";
 import Button from '@mui/material/Button';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import NightlightIcon from '@mui/icons-material/Nightlight';

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useMap } from "react-leaflet";
 import L from 'leaflet';
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
@@ -8,10 +8,10 @@ import { renderToString } from 'react-dom/server';
 export const LocationButton = ({ lat, lon }: { lat: number, lon: number }) => {
 	const map = useMap();
 	const gpsIcon = renderToString(<GpsFixedIcon style={{ width: '100%', height: '100%', fill: "currentcolor" }} />);
-	let justClicked = false;
+	let justClicked = useRef(false);
 	useEffect(() => {
 		L.easyButton(gpsIcon, function (btn, map) {
-			justClicked = true;
+			justClicked.current = true;
 			map.locate({
 				enableHighAccuracy: true,
 				watch: true,
@@ -19,11 +19,11 @@ export const LocationButton = ({ lat, lon }: { lat: number, lon: number }) => {
 				
 				btn.button.classList.add("active");
 				const bounds = L.latLngBounds([[lat, lon], e.latlng]);
-				if (justClicked) {
+				if (justClicked.current) {
 					map.fitBounds(bounds);
 				}
 
-				//map.flyTo(e.latlng, map.getZoom());
+				map.flyTo(e.latlng, map.getZoom());
 				
 				L.marker(e.latlng, {
 					icon: L.divIcon({
@@ -33,9 +33,9 @@ export const LocationButton = ({ lat, lon }: { lat: number, lon: number }) => {
 					}),
 				}).bindPopup("Your are here :)").addTo(map);
 				
-				justClicked = false;
+				justClicked.current = false;
 			});
 		}).addTo(map);
-	}, [map]);
+	});
 	return null;
 };

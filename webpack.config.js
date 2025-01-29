@@ -1,4 +1,5 @@
 const path = require('path');
+const { defineReactCompilerLoaderOption, reactCompilerLoader } = require('react-compiler-webpack');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = (args) => {
@@ -10,12 +11,16 @@ module.exports = (args) => {
       rules: [
         {
           test: /\.tsx?$/,
-          use: {
-            loader: 'ts-loader',
-            options: {
-              configFile: 'src/client/tsconfig.json',
+          use: [
+            {
+              loader: 'ts-loader',
+              options: {
+                configFile: 'src/client/tsconfig.json',
+              },
             },
-          },
+           
+          ],
+
           exclude: /node_modules/,
         },
         {

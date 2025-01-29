@@ -41,6 +41,6 @@ export default function LinearBuffer({ msStart, msFinish, variant = "buffer" }: 
   }, []);
 
   return (
-    <LinearProgress variant={variant} value={progress} valueBuffer={variant == "buffer" ? buffer : null} />
+    <LinearProgress variant={variant} value={progress} valueBuffer={variant == "buffer" ? buffer : undefined} />
   );
 }

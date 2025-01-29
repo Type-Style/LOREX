@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	container.innerHTML = svgTemplate;
 
 	const animateElement = container.querySelector('animate');
-	animateElement.addEventListener('beginEvent', () => {
+	animateElement?.addEventListener('beginEvent', () => {
 		if (mq.matches) {
 			const animations = document.querySelectorAll('animate, animateTransform');
 			animations.forEach(animationElement => {

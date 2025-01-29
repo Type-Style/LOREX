@@ -1,11 +1,11 @@
-import React, { useState, useContext, useRef, useCallback, Suspense } from 'react'
+import React, { useState, useContext, useRef, useCallback, Suspense, useEffect } from 'react'
 import "../css/start.css";
-import { Context } from "../components/App";
+import { Context } from "../context";
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import CheckIcon from '@mui/icons-material/Check';
 import Button from '@mui/material/Button';
 import ModeSwitcher from '../components/ModeSwitcher';
-import { useGetData } from "../scripts/getData";
+import { useGetData } from "../hooks/useGetData";
 import { layers } from "../scripts/layers";
 import { timeAgo } from "../scripts/timeAgo";
 
@@ -16,25 +16,21 @@ const LinearBuffer = React.lazy(() => import('../components/LinearBuffer'));
 const MiniMap = React.lazy(() => import('../components/MiniMap'));
 const Map = React.lazy(() => import('../components/Map'));
 
-
 function Start() {
   const fetchIntervalMs = 1000 * 55;
-  const index = useRef(0); // used to hold information on how many entries, for looping and refetching second to last entry (the ignore check)
-  const initialRender = useRef(true);
   const intervalID = useRef<NodeJS.Timeout>(null);
 
   const [contextObj] = useContext(Context);
-  const [messageObj, setMessageObj] = useState({ isError: null, status: null, message: null });
-  const [entries, setEntries] = useState<Models.IEntry[] | null>([]);
+  const [messageObj, setMessageObj] = useState<Omit<client.entryData, 'fetchTimeData'>>({ isError: false, status: 200, message: "" });
+  const [entries, setEntries] = useState<Array<Models.IEntry>>([]);
   const [lastFetch, setLastFetch] = useState<number>();
   const [nextFetch, setNextFetch] = useState<number>();
 
-  const { fetchData } = useGetData(index, fetchIntervalMs, setEntries);
+  const { fetchData } = useGetData(entries.length, fetchIntervalMs, setEntries);
   const getData = useCallback(async () => {
-    initialRender.current = false;
     if (!contextObj.isLoggedIn) {
       if (contextObj.userInfo) { // no valid login but userInfo
-        setMessageObj({ isError: true, status: "403", message: "Login expired" })
+        setMessageObj({ isError: true, status: 403, message: "Login expired" })
       }
       return; // no need to fetch if logged out
     }
@@ -43,27 +39,36 @@ function Start() {
 
     setMessageObj({ isError, status, message });
 
-    if (isError && status == 403) {
-      clearInterval(intervalID.current); intervalID.current = null;
-      return;
-    }
-
     if (fetchTimeData.last && fetchTimeData.next) {
       setLastFetch(fetchTimeData.last);
       setNextFetch(fetchTimeData.next);
     }
+    
 
+  }, [fetchData, contextObj.isLoggedIn, contextObj.userInfo]);
+
+  getData();
+  
+  useEffect(() => {
     if (!intervalID.current) { // Setup Interval to fetch data
       intervalID.current = setInterval(getData, fetchIntervalMs); // capture interval ID as return from setInterval
     }
 
-    initialRender.current = false;
-  }, [fetchData]);
+    if (messageObj.isError && messageObj.status == 403 && intervalID.current) { // clear interval when logged out
+      clearInterval(intervalID.current); intervalID.current = null;
+    }
+  
+    return () => {
+      if (intervalID.current) {
+        clearInterval(intervalID.current); intervalID.current = null;
+      }
+    }
+  }, [fetchIntervalMs, messageObj.isError, messageObj.status, getData]);
+ 
 
-  if (initialRender.current) {
-    getData();
-  }
+  
 
+ 
   return (
     <>
       <div className="start">
@@ -73,7 +78,7 @@ function Start() {
               <strong className="title">{messageObj.status}</strong> <span className="fadeIn">{messageObj.message}</span>
             </div>
           }
-          {!messageObj.isError && contextObj.userInfo &&
+          {!messageObj.isError && contextObj.userInfo && typeof contextObj.userInfo == "object" &&
             <div className="message">
               <strong className="title">{contextObj.userInfo.user}</strong> <span className="fade">Welcome back</span>
             </div>
@@ -81,8 +86,8 @@ function Start() {
           <Button
             className={`loginButton ${contextObj.isLoggedIn ? "loginButton--loggedIn" : ''} cut`}
             variant="contained"
-            href={contextObj.isLoggedIn ? null : "/login"}
-            onClick={contextObj.isLoggedIn ? () => { contextObj.setLogin(false); localStorage.clear(); } : null}
+            href={contextObj.isLoggedIn ? undefined : "/login"}
+            onClick={contextObj.isLoggedIn ? () => { contextObj.setLogin(false); localStorage.clear(); } : undefined}
             endIcon={contextObj.isLoggedIn ? <CheckIcon /> : null}
             startIcon={contextObj.isLoggedIn ? null : <HighlightOffIcon />}
             color={contextObj.isLoggedIn ? "success" : "error"}
@@ -112,7 +117,7 @@ function Start() {
           {entries.at(-1) && layers.map((layer, index) => {
             return (
               <Suspense fallback={<div>Loading MiniMap...</div>} key={index}>
-                <MiniMap layer={layer} index={index} lastEntry={entries.at(-1)} />
+                <MiniMap layer={layer} index={index} lastEntry={entries[entries.length - 1]} />
               </Suspense>
             )
           })}
@@ -128,8 +133,8 @@ function Start() {
           {entries?.length > 0 &&
             <>
               <strong className="info noDivider">GPS:</strong>
-              <span className="info">{entries.at(-1).lat} / {entries.at(-1).lon}</span>
-              <span className="info">{contextObj.isLoggedIn ? timeAgo(entries.at(-1).time.created) : entries.at(-1).time.createdString}</span>
+              <span className="info">{entries.at(-1)!.lat} / {entries.at(-1)!.lon}</span>
+              <span className="info">{contextObj.isLoggedIn ? timeAgo(entries.at(-1)!.time.created) : entries.at(-1)!.time.createdString}</span>
             </>
           }
         </div>

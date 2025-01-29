@@ -79,7 +79,7 @@ function getStatusData(entries) {
 	}
 
 	const ignoredEntries = entries.length - cleanEntries.length;
-	let uploadMean: number | string = getMean("time.uploadDuration");
+	let uploadMean: number | string | undefined = getMean("time.uploadDuration");
 	if (uploadMean <= 0) { uploadMean = undefined } else { uploadMean = uploadMean.toFixed(3); }
 	const speedGPSMean = (getMean("speed.gps") * 3.6).toFixed(1);
 	const speedCalcMean = (getMean("speed.horizontal") * 3.6).toFixed(1);
@@ -102,7 +102,7 @@ function getStatusData(entries) {
 	}
 }
 
-function Status({ entries }: { entries: Models.IEntry[] }) {
+function Status({ entries }: { entries: Array<Models.IEntry> }) {
 	if (!entries?.length) {
 		return <span className="noData cut">No Data to be displayed</span>
 	}
