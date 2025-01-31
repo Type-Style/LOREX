@@ -1,5 +1,6 @@
 {
-	"extends": "@tsconfig/node20/tsconfig.json",
+	"$schema": "https://json.schemastore.org/tsconfig",
+  "_version": "22.0.0",
 	"include": [
 		"src/**/*"
 	],
@@ -12,11 +13,14 @@
 	"compilerOptions": {
 		"rootDir": "src",
 		"outDir": "dist",
+		"lib": ["es2023"],
 		"module": "CommonJS",
 		"moduleResolution": "node",
 		"target": "ES6",
 		"sourceMap": true,
 		"baseUrl": "./src",
+		"strict": true,
+		"skipLibCheck": true,
 		"esModuleInterop": true,
 		"paths": {
 			"@src/*": [

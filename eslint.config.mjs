@@ -15,7 +15,9 @@ export default [
         files: ['src/client/**/*.{js,jsx,ts,tsx}'],
         ignores: [
             "src/client/types.d.ts",
-            "src/client/types_easyButton.d.ts"
+            "src/client/types_easyButton.d.ts",
+            "src/client/vite.config.js",
+            "src/client/postcss.config.js"
         ],
         settings: {
             react: { version: '19' },

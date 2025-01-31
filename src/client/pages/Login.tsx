@@ -8,7 +8,6 @@ import LockIcon from '@mui/icons-material/Lock';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import LoginIcon from '@mui/icons-material/Login';
 import CheckIcon from '@mui/icons-material/Check';
-import "../css/login.css";
 import ModeSwitcher from '../components/ModeSwitcher';
 import axios from 'axios';
 import qs from 'qs';
@@ -16,6 +15,7 @@ import { Context } from '../context';
 import { convertJwt } from "../scripts/convertJwt";
 import { useNavigate } from 'react-router-dom';
 import LinearBuffer from '../components/LinearBuffer';
+import "../css/login.css";
 
 function Login() {
   const [finish, setFinish] = useState(1);

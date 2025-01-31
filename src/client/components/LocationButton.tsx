@@ -36,6 +36,6 @@ export const LocationButton = ({ lat, lon }: { lat: number, lon: number }) => {
 				justClicked.current = false;
 			});
 		}).addTo(map);
-	});
+	}, [map, gpsIcon, lat, lon]);
 	return null;
 };

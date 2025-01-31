@@ -9,7 +9,7 @@ export const useGetData = (index: number, fetchIntervalMs: number, setEntries) =
 		const token = localStorage.getItem("jwt");
 		let response: AxiosResponse<Models.IEntries>;
 
-		let returnObj: client.entryData = { isError: false, status: 200, message: "", fetchTimeData: { last: null, next: null }}
+		let returnObj: client.entryData = { isError: false, status: 200, message: "", fetchTimeData: { last: null, next: null } }
 
 		if (!token) {
 			contextObj.setLogin(false);
@@ -17,22 +17,22 @@ export const useGetData = (index: number, fetchIntervalMs: number, setEntries) =
 		}
 
 		try {
-			const now = new Date().getTime();
-			returnObj.fetchTimeData.last = now;
+			const startTime = Date.now();
 
 			response = await axios<Models.IEntries>({
 				method: 'get',
-				url: "/read?index=" + (Math.max(index - 1, 0)) + "&noCache=" + now,
+				url: "/read?index=" + (Math.max(index - 1, 0)) + "&noCache=" + startTime,
 				headers: {
 					'Authorization': `Bearer ${token}`
 				}
 			});
 
+
 			const newEntries: Array<Models.IEntry> = response.data.entries;
 
 			if (newEntries.length) {
-				setEntries((prevEntries:Array<Models.IEntry>) => {
-					let allButLastPrevEntries:Array<Models.IEntry>, mergedEntries: Array<Models.IEntry> = [];
+				setEntries((prevEntries: Array<Models.IEntry>) => {
+					let allButLastPrevEntries: Array<Models.IEntry>, mergedEntries: Array<Models.IEntry> = [];
 
 					if (prevEntries.length) {
 						allButLastPrevEntries = prevEntries.slice(0, prevEntries.length - 1);
@@ -46,18 +46,25 @@ export const useGetData = (index: number, fetchIntervalMs: number, setEntries) =
 
 			}
 
-			return{ isError: false, status: 200, message: "", fetchTimeData: { ...returnObj.fetchTimeData, next: new Date().getTime() + fetchIntervalMs } }
+			const endTime = Date.now();
+			const delay = endTime - startTime;
+
+			returnObj.fetchTimeData.last = 	endTime;
+			returnObj.fetchTimeData.next = endTime + fetchIntervalMs + delay;
+
+			return returnObj;
 
 		} catch (error) {
 			console.log("error fetching data %o", error);
+			returnObj.isError = true;
 
 			if (!error.response) {
-				return { isError: true, status: 499, message: error.message || "offline", fetchTimeData: { ...returnObj.fetchTimeData, next: new Date().getTime() + fetchIntervalMs } }
+				return { ...returnObj, status: 499, message: error.message || "offline", fetchTimeData: { ...returnObj.fetchTimeData, next: new Date().getTime() + fetchIntervalMs } }
 			}
 
 			if (error.response.status == 403) { contextObj.setLogin(false) }
 
-			return { isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message, fetchTimeData: { last: null, next: null } }
+			return { ...returnObj, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message, fetchTimeData: { last: null, next: null } }
 		}
 	}
 

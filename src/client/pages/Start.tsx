@@ -1,5 +1,4 @@
-import React, { useState, useContext, useRef, useCallback, Suspense, useEffect } from 'react'
-import "../css/start.css";
+import React, { useState, useContext, useRef, useCallback, Suspense, useEffect, lazy } from 'react'
 import { Context } from "../context";
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import CheckIcon from '@mui/icons-material/Check';
@@ -8,30 +7,30 @@ import ModeSwitcher from '../components/ModeSwitcher';
 import { useGetData } from "../hooks/useGetData";
 import { layers } from "../scripts/layers";
 import { timeAgo } from "../scripts/timeAgo";
+import "../css/start.css";
 
 
 // Lazy load the components
-const Status = React.lazy(() => import('../components/Status'));
-const LinearBuffer = React.lazy(() => import('../components/LinearBuffer'));
-const MiniMap = React.lazy(() => import('../components/MiniMap'));
-const Map = React.lazy(() => import('../components/Map'));
+const Status = lazy(() => import('../components/Status'));
+const LinearBuffer = lazy(() => import('../components/LinearBuffer'));
+const MiniMap = lazy(() => import('../components/MiniMap'));
+const Map = lazy(() => import('../components/Map'));
+
+const fetchIntervalMs = 1000 * 55;
 
 function Start() {
-  const fetchIntervalMs = 1000 * 55;
+  const [isFirstRender, setFirstRender] = useState<boolean>(true);
   const intervalID = useRef<NodeJS.Timeout>(null);
 
   const [contextObj] = useContext(Context);
   const [messageObj, setMessageObj] = useState<Omit<client.entryData, 'fetchTimeData'>>({ isError: false, status: 200, message: "" });
   const [entries, setEntries] = useState<Array<Models.IEntry>>([]);
-  const [lastFetch, setLastFetch] = useState<number>();
-  const [nextFetch, setNextFetch] = useState<number>();
+  const [fetchTimes, setFetchTimes] = useState<{ last: number | undefined, next: number | undefined }>({ last: undefined, next: undefined });
 
   const { fetchData } = useGetData(entries.length, fetchIntervalMs, setEntries);
   const getData = useCallback(async () => {
     if (!contextObj.isLoggedIn) {
-      if (contextObj.userInfo) { // no valid login but userInfo
-        setMessageObj({ isError: true, status: 403, message: "Login expired" })
-      }
+      setMessageObj({ isError: true, status: 403, message: contextObj.userInfo ? "Login expired" : "No valid login" });
       return; // no need to fetch if logged out
     }
 
@@ -40,14 +39,15 @@ function Start() {
     setMessageObj({ isError, status, message });
 
     if (fetchTimeData.last && fetchTimeData.next) {
-      setLastFetch(fetchTimeData.last);
-      setNextFetch(fetchTimeData.next);
+      setFetchTimes({ last: fetchTimeData.last, next: fetchTimeData.next });
     }
     
-
   }, [fetchData, contextObj.isLoggedIn, contextObj.userInfo]);
 
-  getData();
+  if (isFirstRender) {
+    setFirstRender(false)
+    getData();
+  }
   
   useEffect(() => {
     if (!intervalID.current) { // Setup Interval to fetch data
@@ -65,8 +65,6 @@ function Start() {
     }
   }, [fetchIntervalMs, messageObj.isError, messageObj.status, getData]);
  
-
-  
 
  
   return (
@@ -124,9 +122,9 @@ function Start() {
         </div>)}
 
         <div className="grid-item subinfo">
-          {contextObj.isLoggedIn && intervalID && lastFetch && nextFetch &&
+          {contextObj.isLoggedIn && intervalID && fetchTimes.last && fetchTimes.next &&
             <Suspense fallback={<div>Loading Progress...</div>}>
-              <LinearBuffer msStart={lastFetch} msFinish={nextFetch} variant="determinate" />
+              <LinearBuffer msStart={fetchTimes.last} msFinish={fetchTimes.next} variant="determinate" />
             </Suspense>
           }
 
