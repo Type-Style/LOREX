@@ -1,15 +1,15 @@
-import React, { Suspense, createContext, useEffect, useLayoutEffect, useState } from 'react';
+import React, { Suspense, useEffect, useLayoutEffect, useState } from 'react';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { useColorScheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Start from '../pages/Start';
 import axios from "axios";
 import { convertJwt } from "../scripts/convertJwt";
+import { Context } from "../context";
 
 
 const Login = React.lazy(() => import('../pages/Login'));
 
-export const Context = createContext([]);
 
 function loginDefault(userInfo) {
   if (!userInfo) { return false; }
@@ -43,7 +43,7 @@ const App = () => {
   const [mapToken, setMapToken] = useState<string | null>(null);
   const [trafficToken, setTrafficToken] = useState<string | null>(null);
 
-  const contextObj = { isLoggedIn, setLogin, userInfo, setUserInfo, mode, setMode, prefersDarkMode, mapToken, trafficToken }
+  const contextObj:client.AppContext = { isLoggedIn, setLogin, userInfo, setUserInfo, mode, setMode, prefersDarkMode, mapToken, trafficToken }
 
   useLayoutEffect(() => {
     // patch data attribute (removed from mui in new version)
@@ -52,11 +52,11 @@ const App = () => {
       setMode(prefersDarkMode ? "dark" : "light");
     }
     document.documentElement.dataset.muiColorScheme = mode;
-  }, [prefersDarkMode, setMode]);
+  }, [prefersDarkMode, setMode, mode]);
 
 
   useEffect(() => {
-    if (!isLoggedIn) return;
+    if (!isLoggedIn) {return;}
     const fetchToken = async (path: string, setState: React.Dispatch<React.SetStateAction<string | null>>) => {
       try {
         const token = localStorage.getItem("jwt");

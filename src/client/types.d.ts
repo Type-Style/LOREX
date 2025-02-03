@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 declare module "*.module.css";
 declare namespace client {
 	type MarkerStyle = "" | "light" | "dark";
@@ -24,8 +24,22 @@ declare namespace client {
 		isError: boolean,
 		status: number,
 		message: string,
-		fetchTimeData: {last: number, next: number} | null
+		fetchTimeData: {last: number | null, next: number | null}
 	}
+
+
+	interface AppContext  {
+		isLoggedIn: boolean;
+		setLogin: React.Dispatch<React.SetStateAction<boolean>>;
+		userInfo: boolean | { user: any; exp: any; };
+		setUserInfo: React.Dispatch<React.SetStateAction<boolean | { user: any; exp: any; }>>;
+		mode: string | undefined;
+		setMode: (mode: string | null) => void;
+		prefersDarkMode: boolean;
+		mapToken: string | null;
+		trafficToken: string | null;
+	}
+	
 }
 
 

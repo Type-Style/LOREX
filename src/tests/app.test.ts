@@ -19,14 +19,14 @@ describe('Server Status', () => {
     }
 
     expect(serverStatus).toBe(200);
-    expect(response.data).toContain("js/bundle.js");
+    expect(response.data).toContain("js/index.js");
   })
 
-  it('bundle.js exists', async () => {
+  it('index.js exists', async () => {
     let serverStatus;
     let response;
     try {
-      response = await axios.get('http://localhost:80/js/bundle.js');
+      response = await axios.get('http://localhost:80/js/index.js');
       serverStatus = response.status;
     } catch (error) {
       console.error(error);

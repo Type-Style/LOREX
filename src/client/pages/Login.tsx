@@ -8,14 +8,14 @@ import LockIcon from '@mui/icons-material/Lock';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import LoginIcon from '@mui/icons-material/Login';
 import CheckIcon from '@mui/icons-material/Check';
-import "../css/login.css";
 import ModeSwitcher from '../components/ModeSwitcher';
 import axios from 'axios';
 import qs from 'qs';
-import { Context } from '../components/App';
+import { Context } from '../context';
 import { convertJwt } from "../scripts/convertJwt";
 import { useNavigate } from 'react-router-dom';
 import LinearBuffer from '../components/LinearBuffer';
+import "../css/login.css";
 
 function Login() {
   const [finish, setFinish] = useState(1);
@@ -27,7 +27,7 @@ function Login() {
     user: {
       isError: false,
       message: "Minimum 2",
-      value: contextObj.userInfo?.user || ""
+      value: typeof contextObj.userInfo == "object" ? contextObj.userInfo.user : ""
     },
     password: {
       isError: false,
@@ -36,8 +36,8 @@ function Login() {
     },
     token: ""
   });
-  const [isLoading, setLoading] = React.useState(false);
-  const [errorObj, setMessageObj] = React.useState({ isError: null, status: null, message: null });
+  const [isLoading, setLoading] = useState(false);
+  const [messageObj, setMessageObj] = useState<{ isError: boolean, status: React.ReactElement | null, message: string }>({ isError: false, status: null, message: "" });
 
   const isFormValid = formInfo.user.value && !formInfo.user.isError && formInfo.password.value && !formInfo.password.isError;
 
@@ -65,10 +65,10 @@ function Login() {
     setFinish(new Date(date.getTime() + milliseconds).getTime());
 
     setLoading(true);
-    setMessageObj({ isError: null, status: null, message: null });
+    setMessageObj({ isError: false, status: null, message: "" });
 
 
-    let token = null; // get csrf token
+    let token; // get csrf token
     try {
       token = await axios({
         method: "post",
@@ -138,7 +138,7 @@ function Login() {
             error={formInfo.user.isError}
             helperText={formInfo.user.isError ? formInfo.user.message : false}
             required
-            autoFocus={!contextObj.userInfo?.user}
+            autoFocus={!contextObj.userInfo}
             InputProps={{
               classes: {
                 root: "cut",
@@ -167,7 +167,7 @@ function Login() {
             required
             error={formInfo.password.isError}
             helperText={formInfo.password.isError ? formInfo.password.message : false}
-            autoFocus={!!contextObj.userInfo?.user}
+            autoFocus={!!contextObj.userInfo}
             InputProps={{
               classes: {
                 root: "cut",
@@ -187,14 +187,14 @@ function Login() {
           />
           <input type="hidden" id="csrfToken" value={formInfo.token} name="csrfToken" />
           <div className="subWrapper">
-            {errorObj.status ? (
-              <p className={`message ${errorObj.isError ? 'message--error' : 'message--success'}`}>
-                <strong>{errorObj.status}</strong>
-                {errorObj.message.split('\n').map((line: string, index: string) => (
-                  <React.Fragment key={index}>
+            {messageObj.status ? (
+              <p className={`message ${messageObj.isError ? 'message--error' : 'message--success'}`}>
+                <strong>{messageObj.status}</strong>
+                {messageObj.message.split('\n').map((line: string, index: number) => (
+                  <span key={index}>
                     {line}
                     <br />
-                  </React.Fragment>
+                  </span>
                 ))}
               </p>
             ) : null}

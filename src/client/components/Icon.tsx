@@ -10,9 +10,9 @@ export const  Icon =(iconObj: { className: string, iconSize: number }) => {
 			<title>Marker Arrow</title>
 			${iconObj.className != "none" ? triangleArrow : defaultArrow}	
 		</svg>`,
-		shadowUrl: null,
-		shadowSize: null,
-		shadowAnchor: null,
+		// shadowUrl: null,
+		// shadowSize: null,
+		// shadowAnchor: null,
 		iconSize: [iconObj.iconSize, iconObj.iconSize],
 		iconAnchor: [iconObj.iconSize / 2, iconObj.iconSize / 2],
 		popupAnchor: [0, 0],

@@ -6,7 +6,7 @@ export const convertJwt = () => {
     const { user, exp } = JSON.parse(window.atob(token.split('.')[1]));
     return { user, exp };
   } catch (error) {
-    console.error("Unable to parse JWT Data");
+    console.error("Unable to parse JWT Data", error);
     return false;
   }
 }
