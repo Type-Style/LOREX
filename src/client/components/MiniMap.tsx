@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import { MapContainer, TileLayer } from "react-leaflet";
 import { MapRecenter } from "./MapCenter";
-import { Context } from "./App";
+import { Context } from "../context";
 
 export default function MiniMap({ layer, lastEntry }: client.MiniMapProps) {
 
@@ -20,17 +20,17 @@ export default function MiniMap({ layer, lastEntry }: client.MiniMapProps) {
 
 		// Convert NodeList to an array and iterate using forEach
 		Array.from(elements).forEach((el) => {
-			const siblingSpan = el.nextElementSibling as HTMLElement | null;
+			const siblingSpan = el.nextElementSibling as HTMLElement;
 			if (siblingSpan && siblingSpan.textContent?.trim() === name) {
 				element = el as HTMLInputElement;
+				element.click();
 			}
 		});
 
 		if (!element) {
-			console.warn(`No layer found with the name: ${name}`);
+			console.error(`No layer found with the name: ${name}`);
+			return;
 		}
-
-		element.click();
 	}
 
 
@@ -47,8 +47,8 @@ export default function MiniMap({ layer, lastEntry }: client.MiniMapProps) {
 				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} zoom={15} fly={false} />
 				<TileLayer
 					attribution={layer.attribution}
-					url={layer.url.includes(mapToken) ? layer.url.replace(mapToken, contextObj.mapToken) :
-						layer.url.includes(trafficToken) ? layer.url.replace(trafficToken, contextObj.trafficToken) : layer.url}
+					url={layer.url.includes(mapToken) ? layer.url.replace(mapToken, contextObj.mapToken ?? "") :
+						layer.url.includes(trafficToken) ? layer.url.replace(trafficToken, contextObj.trafficToken ?? "") : layer.url}
 					tileSize={layer.size || 256}
 					zoomOffset={layer.zoomOffset || 0}
 				/>

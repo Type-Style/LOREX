@@ -1,63 +1,37 @@
-import React, { useState, useContext, useRef, useCallback, Suspense } from 'react'
-import "../css/start.css";
-import { Context } from "../components/App";
+import React, { useState, useContext, useRef, useCallback, Suspense, useEffect, lazy } from 'react'
+import { Context } from "../context";
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import CheckIcon from '@mui/icons-material/Check';
 import Button from '@mui/material/Button';
 import ModeSwitcher from '../components/ModeSwitcher';
-import { useGetData } from "../scripts/getData";
+import { useGetData } from "../hooks/useGetData";
 import { layers } from "../scripts/layers";
+import { timeAgo } from "../scripts/timeAgo";
+import "../css/start.css";
+import CircularProgress from "@mui/material/CircularProgress";
+
 
 // Lazy load the components
-const Status = React.lazy(() => import('../components/Status'));
-const LinearBuffer = React.lazy(() => import('../components/LinearBuffer'));
-const MiniMap = React.lazy(() => import('../components/MiniMap'));
-const Map = React.lazy(() => import('../components/Map'));
+const Status = lazy(() => import('../components/Status'));
+const LinearBuffer = lazy(() => import('../components/LinearBuffer'));
+const MiniMap = lazy(() => import('../components/MiniMap'));
+const Map = lazy(() => import('../components/Map'));
 
-function timeAgo(timestamp: number): string {
-  if (!Number.isInteger(timestamp)) {
-    return "";
-  }
-  const now = Date.now();
-  const diffInSeconds = Math.floor((now - timestamp) / 1000);
-
-  const seconds = diffInSeconds;
-  const minutes = Math.round(diffInSeconds / 60);
-  const hours = Math.round(diffInSeconds / 3600);
-  const days = Math.round(diffInSeconds / 86400);
-  const months = Math.round(diffInSeconds / 2592000);
-  const years = Math.round(diffInSeconds / 31536000);
-
-  if (seconds < 8) return "Instant";
-  else if (seconds < 25) return "Just now";
-  else if (seconds < 50) return "a moment ago";
-  else if (minutes < 60) return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ago`;
-  else if (hours < 24) return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
-  else if (days < 30) return `${days} ${days === 1 ? "day" : "days"} ago`;
-  else if (months < 12) return `${months} ${months === 1 ? "month" : "months"} ago`;
-  else return `${years} ${years === 1 ? "year" : "years"} ago`;
-
-}
+const fetchIntervalMs = 1000 * 55;
 
 function Start() {
-  const fetchIntervalMs = 1000 * 55;
-  const index = useRef(0); // used to hold information on how many entries, for looping and refetching second to last entry (ignore check)
-  const initialRender = useRef(true);
-  const intervalID = useRef<NodeJS.Timeout>();
+  const [isFirstRender, setFirstRender] = useState<boolean>(true);
+  const intervalID = useRef<NodeJS.Timeout>(null);
 
   const [contextObj] = useContext(Context);
-  const [messageObj, setMessageObj] = useState({ isError: null, status: null, message: null });
-  const [entries, setEntries] = useState<Models.IEntry[] | null>([]);
-  const [lastFetch, setLastFetch] = useState<number>();
-  const [nextFetch, setNextFetch] = useState<number>();
+  const [messageObj, setMessageObj] = useState<Omit<client.entryData, 'fetchTimeData'>>({ isError: false, status: 200, message: "" });
+  const [entries, setEntries] = useState<Array<Models.IEntry>>([]);
+  const [fetchTimes, setFetchTimes] = useState<{ last: number | undefined, next: number | undefined }>({ last: undefined, next: undefined });
 
-  const { fetchData } = useGetData(index, fetchIntervalMs, setEntries);
+  const { fetchData } = useGetData(entries.length, fetchIntervalMs, setEntries);
   const getData = useCallback(async () => {
-    initialRender.current = false;
     if (!contextObj.isLoggedIn) {
-      if (contextObj.userInfo) { // no valid login but userInfo
-        setMessageObj({ isError: true, status: "403", message: "Login expired" })
-      }
+      setMessageObj({ isError: true, status: 403, message: contextObj.userInfo ? "Login expired" : "No valid login" });
       return; // no need to fetch if logged out
     }
 
@@ -65,25 +39,34 @@ function Start() {
 
     setMessageObj({ isError, status, message });
 
-    if (isError && status == 403) {
-      clearInterval(intervalID.current); intervalID.current = null;
-    }
-
     if (fetchTimeData.last && fetchTimeData.next) {
-      setLastFetch(fetchTimeData.last);
-      setNextFetch(fetchTimeData.next);
+      setFetchTimes({ last: fetchTimeData.last, next: fetchTimeData.next });
     }
 
-    if (typeof intervalID.current == "undefined") { // deliberately checking for undefined, to compare initial state vs set to null on errors
+  }, [fetchData, contextObj.isLoggedIn, contextObj.userInfo]);
+
+  if (isFirstRender) {
+    setFirstRender(false)
+    getData();
+  }
+
+  useEffect(() => {
+    if (!intervalID.current) { // Setup Interval to fetch data
       intervalID.current = setInterval(getData, fetchIntervalMs); // capture interval ID as return from setInterval
     }
 
-    initialRender.current = false;
-  }, [fetchData]);
+    if (messageObj.isError && messageObj.status == 403 && intervalID.current) { // clear interval when logged out
+      clearInterval(intervalID.current); intervalID.current = null;
+    }
 
-  if (initialRender.current) {
-    getData();
-  }
+    return () => {
+      if (intervalID.current) {
+        clearInterval(intervalID.current); intervalID.current = null;
+      }
+    }
+  }, [messageObj.isError, messageObj.status, getData]);
+
+
 
   return (
     <>
@@ -94,7 +77,7 @@ function Start() {
               <strong className="title">{messageObj.status}</strong> <span className="fadeIn">{messageObj.message}</span>
             </div>
           }
-          {!messageObj.isError && contextObj.userInfo &&
+          {!messageObj.isError && contextObj.userInfo && typeof contextObj.userInfo == "object" &&
             <div className="message">
               <strong className="title">{contextObj.userInfo.user}</strong> <span className="fade">Welcome back</span>
             </div>
@@ -102,8 +85,8 @@ function Start() {
           <Button
             className={`loginButton ${contextObj.isLoggedIn ? "loginButton--loggedIn" : ''} cut`}
             variant="contained"
-            href={contextObj.isLoggedIn ? null : "/login"}
-            onClick={contextObj.isLoggedIn ? () => { contextObj.setLogin(false); localStorage.clear(); } : null}
+            href={contextObj.isLoggedIn ? undefined : "/login"}
+            onClick={contextObj.isLoggedIn ? () => { contextObj.setLogin(false); localStorage.clear(); } : undefined}
             endIcon={contextObj.isLoggedIn ? <CheckIcon /> : null}
             startIcon={contextObj.isLoggedIn ? null : <HighlightOffIcon />}
             color={contextObj.isLoggedIn ? "success" : "error"}
@@ -114,47 +97,53 @@ function Start() {
         </div>
 
         <div className="grid-item map cut">
-          <Suspense fallback={<div>Loading Map...</div>}>
-            <Map entries={entries} />
-          </Suspense>
+          {entries.length > 0 &&
+            <Suspense fallback={<div>Loading Map...</div>}>
+              <Map entries={entries} />
+            </Suspense>
+          }
         </div>
 
         <div className="grid-item theme"><ModeSwitcher /></div>
 
-        {contextObj.isLoggedIn && (
+        {contextObj.isLoggedIn && entries.length > 0 ? (
           <div className={`grid-item status ${entries.length ? "cut-after" : 'emptyData'}`}>
-            <Suspense fallback={<div>Loading Status...</div>}>
+            <Suspense fallback={<div className="loading"><CircularProgress color="inherit" /></div>}>
               <Status entries={entries} />
             </Suspense>
           </div>
+        ) : (
+          <span className="noData cut">{contextObj.isLoggedIn ? "No Data to be displayed" : "No Login"}</span>
         )}
 
-        {contextObj.isLoggedIn && (<div className="grid-item images">
-          {entries.at(-1) && layers.map((layer, index) => {
-            return (
-              <Suspense fallback={<div>Loading MiniMap...</div>} key={index}>
-                <MiniMap layer={layer} index={index} lastEntry={entries.at(-1)} />
-              </Suspense>
-            )
-          })}
-        </div>)}
+        {contextObj.isLoggedIn && entries.length > 0 &&
+          <div className="grid-item images">
+            {layers.map((layer, index) => {
+              return (
+                <Suspense fallback={<div className="loading box cut"><CircularProgress color="inherit" /></div>} key={index}>
+                  <MiniMap layer={layer} index={index} lastEntry={entries[entries.length - 1]} />
+                </Suspense>
+              )
+            })}
+          </div>
+        }
 
         <div className="grid-item subinfo">
-          {contextObj.isLoggedIn && intervalID && lastFetch && nextFetch &&
-            <Suspense fallback={<div>Loading Progress...</div>}>
-              <LinearBuffer msStart={lastFetch} msFinish={nextFetch} variant="determinate" />
+          {contextObj.isLoggedIn && intervalID && fetchTimes.last && fetchTimes.next &&
+            <Suspense fallback={<div className="loading line"></div>}>
+              <LinearBuffer msStart={fetchTimes.last} msFinish={fetchTimes.next} variant="determinate" />
             </Suspense>
           }
 
-          {entries?.length > 0 &&
+          {entries.length > 0 &&
             <>
               <strong className="info noDivider">GPS:</strong>
-              <span className="info">{entries.at(-1).lat} / {entries.at(-1).lon}</span>
-              <span className="info">{contextObj.isLoggedIn ? timeAgo(entries.at(-1).time.created) : entries.at(-1).time.createdString}</span>
+              <span className="info">{entries.at(-1)!.lat} / {entries.at(-1)!.lon}</span>
+              <span className="info">{contextObj.isLoggedIn ? timeAgo(entries.at(-1)!.time.created) : entries.at(-1)!.time.createdString}</span>
             </>
           }
         </div>
-      </div >
+      </div>
       <svg className="bg-pattern" xmlns="http://www.w3.org/2000/svg">
         <rect width="100%" height="100%" fill="url(#repeatingGradient)" />
       </svg>

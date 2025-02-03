@@ -69,7 +69,7 @@
 	}
 
 	&.end {
-		z-index: 999; /* over cluster group */
+		z-index: 9999; /* over cluster group */
 	}
 
 	&.start {

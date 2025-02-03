@@ -16,21 +16,23 @@ const readline = require('readline');
 const { crypt } = require('../dist/scripts/crypt');
 
 // Set up readline to read input from the console
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
-
-
-if (!process.env.KEY) {
-  console.error("KEY is missing! Please provide Environment Variable KEY. \nExample: KEY=your-key node ./init/generatePassword.js");
-  return;
-}
-
-
-// Prompt user for input
-rl.question('Enter Password to be generated: ', async (input) => {
-  const cryptedPassword = await crypt(input);
-  console.log(cryptedPassword);
-  rl.close();
-});
+(function generatePassword() {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+  
+  
+  if (!process.env.KEY) {
+    console.error("KEY is missing! Please provide Environment Variable KEY. \nExample: KEY=your-key node ./init/generatePassword.js");
+    return;
+  }
+  
+  
+  // Prompt user for input
+  rl.question('Enter Password to be generated: ', async (input) => {
+    const cryptedPassword = await crypt(input);
+    console.log(cryptedPassword);
+    rl.close();
+  });
+})();

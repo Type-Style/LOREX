@@ -6,6 +6,13 @@ Leaflet Osmand React ExpressJS Coordinates (X)
 ## Goal
 Recieve and store coordinates via webhook and display them on a map through an interactive frontend.    
 
+## Tech Stack
+This project, uses TypeScript.<br />
+ESLint, Vite to compile frontend.<br />
+**Backend:** NODE.js, Express.js, Jest (for testing)<br />
+**Frontend:** React, *React Compiler*, MUI, Leaflet
+
+
 ## Installation
 ### Prerequisites
 Download [node](https://nodejs.org/en/download) for your system and install it.  
@@ -40,19 +47,19 @@ KEY=
 directly followed by your output
 
 #### 2nd Generate Password(s)
-Prerequisite: KEY already generated!
+*Prerequisite: KEY already generated!*
 _(may require server restart)_
 Run the build command from the package.json (npm run build)
 Then call the compiled version of this script using the key as environment variable like so:
-KEY=your-key node ./init/generatePassword.js
+`KEY=your-key node ./init/generatePassword.js`
 Enter your password
 Copy that to the Environment Variables and .env file
-USER_WHATEVER=
+`USER_XY=`
 followed by the output of the console
 
 > [!IMPORTANT]
 In order to run automatic tests and create example data is is highly recommended to have a USER_TEST with the password of `test`
-THe test user cannot be used in an production environment
+The test user cannot be used in an production environment
 
 Once completed rebuild / restart the server and open up localhost/login
 Login is now possible using the Username from the .env file in this example "WHATEVER" and the password that was created in the previous step.

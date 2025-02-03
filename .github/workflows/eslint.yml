@@ -13,11 +13,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
-      - run: npm ci # or yarn install
-      - name: Lint server-side code
-        run: npx eslint src/ --fix
-      - name: Lint client-side code
-        run: npx eslint httpdocs/js/ --fix
-      - name: Lint react code
-        run: npx eslint src/client/ --fix
+          node-version: 22
+      - run: npm ci --legacy-peer-deps # or yarn install
+      - name: Lint  code
+        run: npm run lint
+      

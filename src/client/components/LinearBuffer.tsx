@@ -11,11 +11,11 @@ export default function LinearBuffer({ msStart, msFinish, variant = "buffer" }: 
       console.log("LinearProgress did not recieve correct data")
     }
     progressRef.current = () => {
-      let progressValue;
+      let progressValue:number;
       const duration = msFinish - msStart; // duration based on input props
       const date = new Date();
       const now = date.getTime();
-      const progressCalcValue = ((now - msStart) / duration) * 100;
+      const progressCalcValue = Math.min(((now - msStart) / duration) * 100, 100);
       progressValue = progressCalcValue;
       if (variant == "buffer") {
         const secondPhase = duration == 1000;
@@ -41,6 +41,6 @@ export default function LinearBuffer({ msStart, msFinish, variant = "buffer" }: 
   }, []);
 
   return (
-    <LinearProgress variant={variant} value={progress} valueBuffer={variant == "buffer" ? buffer : null} />
+    <LinearProgress variant={variant} value={progress} valueBuffer={variant == "buffer" ? buffer : undefined} />
   );
 }

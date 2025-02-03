@@ -48,7 +48,7 @@ describe('test Data', () => {
   const diff = {lat: end.lat - start.lat, lon: end.lon - start.lon};
   const eta = Date.now() + 151 * 1000;
 
-  // eslint-disable-next-line jest/expect-expect
+  // eslint-disable-next-line
   it('create ' + entries + ' entries', () => {
     return new Promise<void>(done => {
 

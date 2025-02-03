@@ -2,9 +2,10 @@
   "compilerOptions": {
     "lib": ["dom","ES6"],
     "outDir": "../../dist/httpdocs",
-    "rootDir": "../../",
+    "rootDir": "./",
     "jsx": "react",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "strictNullChecks": true,
   },
   "include": ["**/*.tsx", "**/*.ts", "types.d.ts", "types_easyButton.d.ts", "../../types.d.ts"]
 }

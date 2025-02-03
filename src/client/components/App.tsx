@@ -1,26 +1,15 @@
-import React, { Suspense, createContext, useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useLayoutEffect, useState } from 'react';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { useColorScheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Start from '../pages/Start';
 import axios from "axios";
+import { convertJwt } from "../scripts/convertJwt";
+import { Context } from "../context";
 
 
 const Login = React.lazy(() => import('../pages/Login'));
 
-export const Context = createContext([]);
-
-export function convertJwt() {
-  const token = localStorage?.jwt;
-  if (!token) { return false }
-  try {
-    const { user, exp } = JSON.parse(window.atob(token.split('.')[1]));
-    return { user, exp };
-  } catch (error) {
-    console.error("Unable to parse JWT Data");
-    return false;
-  }
-}
 
 function loginDefault(userInfo) {
   if (!userInfo) { return false; }
@@ -54,16 +43,21 @@ const App = () => {
   const [mapToken, setMapToken] = useState<string | null>(null);
   const [trafficToken, setTrafficToken] = useState<string | null>(null);
 
-  const contextObj = {isLoggedIn, setLogin, userInfo, setUserInfo, mode, setMode, prefersDarkMode, mapToken, trafficToken}
+  const contextObj:client.AppContext = { isLoggedIn, setLogin, userInfo, setUserInfo, mode, setMode, prefersDarkMode, mapToken, trafficToken }
+
+  useLayoutEffect(() => {
+    // patch data attribute (removed from mui in new version)
+    const hasDataAttribute = document.documentElement.dataset.muiColorScheme;
+    if (!hasDataAttribute) {
+      setMode(prefersDarkMode ? "dark" : "light");
+    }
+    document.documentElement.dataset.muiColorScheme = mode;
+  }, [prefersDarkMode, setMode, mode]);
+
 
   useEffect(() => {
-    setMode(prefersDarkMode ? "dark" : "light");
-  }, [prefersDarkMode, setMode]);
-
-
-  useEffect(() => {
-    if (!isLoggedIn) return;
-    const fetchToken = async (path:string, setState: React.Dispatch<React.SetStateAction<string | null>>) => {
+    if (!isLoggedIn) {return;}
+    const fetchToken = async (path: string, setState: React.Dispatch<React.SetStateAction<string | null>>) => {
       try {
         const token = localStorage.getItem("jwt");
         const response = await axios.get(path, {
@@ -71,7 +65,7 @@ const App = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        
+
         setState(response.data.token);
       } catch (error) {
         console.error(`Error fetching ${path}:`, error);
@@ -80,13 +74,13 @@ const App = () => {
 
     fetchToken("/read/maptoken", setMapToken);
     fetchToken("/read/traffictoken", setTrafficToken);
-    
+
   }, [isLoggedIn]);
 
   return (
-    <Context.Provider value={[contextObj]}>
+    <Context value={[contextObj]}>
       <RouterProvider router={router} />
-    </Context.Provider>
+    </Context>
   );
 }
 

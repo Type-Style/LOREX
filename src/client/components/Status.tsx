@@ -66,20 +66,20 @@ function getStatusData(entries) {
 	function getEta() {
 		const lastEntry = cleanEntries.at(-1);
 		const eta = lastEntry.eta;
-		if (!eta) { return undefined;	}
+		if (!eta) { return undefined; }
 
 		const currentTime = Date.now();
 		const diffMinutes = (eta - currentTime) / 60000; // Difference between eta and current time
 		const diffMinutesAtCreated = (eta - lastEntry.time.created) / 60000;
-		
-		const print = diffMinutes > 0 ? diffMinutes : diffMinutesAtCreated;		
+
+		const print = diffMinutes > 0 ? diffMinutes : diffMinutesAtCreated;
 		if (print <= 0) { return undefined; }
 
 		return print >= 60 ? (print / 60).toFixed(1) + ' hours' : print.toFixed(1) + ' minutes';
 	}
 
 	const ignoredEntries = entries.length - cleanEntries.length;
-	let uploadMean: number | string = getMean("time.uploadDuration");
+	let uploadMean: number | string | undefined = getMean("time.uploadDuration");
 	if (uploadMean <= 0) { uploadMean = undefined } else { uploadMean = uploadMean.toFixed(3); }
 	const speedGPSMean = (getMean("speed.gps") * 3.6).toFixed(1);
 	const speedCalcMean = (getMean("speed.horizontal") * 3.6).toFixed(1);
@@ -102,12 +102,9 @@ function getStatusData(entries) {
 	}
 }
 
-function Status({ entries }: { entries: Models.IEntry[] }) {
-	if (!entries?.length) {
-		return <span className="noData cut">No Data to be displayed</span>
-	}
+function Status({ entries }: Models.IEntries) {
+	if (!entries?.length) { return; }
 	const statusData = getStatusData(entries);
-	//const lastEntry = entries.at(-1);
 
 	return (
 		<table className="statusTable">

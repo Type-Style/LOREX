@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Context } from "../components/App";
+import { Context } from "../context";
 import Button from '@mui/material/Button';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import NightlightIcon from '@mui/icons-material/Nightlight';
@@ -15,14 +15,10 @@ function ModeSwitcher() {
       variant='outlined' size='large'
       startIcon={contextObj.mode === 'dark' ? <NightlightIcon /> : <LightModeIcon />}
       onClick={() => {
-        if (contextObj.mode === 'light') {
-          contextObj.setMode('dark');
-        } else {
-          contextObj.setMode('light');
-        }
+        contextObj.setMode(contextObj.mode === 'light' ? 'dark' : 'light');
       }}
     >
-      {contextObj.mode} {/* is empty but why? */}
+      {contextObj.mode}
     </Button>
   );
 }
