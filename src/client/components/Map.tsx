@@ -101,6 +101,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 						return Marker(entry, iconObj);
 					})}
 				</MarkerClusterGroup>
+				
 
 
 				{/* (re)start and end end markers */}
