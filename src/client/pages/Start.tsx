@@ -8,6 +8,7 @@ import { useGetData } from "../hooks/useGetData";
 import { layers } from "../scripts/layers";
 import { timeAgo } from "../scripts/timeAgo";
 import "../css/start.css";
+import CircularProgress from "@mui/material/CircularProgress";
 
 
 // Lazy load the components
@@ -41,14 +42,14 @@ function Start() {
     if (fetchTimeData.last && fetchTimeData.next) {
       setFetchTimes({ last: fetchTimeData.last, next: fetchTimeData.next });
     }
-    
+
   }, [fetchData, contextObj.isLoggedIn, contextObj.userInfo]);
 
   if (isFirstRender) {
     setFirstRender(false)
     getData();
   }
-  
+
   useEffect(() => {
     if (!intervalID.current) { // Setup Interval to fetch data
       intervalID.current = setInterval(getData, fetchIntervalMs); // capture interval ID as return from setInterval
@@ -57,16 +58,16 @@ function Start() {
     if (messageObj.isError && messageObj.status == 403 && intervalID.current) { // clear interval when logged out
       clearInterval(intervalID.current); intervalID.current = null;
     }
-  
+
     return () => {
       if (intervalID.current) {
         clearInterval(intervalID.current); intervalID.current = null;
       }
     }
-  }, [fetchIntervalMs, messageObj.isError, messageObj.status, getData]);
- 
+  }, [messageObj.isError, messageObj.status, getData]);
 
- 
+
+
   return (
     <>
       <div className="start">
@@ -96,39 +97,45 @@ function Start() {
         </div>
 
         <div className="grid-item map cut">
-          <Suspense fallback={<div>Loading Map...</div>}>
-            <Map entries={entries} />
-          </Suspense>
+          {entries.length > 0 &&
+            <Suspense fallback={<div>Loading Map...</div>}>
+              <Map entries={entries} />
+            </Suspense>
+          }
         </div>
 
         <div className="grid-item theme"><ModeSwitcher /></div>
 
-        {contextObj.isLoggedIn && (
+        {contextObj.isLoggedIn && entries.length > 0 ? (
           <div className={`grid-item status ${entries.length ? "cut-after" : 'emptyData'}`}>
-            <Suspense fallback={<div>Loading Status...</div>}>
+            <Suspense fallback={<div className="loading"><CircularProgress color="inherit" /></div>}>
               <Status entries={entries} />
             </Suspense>
           </div>
+        ) : (
+          <span className="noData cut">{contextObj.isLoggedIn ? "No Data to be displayed" : "No Login"}</span>
         )}
 
-        {contextObj.isLoggedIn && (<div className="grid-item images">
-          {entries.at(-1) && layers.map((layer, index) => {
-            return (
-              <Suspense fallback={<div>Loading MiniMap...</div>} key={index}>
-                <MiniMap layer={layer} index={index} lastEntry={entries[entries.length - 1]} />
-              </Suspense>
-            )
-          })}
-        </div>)}
+        {contextObj.isLoggedIn && entries.length > 0 &&
+          <div className="grid-item images">
+            {layers.map((layer, index) => {
+              return (
+                <Suspense fallback={<div className="loading box cut"><CircularProgress color="inherit" /></div>} key={index}>
+                  <MiniMap layer={layer} index={index} lastEntry={entries[entries.length - 1]} />
+                </Suspense>
+              )
+            })}
+          </div>
+        }
 
         <div className="grid-item subinfo">
           {contextObj.isLoggedIn && intervalID && fetchTimes.last && fetchTimes.next &&
-            <Suspense fallback={<div>Loading Progress...</div>}>
+            <Suspense fallback={<div className="loading line"></div>}>
               <LinearBuffer msStart={fetchTimes.last} msFinish={fetchTimes.next} variant="determinate" />
             </Suspense>
           }
 
-          {entries?.length > 0 &&
+          {entries.length > 0 &&
             <>
               <strong className="info noDivider">GPS:</strong>
               <span className="info">{entries.at(-1)!.lat} / {entries.at(-1)!.lon}</span>

@@ -100,7 +100,7 @@
 
 			display: grid;
 			overflow: auto;
-			
+
 			@media (max-width: 35em) {
 				display: none;
 			}
@@ -112,7 +112,7 @@
 			margin-bottom: 0.5rem;
 			cursor: pointer;
 
-			> * {
+			>* {
 				width: 100%;
 				height: 100%;
 			}
@@ -240,10 +240,30 @@
 .noData {
 	display: block;
 	font-size: 1.4em;
+	align-self: center;
 	text-align: center;
 	width: min-content;
 	margin: 2.5em auto;
 	padding: 2.5em;
 	color: var(--alert);
 	background-color: var(--semiBg);
+}
+
+.loading[class] {
+	display: grid;
+	width: 100%;
+	height: 100%;
+	place-content: center;
+	place-items: center;
+
+	&.box {
+		aspect-ratio: 16/9;
+		padding-bottom: 0.5rem;
+		background-color: #ddd;
+		background-clip: content-box;
+	}
+
+	&.line {
+		height: 0.5em;
+	}
 }

@@ -27,7 +27,6 @@ export const useGetData = (index: number, fetchIntervalMs: number, setEntries) =
 				}
 			});
 
-
 			const newEntries: Array<Models.IEntry> = response.data.entries;
 
 			if (newEntries.length) {
@@ -59,7 +58,7 @@ export const useGetData = (index: number, fetchIntervalMs: number, setEntries) =
 			returnObj.isError = true;
 
 			if (!error.response) {
-				return { ...returnObj, status: 499, message: error.message || "offline", fetchTimeData: { ...returnObj.fetchTimeData, next: new Date().getTime() + fetchIntervalMs } }
+				return { ...returnObj, status: 499, message: error.message || "offline", fetchTimeData: { last: new Date().getTime(), next: new Date().getTime() + fetchIntervalMs } }
 			}
 
 			if (error.response.status == 403) { contextObj.setLogin(false) }
