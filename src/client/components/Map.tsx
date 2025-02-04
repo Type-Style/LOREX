@@ -35,9 +35,9 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 	const trafficToken = "XXXTraffictoken";
 
 	const getClassName = (entry: Models.IEntry) => {
-		const isStart = entry.index == 0 || entry.time.diff >= 300;
+		const isStart = entry == cleanEntries[0] || entry.time.diff >= 300;
 		const isEnd = entry == lastEntry;
-		const className = isStart ? "start" : isEnd ? "end" : "none";
+		const className = isEnd ? "end" : isStart ? "start" : "none";
 		const iconSize = className != "none" ? 22 : 14;
 
 		return { className, iconSize }

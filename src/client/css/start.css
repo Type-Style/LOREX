@@ -121,7 +121,7 @@
 
 		&.subinfo {
 			grid-column: 1 / -1;
-			font-size: 1.25em;
+			font-size: 1.2em;
 			padding: 0.5em 0.8em;
 
 			@media (min-width: 35em) {

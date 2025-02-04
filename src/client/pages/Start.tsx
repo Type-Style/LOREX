@@ -98,7 +98,7 @@ function Start() {
 
         <div className="grid-item map cut">
           {entries.length > 0 &&
-            <Suspense fallback={<div>Loading Map...</div>}>
+            <Suspense fallback={<div className="loading box cut"><CircularProgress color="inherit" /></div>}>
               <Map entries={entries} />
             </Suspense>
           }
