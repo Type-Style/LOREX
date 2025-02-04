@@ -35,9 +35,9 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 	const trafficToken = "XXXTraffictoken";
 
 	const getClassName = (entry: Models.IEntry) => {
-		const isStart = entry.index == 0 || entry.time.diff >= 300;
+		const isStart = entry == cleanEntries[0] || entry.time.diff >= 300;
 		const isEnd = entry == lastEntry;
-		const className = isStart ? "start" : isEnd ? "end" : "none";
+		const className = isEnd ? "end" : isStart ? "start" : "none";
 		const iconSize = className != "none" ? 22 : 14;
 
 		return { className, iconSize }
@@ -94,22 +94,18 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 
 				</LayersControl>
 
+				{/* markers in group for clustering */}
 				<MarkerClusterGroup  disableClusteringAtZoom={14} animateAddingMarkers={true} maxClusterRadius={15}>
 					{cleanEntries.map((entry) => {
 						const iconObj = getClassName(entry);
-						if (iconObj.className != "none") { return } // exclude start and end from being in cluster group;
+						if (iconObj.className == "end") { return } // exclude end from being in cluster group
 						return Marker(entry, iconObj);
 					})}
 				</MarkerClusterGroup>
+				
 
-
-				{/* (re)start and end end markers */}
-				{cleanEntries.map((entry) => {
-					const iconObj = getClassName(entry);
-					if (iconObj.className == "none") { return } // exclude already rendered markers;
-
-					return Marker(entry, iconObj);
-				})}
+				{/* end marker */}
+				{Marker(lastEntry, getClassName(lastEntry))}
 
 				<MultiColorPolyline cleanEntries={cleanEntries} />
 			</MapContainer>
