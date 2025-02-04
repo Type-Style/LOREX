@@ -94,23 +94,18 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 
 				</LayersControl>
 
+				{/* markers in group for clustering */}
 				<MarkerClusterGroup  disableClusteringAtZoom={14} animateAddingMarkers={true} maxClusterRadius={15}>
 					{cleanEntries.map((entry) => {
 						const iconObj = getClassName(entry);
-						if (iconObj.className != "none") { return } // exclude start and end from being in cluster group;
+						if (iconObj.className == "end") { return } // exclude end from being in cluster group
 						return Marker(entry, iconObj);
 					})}
 				</MarkerClusterGroup>
 				
 
-
-				{/* (re)start and end end markers */}
-				{cleanEntries.map((entry) => {
-					const iconObj = getClassName(entry);
-					if (iconObj.className == "none") { return } // exclude already rendered markers;
-
-					return Marker(entry, iconObj);
-				})}
+				{/* end marker */}
+				{Marker(lastEntry, getClassName(lastEntry))}
 
 				<MultiColorPolyline cleanEntries={cleanEntries} />
 			</MapContainer>
