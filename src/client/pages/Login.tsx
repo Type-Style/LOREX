@@ -81,9 +81,8 @@ function Login() {
       updateFormInfo({ ...formInfo, token: token.data });
     } catch (error) {
       console.log(error);
-      setMessageObj({ isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message })
+      setMessageObj({ isError: true, status: error.response?.data?.status || error.response?.status || "499", message: error.response?.data?.message || error.response?.statusText || error.message })
     }
-
     if (!token) { setLoading(false); return; } // skip when the first request has an error
 
     // collect data and convert to urlencoded string then send
@@ -111,7 +110,7 @@ function Login() {
 
     } catch (error) {
       console.log(error);
-      setMessageObj({ isError: true, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message })
+      setMessageObj({ isError: true, status: error.response?.data?.status || error.response?.status || "499", message: error.response?.data?.message || error.response?.statusText || error.message })
       setLoading(false); // Reset loading after request is complete
     }
   }
