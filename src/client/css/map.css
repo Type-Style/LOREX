@@ -51,10 +51,14 @@
 	}
 }
 
-.customMarkerIcon {
+.customMarker {
 
-	&.start,
-	&.end {
+	& .icon {
+		height: 100%;
+	}
+
+	& .icon.start,
+	& .icon.end {
 		display: flex;
 		place-content: center;
 		border: 2px solid var(--contrastBackground);
@@ -68,15 +72,21 @@
 		}
 	}
 
-	&.end {
+	& .icon.end {
 		z-index: 9999; /* over cluster group */
+
+		/* animate in */
+		--distance: 100px;
+		opacity: 0;
+		translate: calc(var(--distance) * sin(var(--angle) * -1)) calc(var(--distance) * cos(var(--angle)));
+		animation: moveIn 1s ease-out forwards;
 	}
 
-	&.start {
+	& .icon.start {
 		outline: none;
 	}
 
-	&.none {
+	& .icon.none {
 		filter: drop-shadow(0 0 5px var(--contrastBackground));
 	}
 
@@ -90,4 +100,11 @@
 	}
 
 
+}
+
+@keyframes moveIn {
+	to {
+		opacity: 1;
+		translate: 0 0;
+	}
 }
