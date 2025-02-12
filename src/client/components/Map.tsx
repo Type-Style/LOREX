@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { Context } from "../context";
 import { LayersControl, MapContainer, TileLayer } from 'react-leaflet'
 import MarkerClusterGroup from "react-leaflet-markercluster";

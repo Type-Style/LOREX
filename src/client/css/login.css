@@ -138,9 +138,14 @@
 	}
 
 	.message {
-		font-size: 1.8em;
+		display: block;
+		font-size: 1.4em;
 		font-style: italics;
 		margin: 0;
+
+		.title {
+			display: block;
+		}
 
 		strong {
 			display: inline-block;

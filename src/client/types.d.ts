@@ -22,7 +22,7 @@ declare namespace client {
 
 	interface entryData {
 		isError: boolean,
-		status: number,
+		status: number | React.JSX.Element,
 		message: string,
 		fetchTimeData: {last: number | null, next: number | null}
 	}
@@ -31,7 +31,7 @@ declare namespace client {
 	interface AppContext  {
 		isLoggedIn: boolean;
 		setLogin: React.Dispatch<React.SetStateAction<boolean>>;
-		userInfo: boolean | { user: any; exp: any; };
+		userInfo: false | { user: any; exp: any; };
 		setUserInfo: React.Dispatch<React.SetStateAction<boolean | { user: any; exp: any; }>>;
 		mode: string | undefined;
 		setMode: (mode: string | null) => void;

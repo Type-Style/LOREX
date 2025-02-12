@@ -16,6 +16,7 @@ import { convertJwt } from "../scripts/convertJwt";
 import { useNavigate } from 'react-router-dom';
 import LinearBuffer from '../components/LinearBuffer';
 import "../css/login.css";
+import { Message } from "../components/Message";
 
 function Login() {
   const [finish, setFinish] = useState(1);
@@ -37,7 +38,7 @@ function Login() {
     token: ""
   });
   const [isLoading, setLoading] = useState(false);
-  const [messageObj, setMessageObj] = useState<{ isError: boolean, status: React.ReactElement | null, message: string }>({ isError: false, status: null, message: "" });
+  const [messageObj, setMessageObj] = useState<Omit<client.entryData, 'fetchTimeData'>>({ isError: false, status: 200, message: "" });
 
   const isFormValid = formInfo.user.value && !formInfo.user.isError && formInfo.password.value && !formInfo.password.isError;
 
@@ -57,6 +58,10 @@ function Login() {
     }
   }
 
+  function redirect() {
+    setTimeout(() => { setLoading(false); navigate("/") }, 1000);
+  }
+
   async function submit(e) {
     e.preventDefault();
     const date = new Date();
@@ -65,7 +70,7 @@ function Login() {
     setFinish(new Date(date.getTime() + milliseconds).getTime());
 
     setLoading(true);
-    setMessageObj({ isError: false, status: null, message: "" });
+    setMessageObj({ isError: false, status: 200, message: "" });
 
 
     let token; // get csrf token
@@ -83,6 +88,7 @@ function Login() {
       console.log(error);
       setMessageObj({ isError: true, status: error.response?.data?.status || error.response?.status || "499", message: error.response?.data?.message || error.response?.statusText || error.message })
     }
+
     if (!token) { setLoading(false); return; } // skip when the first request has an error
 
     // collect data and convert to urlencoded string then send
@@ -99,18 +105,18 @@ function Login() {
       contextObj.setLogin(true);
       setMessageObj({ isError: false, status: <CheckIcon />, message: "Success!" })
 
+
       // update linearBar for delay until redirect
       const date = new Date();
       setStart(date.getTime());
       setFinish(new Date(date.getTime() + 1000).getTime());
       contextObj.setUserInfo(convertJwt());
-
-      // redirect back to main page
-      setTimeout(() => { setLoading(false); navigate("/") }, 1000);
+      redirect();
 
     } catch (error) {
       console.log(error);
       setMessageObj({ isError: true, status: error.response?.data?.status || error.response?.status || "499", message: error.response?.data?.message || error.response?.statusText || error.message })
+
       setLoading(false); // Reset loading after request is complete
     }
   }
@@ -188,13 +194,7 @@ function Login() {
           <div className="subWrapper">
             {messageObj.status ? (
               <p className={`message ${messageObj.isError ? 'message--error' : 'message--success'}`}>
-                <strong>{messageObj.status}</strong>
-                {messageObj.message.split('\n').map((line: string, index: number) => (
-                  <span key={index}>
-                    {line}
-                    <br />
-                  </span>
-                ))}
+                <Message messageObj={messageObj} page="login" />
               </p>
             ) : null}
             <Button

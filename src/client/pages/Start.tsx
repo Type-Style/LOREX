@@ -9,6 +9,7 @@ import { layers } from "../scripts/layers";
 import { timeAgo } from "../scripts/timeAgo";
 import "../css/start.css";
 import CircularProgress from "@mui/material/CircularProgress";
+import { Message } from "../components/Message";
 
 
 // Lazy load the components
@@ -72,16 +73,8 @@ function Start() {
     <>
       <div className="start">
         <div className="grid-item info">
-          {messageObj.isError &&
-            <div className="message center error">
-              <strong className="title">{messageObj.status}</strong> <span className="fadeIn">{messageObj.message}</span>
-            </div>
-          }
-          {!messageObj.isError && contextObj.userInfo && typeof contextObj.userInfo == "object" &&
-            <div className="message">
-              <strong className="title">{contextObj.userInfo.user}</strong> <span className="fade">Welcome back</span>
-            </div>
-          }
+          <Message messageObj={messageObj} page="start" />
+          
           <Button
             className={`loginButton ${contextObj.isLoggedIn ? "loginButton--loggedIn" : ''} cut`}
             variant="contained"
