@@ -143,6 +143,7 @@
 				display: inline-block;
 				padding-inline: 1em;
 				border-right: 0.1rem solid;
+				color: inherit;
 
 				&:last-child,
 				&.noDivider {
