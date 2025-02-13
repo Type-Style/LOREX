@@ -99,12 +99,15 @@
 		border: none;
 		outline-color: currentColor;
 		outline-offset: 1px;
+		outline-style: solid;
+		filter: drop-shadow(0 0 5px var(--contrastBackground));
+
 	}
 }
 
 .customPolyline.animate {
-	stroke-dasharray: 500;
-  stroke-dashoffset: 500;
+	stroke-dasharray: 600;
+  stroke-dashoffset: 600;
 	opacity: 0;
 	animation: moveIn 2s 0.2s ease-out forwards;
 }
