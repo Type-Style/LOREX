@@ -1,6 +1,6 @@
 export function getIgnore(lastEntry: Models.IEntry, entry: Models.IEntry): boolean {
-  let threshold = 6; // hdop not allowed to be higher
-  const maxThreshold = 25;
+  let threshold = 6; // standard threshold
+  const maxThreshold = 25 - threshold; // maximum threshold used based on time diff
   const lastEntryDiff = lastEntry.time.diff || 0;
   const timing = Math.max(lastEntryDiff, entry.time.diff || 0);
 
