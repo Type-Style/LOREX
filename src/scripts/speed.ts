@@ -4,7 +4,7 @@ export function getSpeed(speed: number, entry?: Models.IEntry): Models.ISpeed {
 	let vertical;
 	let total;
 
-	if (entry) {
+	if (entry && entry.time.diff) {
 		horizontal = entry.distance.horizontal / entry.time.diff;
 		vertical = entry.distance.vertical / entry.time.diff;
 		total = entry.distance.total / entry.time.diff;
