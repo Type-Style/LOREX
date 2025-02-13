@@ -3,6 +3,12 @@ Leaflet Osmand React ExpressJS Coordinates (X)
 > [!NOTE]
 > Remember an "X" marks the spot.
 
+[![CodeFactor](https://www.codefactor.io/repository/github/type-style/lorex/badge/dev)](https://www.codefactor.io/repository/github/type-style/lorex/overview/dev)
+
+## DEMO
+At this point, there is no demo, but here is a screenshot:
+![Demo LOREX, markers on a map in berlin, information about speed and distance on the right](https://raw.githubusercontent.com/Type-Style/LOREX/dev/demo.png)
+
 ## Goal
 Recieve and store coordinates via webhook and display them on a map through an interactive frontend.    
 
@@ -112,6 +118,3 @@ Mapbox requires an access token.
 These can be created for free [register required]([url](https://tiles.mapbox.com/signup))
 Once available, add it to the envrionment variables.
 
-## DEMO
-At this point, there is no demo, but here is a screenshot:
-![Demo LOREX, markers on a map in berlin, information about speed and distance on the right](https://raw.githubusercontent.com/Type-Style/LOREX/dev/demo.png)
