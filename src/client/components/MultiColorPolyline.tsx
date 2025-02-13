@@ -32,7 +32,7 @@ export const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Array<Model
 	}
 
 	return cleanEntries.map((entry, index) => {
-		if (!index || entry.time.diff > 300) { return false; }
+		if (!index || !entry.time.diff || entry.time.diff > 300) { return false; }
 
 		const previousEntry = cleanEntries[index - 1];
 		const color = structuredClone(startColor);
@@ -46,14 +46,16 @@ export const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Array<Model
 
 		let strokeDashArray:string|undefined;
 
-		if (entry.time.diff > 100 || entry.time.diff < 25) { strokeDashArray = "4 8"; }
+		if (entry.time.diff && (entry.time.diff > 100 || entry.time.diff < 25)) { strokeDashArray = "4 8"; }
 		return (<Polyline
 			key={entry.time.created * 1.1 + Math.random()} // random to force rerender while new data is incoming (maxSpeed might have changed)
 			positions={[[previousEntry.lat, previousEntry.lon], [entry.lat, entry.lon]]}
 			color={formatCss(correctedColor)}
 			weight={5}
 			dashArray={strokeDashArray}
+			className={"customPolyline " + (index === cleanEntries.length - 1 && (Date.now() - entry.time.recieved) <= 60000  ? "animate " : "")}
 			lineCap={"butt"} />);
+			
 	});
 
 };
