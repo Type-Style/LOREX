@@ -48,7 +48,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 
 	return (
 		<div className="mapStyle" data-mui-color-scheme={mapStyle}>
-			<MapContainer className="mapContainer" key={lastEntry.index} center={[lastEntry.lat, lastEntry.lon]} zoom={13} maxZoom={19}>
+			<MapContainer className="mapContainer" center={[lastEntry.lat, lastEntry.lon]} zoom={13} maxZoom={19}>
 				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} fly={true} />
 				<LocationButton lat={lastEntry.lat} lon={lastEntry.lon} />
 				<LayerChangeHandler mapStyle={mapStyle} setMapStyle={setMapStyle} />
@@ -97,7 +97,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 				</LayersControl>
 
 				{/* markers in group for clustering */}
-				<MarkerClusterGroup disableClusteringAtZoom={14} animateAddingMarkers={true} maxClusterRadius={15}>
+				<MarkerClusterGroup  key={lastEntry.index} disableClusteringAtZoom={14} animateAddingMarkers={true} maxClusterRadius={15}>
 					{cleanEntries.map((entry) => {
 						const iconObj = getClassName(entry);
 						if (iconObj.className == "end") { return } // exclude end from being in cluster group
@@ -109,7 +109,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 				{/* end marker */}
 				{Marker(lastEntry, getClassName(lastEntry))}
 
-				<MultiColorPolyline cleanEntries={cleanEntries} />
+				<MultiColorPolyline  key={lastEntry.index + 1} cleanEntries={cleanEntries} />
 			</MapContainer>
 		</div >
 	)
