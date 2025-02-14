@@ -18,7 +18,7 @@ import { LayerChangeHandler } from "./LayoutChangeHandler";
 function Map({ entries }: { entries: Array<Models.IEntry> }) {
 	const [contextObj] = useContext(Context);
 	const [mapStyle, setMapStyle] = useState(contextObj.mode);
-
+	
 	if (!contextObj.userInfo) {
 		return <strong className="noData cut">No Login</strong>
 	}
@@ -28,16 +28,18 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 	if (!entries?.length) {
 		return <span className="noData cut">No Data to be displayed</span>
 	}
-
-	const lastEntry= entries.at(-1) as Models.IEntry;
+	
+	const lastEntry = entries.at(-1) as Models.IEntry;
 	const cleanEntries = entries.filter((entry) => !entry.ignore);
 	const mapToken = "XXXMaptoken";
 	const trafficToken = "XXXTraffictoken";
+	
+
 
 	const getClassName = (entry: Models.IEntry) => {
-		const isStart = entry.index == 0 || entry.time.diff >= 300;
+		const isStart = entry == cleanEntries[0] || (entry.time.diff && entry.time.diff >= 300);
 		const isEnd = entry == lastEntry;
-		const className = isStart ? "start" : isEnd ? "end" : "none";
+		const className = isEnd ? "end" : isStart ? "start" : "none";
 		const iconSize = className != "none" ? 22 : 14;
 
 		return { className, iconSize }
@@ -48,7 +50,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 		<div className="mapStyle" data-mui-color-scheme={mapStyle}>
 			<MapContainer className="mapContainer" center={[lastEntry.lat, lastEntry.lon]} zoom={13} maxZoom={19}>
 				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} fly={true} />
-				<LocationButton lat={lastEntry.lat} lon={lastEntry.lon} />
+				<LocationButton lat={lastEntry.lat} lon={lastEntry.lon} key={lastEntry.index -1} />
 				<LayerChangeHandler mapStyle={mapStyle} setMapStyle={setMapStyle} />
 				<LayersControl position="bottomright">
 					{layers.map((layer, index) => {
@@ -79,7 +81,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 									key={index}
 									checked={false}
 									name={layer.name}>
-										
+
 									<TileLayer
 										attribution={layer.attribution}
 										url={layer.url.includes(mapToken) ? layer.url.replace(mapToken, contextObj.mapToken ?? "") :
@@ -94,24 +96,20 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 
 				</LayersControl>
 
-				<MarkerClusterGroup  disableClusteringAtZoom={14} animateAddingMarkers={true} maxClusterRadius={15}>
+				{/* markers in group for clustering */}
+				<MarkerClusterGroup  key={lastEntry.index} disableClusteringAtZoom={14} animateAddingMarkers={true} maxClusterRadius={15}>
 					{cleanEntries.map((entry) => {
 						const iconObj = getClassName(entry);
-						if (iconObj.className != "none") { return } // exclude start and end from being in cluster group;
+						if (iconObj.className == "end") { return } // exclude end from being in cluster group
 						return Marker(entry, iconObj);
 					})}
 				</MarkerClusterGroup>
 
 
-				{/* (re)start and end end markers */}
-				{cleanEntries.map((entry) => {
-					const iconObj = getClassName(entry);
-					if (iconObj.className == "none") { return } // exclude already rendered markers;
+				{/* end marker */}
+				{Marker(lastEntry, getClassName(lastEntry))}
 
-					return Marker(entry, iconObj);
-				})}
-
-				<MultiColorPolyline cleanEntries={cleanEntries} />
+				<MultiColorPolyline  key={lastEntry.index + 1} cleanEntries={cleanEntries} />
 			</MapContainer>
 		</div >
 	)

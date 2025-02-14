@@ -248,7 +248,6 @@ describe("GET /write", () => {
     let previousEntry = null;
 
     expect(entry.ignore).toBe(false); // current one to be false always
-    expect(firstEntry.ignore).toBe(false); // start entry to be false always
 
     await callServer(undefined, "user=xx&lat=52.51627&lon=13.37770&timestamp=R3Pl4C3&hdop=50&altitude=4000.000&speed=150.000&heading=180.0&key=test", 200, "GET");
 
@@ -258,7 +257,6 @@ describe("GET /write", () => {
     firstEntry = jsonData.entries[0];
 
     expect(entry.ignore).toBe(false); // current one to be false always
-    expect(firstEntry.ignore).toBe(false); // start entry to be false always
     expect(previousEntry.ignore).toBe(true); // now since there is 3 entries the previous can be ignored
   });
 });

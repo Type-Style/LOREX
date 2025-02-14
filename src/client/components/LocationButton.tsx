@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useMap } from "react-leaflet";
 import L from 'leaflet';
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
@@ -11,7 +11,7 @@ export const LocationButton = ({ lat, lon }: { lat: number, lon: number }) => {
 	let justClicked = useRef(false);
 	const buttonRef = useRef<L.Control | null>(null);
 	const markerRef = useRef<L.Marker | null>(null);
-	const [active, setActive] = React.useState(false);
+	const [active, setActive] = useState(false);
 
 
 	const addButton = useCallback(() => {
@@ -43,7 +43,7 @@ export const LocationButton = ({ lat, lon }: { lat: number, lon: number }) => {
 
 				markerRef.current = L.marker(e.latlng, {
 					icon: L.divIcon({
-						className: "customMarkerIcon geoLocation end none",
+						className: "customMarker geoLocation end none",
 						iconSize: L.point(17, 17),
 						popupAnchor: [0, -15],
 					}),

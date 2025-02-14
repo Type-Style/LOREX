@@ -91,7 +91,7 @@ namespace Models {
 		/**
 		* time object containing UNIX timestamps with milliseconds, gps creation time (as recieved via gps), server time (when the server recieved and computed it), differce to last entry (time between waypoints), upload time differnce
 		*/
-		time: Models.time,
+		time: Models.ITime,
 
 		/**
 		* user as recieved

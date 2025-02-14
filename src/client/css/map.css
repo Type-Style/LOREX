@@ -51,10 +51,14 @@
 	}
 }
 
-.customMarkerIcon {
+.customMarker {
 
-	&.start,
-	&.end {
+	& .icon {
+		height: 100%;
+	}
+
+	& .icon.start,
+	& .icon.end {
 		display: flex;
 		place-content: center;
 		border: 2px solid var(--contrastBackground);
@@ -68,15 +72,23 @@
 		}
 	}
 
-	&.end {
-		z-index: 9999; /* over cluster group */
+	& .icon.end {
+		z-index: 9999;
+		/* over cluster group */
 	}
 
-	&.start {
+	& .icon.end.animate {
+		--distance: 100px;
+		opacity: 0;
+		transform: translate(0, var(--distance));
+		animation: moveIn 1s ease-out forwards;
+	}
+
+	& .icon.start {
 		outline: none;
 	}
 
-	&.none {
+	& .icon.none {
 		filter: drop-shadow(0 0 5px var(--contrastBackground));
 	}
 
@@ -87,7 +99,24 @@
 		border: none;
 		outline-color: currentColor;
 		outline-offset: 1px;
+		outline-style: solid;
+		filter: drop-shadow(0 0 5px var(--contrastBackground));
+
 	}
+}
 
+.customPolyline.animate {
+	stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+	opacity: 0;
+	animation: moveIn 2s 0.2s ease-out forwards;
+}
 
+@keyframes moveIn {
+	to {
+		opacity: 1;
+		translate: 0 0;
+		stroke-dashoffset: 0;
+		transform: translate(0, 0);
+	}
 }

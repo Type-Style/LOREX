@@ -40,7 +40,7 @@ app.use((req, res, next) => { // clean up IPv6 Addresses
 })
 
 if (process.env.NODE_ENV != "development") {
-  app.use(helmet({ contentSecurityPolicy: { directives: { "default-src": "'self'", "img-src": "*" } },  referrerPolicy: { policy: "strict-origin-when-cross-origin" } }));
+  app.use(helmet({ contentSecurityPolicy: { directives: { "default-src": "'self'", "img-src": ["*", "data:"] } },  referrerPolicy: { policy: "strict-origin-when-cross-origin" } }));
 }
 app.use(cache);
 app.use(compression())
