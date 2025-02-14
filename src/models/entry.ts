@@ -32,19 +32,15 @@ export const entry = {
     entry.lon = Number(req.query.lon);
     entry.user = req.query.user as string;
     entry.ignore = false;
-    entry.eta = req.query.eta ? Number(req.query.eta) : undefined;
+    entry.eta = req.query.eta ? Number(req.query.eta) : undefined 
     entry.eda = req.query.eda ? Number(req.query.eda) : undefined;
 
 
     if (lastEntry && previousEntry) {
       entry.time = getTime(Number(req.query.timestamp), lastEntry); // time data is needed for ignore calculation
 
-      if (entries.length > 1) { // the very first entry one shall never be ignored
-        lastEntry.ignore = getIgnore(lastEntry, entry);
-      } else {
-        lastEntry.ignore = false;
-      }
-
+      lastEntry.ignore = getIgnore(lastEntry, entry);
+      
       if (lastEntry.ignore) { // rectify or replace previousEntry with last non ignored element
         for (let i = entries.length - 1; i >= 0; i--) {
           if (!entries[i].ignore) {
@@ -52,11 +48,6 @@ export const entry = {
             break;
           }
         }
-
-        if (previousEntry === fileObj.content.entries.at(-1)) {
-          logger.error("previousEntry was not replaced");
-        }
-
       }
 
       entry.time = getTime(Number(req.query.timestamp), previousEntry); // overwrite time in case previousEnty was changed
