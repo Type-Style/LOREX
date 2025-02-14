@@ -50,7 +50,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 		<div className="mapStyle" data-mui-color-scheme={mapStyle}>
 			<MapContainer className="mapContainer" center={[lastEntry.lat, lastEntry.lon]} zoom={13} maxZoom={19}>
 				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} fly={true} />
-				<LocationButton lat={lastEntry.lat} lon={lastEntry.lon} key={lastEntry.index -1} />
+				<LocationButton lat={lastEntry.lat} lon={lastEntry.lon} />
 				<LayerChangeHandler mapStyle={mapStyle} setMapStyle={setMapStyle} />
 				<LayersControl position="bottomright">
 					{layers.map((layer, index) => {
