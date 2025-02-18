@@ -1,6 +1,7 @@
 import React from 'react'
 import { Marker as LeafletMarker, Popup } from 'react-leaflet';
 import { Icon } from "./Icon";
+import {PopupContent} from "./PopupContent";
 
 export const Marker = (entry: Models.IEntry, iconObj: { className: string, iconSize: number}) => {
 	return (
@@ -11,8 +12,9 @@ export const Marker = (entry: Models.IEntry, iconObj: { className: string, iconS
 			rotationAngle={entry.heading}
 			rotationOrigin="center"
 		>
-			<Popup>
-				<pre>{JSON.stringify(entry, null, 2)}</pre>
+			<Popup className="cut">
+				<PopupContent />
+				{/* <pre>{JSON.stringify(entry, null, 2)}</pre> */}
 			</Popup>
 		</LeafletMarker>
 	)
