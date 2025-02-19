@@ -6,7 +6,7 @@ import EastIcon from '@mui/icons-material/East';
 import WatchLaterOutlinedIcon from '@mui/icons-material/WatchLaterOutlined';
 import Box from '@mui/material/Box';
 
-export const PopupContent = () => {
+export const PopupContent = ({ entry }: { entry: Models.IEntry }) => {
   const [value, setValue] = useState(0);
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {
@@ -14,33 +14,41 @@ export const PopupContent = () => {
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <>
       <Tabs value={value} onChange={handleChange}>
         <Tab icon={<SpeedIcon />} label="Speed" />
         <Tab icon={<EastIcon />} label="Distance" />
         <Tab icon={<WatchLaterOutlinedIcon />} label="Time" />
       </Tabs>
 
-      {value === 0 && (
-        <Box sx={{ padding: 2 }}>
-          <h2>Speed</h2>
-          <p>This is some demo content for speed.</p>
-        </Box>
-      )}
+      <dl className="popupList">
+        {value === 0 && (
+          <>
+            <dt>GPS</dt>
+            <dd>{`${(entry.speed.gps * 3.6).toFixed(1)} km/h`}</dd>
+            {entry.speed.total && (
+              <>
+                <dt>Calculated</dt>
+                <dd>{`${(entry.speed.total * 3.6).toFixed(1)} km/h`}</dd>
+              </>
+            )}
+            {entry.speed.vertical && (
+              <>
+                <dt>Vertical</dt>
+                <dd>{`${(entry.speed.vertical * 3.6).toFixed(1)} km/h`}</dd>
+              </>
+            )}
+          </>
+        )}
+      </dl>
 
       {value === 1 && (
-        <Box sx={{ padding: 2 }}>
-          <h2>Distance</h2>
-          <p>This is some demo content for distance.</p>
-        </Box>
+        <p>This is some demo content for distance.</p>
       )}
 
       {value === 2 && (
-        <Box sx={{ padding: 2 }}>
-          <h2>Time</h2>
-          <p>This is some demo content for time.</p>
-        </Box>
+        <p>This is some demo content for time.</p>
       )}
-    </Box>
+    </>
   );
 };

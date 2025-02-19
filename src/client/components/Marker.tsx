@@ -12,8 +12,8 @@ export const Marker = (entry: Models.IEntry, iconObj: { className: string, iconS
 			rotationAngle={entry.heading}
 			rotationOrigin="center"
 		>
-			<Popup className="cut">
-				<PopupContent />
+			<Popup className="cut cut-after">
+				<PopupContent entry={entry}/>
 				{/* <pre>{JSON.stringify(entry, null, 2)}</pre> */}
 			</Popup>
 		</LeafletMarker>
