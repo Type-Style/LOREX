@@ -9,6 +9,7 @@
     "build:prod": "tsc && cross-env NODE_ENV=production vite build --config src/client/vite.config.js",
     "postbuild": "cp -R httpdocs/ dist/",
     "start": "node dist/app.js",
+    "start:prod": "cross-env NODE_ENV=production node dist/app.js",
     "dev": "npm run prebuild && npm run postbuild && concurrently \"npm:dev:*\"",
     "dev:ts": "nodemon --config nodemon-ts.json",
     "dev:static": "nodemon --config nodemon-static.json",
