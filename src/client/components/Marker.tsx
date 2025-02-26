@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import { Marker as LeafletMarker, Popup} from 'react-leaflet';
 import { Icon } from "./Icon";
 import { PopupContent } from "./PopupContent";
@@ -9,7 +9,7 @@ export const Marker = ({ entry, iconObj, ref, cleanEntries }: { entry: Models.IE
 		if (ref?.current && iconObj.className.includes("animate")) {
 			ref.current.openPopup();
 		}
-	}, [ref]);
+	}, [ref, iconObj]);
 
 	return (
 		<LeafletMarker

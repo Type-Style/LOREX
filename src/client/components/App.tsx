@@ -42,7 +42,6 @@ const App = () => {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [mapToken, setMapToken] = useState<string | null>(null);
   const [trafficToken, setTrafficToken] = useState<string | null>(null);
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const contextObj:client.AppContext = { isLoggedIn, setLogin, userInfo, setUserInfo, mode, setMode, prefersDarkMode, mapToken, trafficToken }
 
