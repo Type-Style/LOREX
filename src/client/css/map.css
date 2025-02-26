@@ -19,10 +19,107 @@
 	}
 }
 
+.leaflet-popup {
+	max-width: 95vw;
+	min-width: min(28vw, 550px);
+	filter:
+		 drop-shadow(1px 2px 0px var(--main)) drop-shadow(-1px -1px 0px var(--main)) drop-shadow(2px 2px 10px var(--bg))  opacity(0.85);
+	scale: 1 0;
+	animation: scaleIn 0.5s ease-in-out forwards;
+	transform-origin: center 180%;
+	padding-top: 0.4em;
+
+
+	&[class] {
+		/* overwrite leaflet default */
+		transition: opacity 1s;
+	}
+
+	.bg::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+	}
+
+	.leaflet-popup-tip,
+	.bg::after {
+		background-color: var(--contrastText);
+	}
+}
+
+.leaflet-popup-content-wrapper {
+	display: flex;
+	padding: 0;
+	border-radius: 0;
+	background: transparent;
+	box-shadow: none;
+}
+
+
 .leaflet-popup-content {
 	font-size: 1.2rem;
-	min-width: min-content;
+	padding: 0;
+	margin: 0;
+	color: var(--text);
+	min-width: fit-content;
+	flex-grow: 1;
+
+	.MuiTab-root {
+		color: var(--text);
+		border-bottom: 2px solid var(--text);
+		transition: 0.5s color;
+		min-width: auto;
+		flex-grow: 1;
+		padding-inline: 0.5em;
+
+		&.Mui-selected {
+			color: var(--main);
+		}
+
+		&:last-child {
+			padding-inline-end: 0.4em;
+		}
+	}
 }
+
+.popupList {
+	display: grid;
+	grid-template-columns: auto auto;
+	grid-auto-rows: min-content;
+	font-size: 1.4em;
+	min-height: 7.5em;
+	padding-top: 0.25em;
+	color: var(--contrastBackground);
+
+	a[href] {
+		color: inherit;
+	}
+
+	.small {
+		color: color-mix(in oklch, currentColor 80%, transparent);
+		font-size: 0.75em;
+		padding-block: 0.35em;
+	}
+
+	dd,
+	dt {
+		padding: 0.5rem 1.2rem;
+
+		&:last-child {
+			padding-block-end: 1.2rem;
+		}
+	}
+
+	dd {
+		text-align: right;
+	}
+
+	&> :nth-of-type(even) {
+		background: color-mix(in oklch, currentColor 10%, transparent);
+	}
+}
+
 
 .leaflet-overlay-pane canvas {
 	/* polyline */
@@ -77,7 +174,7 @@
 		/* over cluster group */
 	}
 
-	& .icon.end.animate {
+	& .icon.animate {
 		--distance: 100px;
 		opacity: 0;
 		transform: translate(0, var(--distance));
@@ -107,16 +204,29 @@
 
 .customPolyline.animate {
 	stroke-dasharray: 600;
-  stroke-dashoffset: 600;
+	stroke-dashoffset: 600;
 	opacity: 0;
 	animation: moveIn 2s 0.2s ease-out forwards;
 }
 
 @keyframes moveIn {
-	to {
+	99% {
 		opacity: 1;
-		translate: 0 0;
 		stroke-dashoffset: 0;
 		transform: translate(0, 0);
+		stroke-dasharray: 600;
+	}
+
+	to {
+		opacity: 1;
+		stroke-dashoffset: 0;
+		stroke-dasharray: 0;
+		transform: translate(0, 0);
+	}
+}
+
+@keyframes scaleIn {
+	to {
+		scale: 1 1;
 	}
 }

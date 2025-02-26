@@ -5,10 +5,11 @@ export const Icon = (iconObj: { className: string, iconSize: number}, entry: Mod
 	const triangleArrow = `<polygon fill="var(--contrastText, currentColor)" points="50,0 100,100 0,100" />`
 
 	return L.divIcon({
-		html: `<div class="icon ${iconObj.className} ${(Date.now() - entry.time.recieved) <= 60000  ? "animate " : ""}" style="--angle: ${entry.angle || entry.heading }">
+		html: `<div class="icon ${iconObj.className}" style="--angle: ${entry.angle || entry.heading }">
 			<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
 				<title>Marker Arrow</title>
-				${iconObj.className != "none" ? triangleArrow : defaultArrow}	
+				${!iconObj.className.includes("none") ? triangleArrow : defaultArrow}	
+			
 			</svg>
 		</div>`,
 		// shadowUrl: null,
