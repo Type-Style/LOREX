@@ -36,12 +36,13 @@ const router = createBrowserRouter([
 
 
 const App = () => {
-  const [userInfo, setUserInfo] = useState(convertJwt());
+  const [userInfo, setUserInfo] = useState<false | { user: string; exp: number }>(convertJwt());
   const [isLoggedIn, setLogin] = useState(loginDefault(userInfo));
   const { mode, setMode } = useColorScheme();
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [mapToken, setMapToken] = useState<string | null>(null);
   const [trafficToken, setTrafficToken] = useState<string | null>(null);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const contextObj:client.AppContext = { isLoggedIn, setLogin, userInfo, setUserInfo, mode, setMode, prefersDarkMode, mapToken, trafficToken }
 
