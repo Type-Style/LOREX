@@ -9,6 +9,7 @@ import ShowChartIcon from '@mui/icons-material/ShowChart';
 import EastIcon from '@mui/icons-material/East';
 import WatchLaterOutlinedIcon from '@mui/icons-material/WatchLaterOutlined';
 import SportsScoreIcon from '@mui/icons-material/SportsScore';
+import { getDistance } from "../scripts/getDistance";
 
 
 function getStatusData(entries: Models.IEntry[]) {
@@ -57,12 +58,6 @@ function getStatusData(entries: Models.IEntry[]) {
 		return [(up / 1000).toFixed(2), (down / 1000).toFixed(2)];
 	}
 
-	function getDistance() {
-		return cleanEntries.reduce((accumulatorValue: number, entry) => {
-			if (!entry.distance) { return accumulatorValue }
-			return accumulatorValue + entry.distance.horizontal;
-		}, 0) / 1000;
-	}
 
 	function getEta() {
 		const lastEntry = cleanEntries.at(-1);
@@ -74,7 +69,6 @@ function getStatusData(entries: Models.IEntry[]) {
 		const diffMinutesAtCreated = (eta - lastEntry.time.created) / 60000;
 
 		const print = diffMinutes > 0 ? diffMinutes : diffMinutesAtCreated;
-		console.log("print", print);
 		if (print <= 0.09) { return undefined; } // rounded in output avoid showing 0.0 minutes
 
 		return print >= 60 ? (print / 60).toFixed(1) + ' hours' : print.toFixed(1) + ' minutes';
@@ -87,7 +81,7 @@ function getStatusData(entries: Models.IEntry[]) {
 	const speedCalcMean = (getMean("speed.horizontal") * 3.6).toFixed(1);
 	const verticalCalc = getVertical();
 	const maxSpeed = getMaxSpeed(cleanEntries).toFixed(1);
-	const distance = getDistance().toFixed(2);
+	const distance = getDistance(cleanEntries).toFixed(2);
 	const eta = getEta();
 	const eda = lastEntry?.eda ? (lastEntry.eda / 1000).toFixed(2) : undefined;
 
@@ -105,6 +99,7 @@ function getStatusData(entries: Models.IEntry[]) {
 }
 
 function Status({ entries }: Models.IEntries) {
+
 	if (!entries?.length) { return; }
 	const statusData = getStatusData(entries);
 

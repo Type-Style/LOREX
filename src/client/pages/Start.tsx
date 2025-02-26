@@ -106,7 +106,7 @@ function Start() {
             </Suspense>
           </div>
         ) : (
-          <span className="noData cut">{contextObj.isLoggedIn ? "No Data to be displayed" : "No Login"}</span>
+          <span className="noData hide@mobile cut">{contextObj.isLoggedIn ? "No Data to be displayed" : "No Login"}</span>
         )}
 
         {contextObj.isLoggedIn && entries.length > 0 &&
