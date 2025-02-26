@@ -210,8 +210,17 @@ Neutral: #131211
   font-weight: calc(800 + var(--baseFontWeightModifier));
 }
 
+
+@media (max-width: 35em) {
+  .hide\@mobile[class] { /* increase selector strength */
+    display: none;
+  }
+}
+
+
 .fade { animation: fade 1s 2s forwards; }
-.fadeIn { animation: reverse fade 1s forwards; } 
+.fadeIn { animation: reverse fade 1s forwards; }
+
 @keyframes fade { 
   to {
       font-size: 0;

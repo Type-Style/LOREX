@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 import { Context } from "../context";
 import { LayersControl, MapContainer, TileLayer } from 'react-leaflet'
 import MarkerClusterGroup from "react-leaflet-markercluster";
@@ -18,7 +18,8 @@ import { LayerChangeHandler } from "./LayoutChangeHandler";
 function Map({ entries }: { entries: Array<Models.IEntry> }) {
 	const [contextObj] = useContext(Context);
 	const [mapStyle, setMapStyle] = useState(contextObj.mode);
-	
+	const lastMarker = useRef(null);
+
 	if (!contextObj.userInfo) {
 		return <strong className="noData cut">No Login</strong>
 	}
@@ -28,19 +29,18 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 	if (!entries?.length) {
 		return <span className="noData cut">No Data to be displayed</span>
 	}
-	
+
 	const lastEntry = entries.at(-1) as Models.IEntry;
 	const cleanEntries = entries.filter((entry) => !entry.ignore);
 	const mapToken = "XXXMaptoken";
 	const trafficToken = "XXXTraffictoken";
-	
-
 
 	const getClassName = (entry: Models.IEntry) => {
 		const isStart = entry == cleanEntries[0] || (entry.time.diff && entry.time.diff >= 300);
 		const isEnd = entry == lastEntry;
-		const className = isEnd ? "end" : isStart ? "start" : "none";
+		let className = isEnd ? "end" : isStart ? "start" : "none"; // yes end is mostrecent and is more important than start
 		const iconSize = className != "none" ? 22 : 14;
+		className = (Date.now() - entry.time.recieved) <= 60000 ? "animate " + className : className; // when entry is recent append animate class
 
 		return { className, iconSize }
 	}
@@ -50,7 +50,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 		<div className="mapStyle" data-mui-color-scheme={mapStyle}>
 			<MapContainer className="mapContainer" center={[lastEntry.lat, lastEntry.lon]} zoom={13} maxZoom={19}>
 				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} fly={true} />
-				<LocationButton lat={lastEntry.lat} lon={lastEntry.lon} key={lastEntry.index -1} />
+				<LocationButton lat={lastEntry.lat} lon={lastEntry.lon} />
 				<LayerChangeHandler mapStyle={mapStyle} setMapStyle={setMapStyle} />
 				<LayersControl position="bottomright">
 					{layers.map((layer, index) => {
@@ -97,19 +97,20 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 				</LayersControl>
 
 				{/* markers in group for clustering */}
-				<MarkerClusterGroup  key={lastEntry.index} disableClusteringAtZoom={14} animateAddingMarkers={true} maxClusterRadius={15}>
+				<MarkerClusterGroup key={lastEntry.index} disableClusteringAtZoom={14} animateAddingMarkers={true} maxClusterRadius={15}>
 					{cleanEntries.map((entry) => {
 						const iconObj = getClassName(entry);
-						if (iconObj.className == "end") { return } // exclude end from being in cluster group
-						return Marker(entry, iconObj);
+						if (iconObj.className.includes("end")) { return } // exclude end from being in cluster group
+						return <Marker key={entry.time.created} entry={entry} cleanEntries={cleanEntries} iconObj={getClassName(entry)} />
+
 					})}
 				</MarkerClusterGroup>
 
 
 				{/* end marker */}
-				{Marker(lastEntry, getClassName(lastEntry))}
+				<Marker key={lastEntry.time.created} entry={lastEntry} cleanEntries={cleanEntries} iconObj={getClassName(lastEntry)} ref={lastMarker} />
 
-				<MultiColorPolyline  key={lastEntry.index + 1} cleanEntries={cleanEntries} />
+				<MultiColorPolyline key={lastEntry.index + 1} cleanEntries={cleanEntries} />
 			</MapContainer>
 		</div >
 	)

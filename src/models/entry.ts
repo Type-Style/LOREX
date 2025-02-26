@@ -39,7 +39,7 @@ export const entry = {
     if (lastEntry && previousEntry) {
       entry.time = getTime(Number(req.query.timestamp), lastEntry); // time data is needed for ignore calculation
 
-      lastEntry.ignore = getIgnore(lastEntry, entry);
+      lastEntry.ignore = getIgnore(lastEntry, entry, Number(req.query.speed));
       
       if (lastEntry.ignore) { // rectify or replace previousEntry with last non ignored element
         for (let i = entries.length - 1; i >= 0; i--) {

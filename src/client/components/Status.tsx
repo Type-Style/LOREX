@@ -9,12 +9,14 @@ import ShowChartIcon from '@mui/icons-material/ShowChart';
 import EastIcon from '@mui/icons-material/East';
 import WatchLaterOutlinedIcon from '@mui/icons-material/WatchLaterOutlined';
 import SportsScoreIcon from '@mui/icons-material/SportsScore';
+import { getDistance } from "../scripts/getDistance";
 
 
-function getStatusData(entries) {
+function getStatusData(entries: Models.IEntry[]) {
 	const cleanEntries = entries.filter((entry: Models.IEntry) => !entry.ignore);
+	const lastEntry = cleanEntries.at(-1);
 
-	function getMean(prop) {
+	function getMean(prop:string) {
 		const props = prop.split('.');
 		let divider = 0; // cannot be hardcoded to cleanEntries.length because some properties don't exist on first or last dataPoint
 		const value = cleanEntries.reduce((accumulatorValue, current) => {
@@ -29,7 +31,7 @@ function getStatusData(entries) {
 			}
 
 			divider++; // keep track of how many entries there are
-			return parseFloat(accumulatorValue) + parseFloat(value);
+			return accumulatorValue + (typeof value == "number" ? value : 0);
 
 		}, 0) / divider; // now that all values have been added together, devide by amount of them
 
@@ -44,7 +46,7 @@ function getStatusData(entries) {
 			const entry = cleanEntries[index];
 			if (!entry.distance) { continue; }
 
-			const vertical = parseFloat(entry.distance.vertical);
+			const vertical = entry.distance.vertical;
 
 			if (vertical > 0) {
 				up += vertical;
@@ -56,16 +58,10 @@ function getStatusData(entries) {
 		return [(up / 1000).toFixed(2), (down / 1000).toFixed(2)];
 	}
 
-	function getDistance() {
-		return cleanEntries.reduce((accumulatorValue: number, entry) => {
-			if (!entry.distance) { return accumulatorValue }
-			return accumulatorValue + parseFloat(entry.distance.horizontal);
-		}, 0) / 1000;
-	}
 
 	function getEta() {
 		const lastEntry = cleanEntries.at(-1);
-		const eta = lastEntry.eta;
+		const eta = lastEntry?.eta;
 		if (!eta) { return undefined; }
 
 		const currentTime = Date.now();
@@ -73,7 +69,7 @@ function getStatusData(entries) {
 		const diffMinutesAtCreated = (eta - lastEntry.time.created) / 60000;
 
 		const print = diffMinutes > 0 ? diffMinutes : diffMinutesAtCreated;
-		if (print <= 0) { return undefined; }
+		if (print <= 0.09) { return undefined; } // rounded in output avoid showing 0.0 minutes
 
 		return print >= 60 ? (print / 60).toFixed(1) + ' hours' : print.toFixed(1) + ' minutes';
 	}
@@ -85,9 +81,9 @@ function getStatusData(entries) {
 	const speedCalcMean = (getMean("speed.horizontal") * 3.6).toFixed(1);
 	const verticalCalc = getVertical();
 	const maxSpeed = getMaxSpeed(cleanEntries).toFixed(1);
-	const distance = getDistance().toFixed(2);
+	const distance = getDistance(cleanEntries).toFixed(2);
 	const eta = getEta();
-	const eda = cleanEntries.at(-1).eda ? (cleanEntries.at(-1).eda / 1000).toFixed(2) : undefined;
+	const eda = lastEntry?.eda ? (lastEntry.eda / 1000).toFixed(2) : undefined;
 
 	return {
 		ignoredEntries,
@@ -103,6 +99,7 @@ function getStatusData(entries) {
 }
 
 function Status({ entries }: Models.IEntries) {
+
 	if (!entries?.length) { return; }
 	const statusData = getStatusData(entries);
 

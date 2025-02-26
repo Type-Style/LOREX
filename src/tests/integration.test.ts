@@ -269,7 +269,7 @@ describe('API calls', () => {
       const response = await axios.get(url);
       expect(response.status).toBe(200);
     }
-  }, 22000); // adjust this to to fit your setup
+  }, 25000); // adjust this to to fit your setup
 
   test(`length of json should not exceed 1000`, async () => {
     const date = new Date();

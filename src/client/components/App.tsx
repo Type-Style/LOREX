@@ -36,7 +36,7 @@ const router = createBrowserRouter([
 
 
 const App = () => {
-  const [userInfo, setUserInfo] = useState(convertJwt());
+  const [userInfo, setUserInfo] = useState<false | { user: string; exp: number }>(convertJwt());
   const [isLoggedIn, setLogin] = useState(loginDefault(userInfo));
   const { mode, setMode } = useColorScheme();
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');

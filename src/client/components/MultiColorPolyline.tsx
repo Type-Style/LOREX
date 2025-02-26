@@ -54,7 +54,8 @@ export const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Array<Model
 			weight={5}
 			dashArray={strokeDashArray}
 			className={"customPolyline " + (index === cleanEntries.length - 1 && (Date.now() - entry.time.recieved) <= 60000  ? "animate " : "")}
-			lineCap={"butt"} />);
+			lineCap={"butt"}
+			 />);
 			
 	});
 
