@@ -74,7 +74,7 @@ function Start() {
       <div className="start">
         <div className="grid-item info">
           <Message messageObj={messageObj} page="start" />
-          
+
           <Button
             className={`loginButton ${contextObj.isLoggedIn ? "loginButton--loggedIn" : ''} cut`}
             variant="contained"
@@ -128,10 +128,13 @@ function Start() {
             </Suspense>
           }
 
-          {entries.length > 0 && contextObj.isLoggedIn &&
+          {entries.length > 0 &&
             <>
               <strong className="info noDivider">GPS:</strong>
               <a href={`https://www.openstreetmap.org/?mlat=${entries.at(-1)!.lat}&mlon=${entries.at(-1)!.lon}&zoom=12&marker=${entries.at(-1)!.lat}/${entries.at(-1)!.lon}#map=13/${entries.at(-1)!.lat}/${entries.at(-1)!.lon}`} className="info">{entries.at(-1)!.lat} / {entries.at(-1)!.lon}</a>
+              {entries.at(-1)!.address &&
+                <span className="info">{entries.at(-1)!.address}</span>
+              }
               <span className="info">{contextObj.isLoggedIn ? timeAgo(entries.at(-1)!.time.created) : entries.at(-1)!.time.createdString}</span>
             </>
           }

@@ -76,7 +76,7 @@ app.use(error.handler);
 
 // init server
 const server = app.listen(80, () => {
-  logger.log(`Server running //localhost:80, NODE_ENV: ${process.env.NODE_ENV}`, true);
+  logger.log(`☆ Server running //localhost:80, NODE_ENV: ${process.env.NODE_ENV}`, true);
 });
 
 // scheduled cleanup
@@ -91,13 +91,13 @@ setInterval(() => {
     function logAndExit() {
       // calling .shutdown allows your process to exit normally
       toobusy.shutdown();
-      logger.log(`Server shutdown on signal: ${signal} //localhost:80`, true);
+      logger.log(`☾ Server shutdown on signal: ${signal} //localhost:80`, true);
       process.exit();
     }
     if (signal != "exit") { // give the server time to shutdown before closing
       server.close(logAndExit);
     } else {
-      logger.log(`Server shutdown immediate: ${signal} //localhost:80`, true);
+      logger.log(`☽ Server shutdown immediate: ${signal} //localhost:80`, true);
     }
   });
 });

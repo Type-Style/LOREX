@@ -67,12 +67,11 @@ export const write = (res: Response, fileObj: File.Obj, next: NextFunction) => {
 		fs.writeFileSync(fileObj.path, content);
 		fileObj.content = JSON.parse(content);
 		if (typeof fileObj.content != "boolean") {
-			logger.log(`written to file: ${fileObj.path} ${fileObj.content?.entries ? fileObj.content.entries.length - 1 : ''}`);
+			logger.log(`🖉  written to file: ${fileObj.path} ${fileObj.content?.entries ? fileObj.content.entries.length - 1 : ''}`);
 		}
 	} catch (err) {
 		createError(res, 500, `File (${fileObj.path}) cannot be written to`, next);
 	}
-
 
 	return fileObj;
 };
@@ -101,4 +100,9 @@ const findMostRecentFile = (directoryPath: string) => {
 	});
 
 	return mostRecentFile;
+}
+
+export const getModificationDate = (filePath: string) : number => {
+	const stats = fs.statSync(filePath);
+	return stats.mtimeMs;
 }
