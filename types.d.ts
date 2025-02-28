@@ -39,6 +39,11 @@ namespace Models {
 		/**
 		* height above ground in meters, as received by gps
 		*/
+		address: string,
+
+		/**
+		* height above ground in meters, as received by gps
+		*/
 		altitude: number,
 
 		/**
@@ -118,10 +123,17 @@ namespace Models {
 	}
 
 	interface ISpeed {
+		/**
+		* speed in m/s recieved by gps
+		*/
 		gps: number;
 		horizontal?: number,
 		vertical?: number,
 		total?: number
+		/**
+		* maximum allowed speed in km/h
+		*/
+		maxSpeed?: number
 	}
 	interface IDistance {
 		horizontal: number,
@@ -139,3 +151,37 @@ interface HttpError extends Error {
   status?: number;
   statusCode?: number;
 }
+
+interface NominatimResponse {
+  place_id: number;
+  osm_type: 'node' | 'way' | 'relation';
+  osm_id: number;
+  boundingbox: [string, string, string, string];
+  lat: string;
+  lon: string;
+  display_name: string;
+  category?: string;
+  type?: string;
+  place_rank: number;
+  importance: number;
+  address: {
+    house_number: string;
+    road: string;
+    neighbourhood: string;
+    suburb: string;
+    city_district: string;
+    city: string;
+    county: string;
+    postcode: string;
+    country: string;
+    country_code: string;
+  };
+  extratags?: {
+		/**
+		* maximum allowed speed in km/h
+		*/
+		maxSpeed?: number;
+    [key: string]: string | number | undefined;
+  };
+}
+

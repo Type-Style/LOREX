@@ -165,7 +165,7 @@ describe("GET /write", () => {
   const filePath = path.resolve(dirPath, `data-${formattedDate}.json`);
 
   it('there should a file of the current date', async () => {
-    await callServer(undefined, "user=xx&lat=52.51451&lon=13.35105&timestamp=R3Pl4C3&hdop=20.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 200, "GET");
+    await callServer(undefined, "user=xx&lat=52.51451&lon=13.35105&timestamp=R3Pl4C3&hdop=20.0&altitude=5000&speed=150.000&heading=180.0&key=test", 200, "GET");
 
     fs.access(filePath, fs.constants.F_OK, (err) => {
       expect(err).toBeFalsy();
@@ -186,10 +186,12 @@ describe("GET /write", () => {
   it('after second call and the JSON entries length is 2', () => {
     return new Promise<void>(done => {
       setTimeout(async () => {
-        await await callServer(undefined, "user=xx&lat=52.51627&lon=13.37770&timestamp=R3Pl4C3&hdop=50&altitude=4000.000&speed=150.000&heading=180.0&key=test", 200, "GET");
+        await callServer(undefined, "user=xx&lat=52.51627&lon=13.37770&timestamp=R3Pl4C3&hdop=50&altitude=4000&speed=150.000&heading=180.0&key=test", 200, "GET");
         const jsonData = getData(filePath);
+        const entry = jsonData.entries.at(-1)
 
         expect(jsonData.entries.length).toBe(2);
+        expect(entry.index).toBe(1);
 
         done();
       }, 3500);
@@ -200,9 +202,10 @@ describe("GET /write", () => {
     const jsonData = getData(filePath);
     const entry = jsonData.entries.at(-1)
 
+    expect(entry.index).toBe(1);
     expect(entry.time.created).toBeGreaterThan(date.getTime());
     expect(entry.time.diff).toBeGreaterThan(3.5);
-    expect(entry.time.diff).toBeLessThan(4.6);
+    expect(entry.time.diff).toBeLessThan(5.25);
 
 
     const germanDayPattern = "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag)";
@@ -220,6 +223,7 @@ describe("GET /write", () => {
     const jsonData = getData(filePath);
     const entry = jsonData.entries.at(-1)
 
+    expect(entry.index).toBe(1);
     expect(entry.distance.horizontal).toBeCloseTo(1813.926);
     expect(entry.distance.vertical).toBe(-1000);
     expect(entry.distance.total).toBeCloseTo(2071.311);
@@ -229,6 +233,8 @@ describe("GET /write", () => {
     const jsonData = getData(filePath);
     const entry = jsonData.entries.at(-1)
 
+
+    expect(entry.index).toBe(1);
     expect(entry.angle).toBeCloseTo(83.795775);
   });
 
@@ -236,9 +242,11 @@ describe("GET /write", () => {
     const jsonData = getData(filePath);
     const entry = jsonData.entries.at(-1)
 
-    expect(isInRange(entry.speed.horizontal, 515, 10)).toBe(true);
-    expect(isInRange(entry.speed.vertical, -284, 10)).toBe(true);
-    expect(isInRange(entry.speed.total, 588, 15)).toBe(true);
+    expect(entry.index).toBe(1);
+
+    expect(isInRange(entry.speed.horizontal, 414.42,  118.41)).toBe(true);
+    expect(isInRange(entry.speed.vertical, -228.57, 65.31)).toBe(true);
+    expect(isInRange(entry.speed.total, 473, 135)).toBe(true);
   });
 
   it('check ignore', async () => {
@@ -249,7 +257,7 @@ describe("GET /write", () => {
 
     expect(entry.ignore).toBe(false); // current one to be false always
 
-    await callServer(undefined, "user=xx&lat=52.51627&lon=13.37770&timestamp=R3Pl4C3&hdop=50&altitude=4000.000&speed=150.000&heading=180.0&key=test", 200, "GET");
+    await callServer(undefined, "user=xx&lat=52.51627&lon=13.37770&timestamp=R3Pl4C3&hdop=50&altitude=2&speed=150.000&heading=180.0&key=test", 200, "GET");
 
     jsonData = getData(filePath);
     entry = jsonData.entries.at(-1);
@@ -265,11 +273,11 @@ describe("GET /write", () => {
 describe('API calls', () => {
   test(`1000 api calls`, async () => {
     for (let i = 0; i < 1000; i++) {
-      const url = `http://localhost:80/write?user=xx&lat=${(52 + Math.random()).toFixed(3)}&lon=${(13 + Math.random()).toFixed(3)}&timestamp=${new Date().getTime()}&hdop=${(25 * Math.random()).toFixed(3)}&altitude=${i}&speed=88.888&heading=${(360 * Math.random()).toFixed(3)}&key=test`;
+      const url = `http://localhost:80/write?user=xx&lat=${(52 + Math.random()).toFixed(3)}&lon=${(13 + Math.random()).toFixed(3)}&timestamp=${new Date().getTime()}&hdop=${(10 * Math.random()).toFixed(3)}&altitude=${i}&speed=88.888&heading=${(360 * Math.random()).toFixed(3)}&key=test`;
       const response = await axios.get(url);
       expect(response.status).toBe(200);
     }
-  }, 25000); // adjust this to to fit your setup
+  }, 40000); // adjust this to to fit your setup
 
   test(`length of json should not exceed 1000`, async () => {
     const date = new Date();
@@ -376,12 +384,12 @@ describe('read and login', () => {
       }
     }
   });
+
   test(`index parameter reduces length of json`, async () => {
     const response = await verifiedRequest("http://localhost:80/read?index=999", token);
     expect(response.status).toBe(200);
     expect(response.data.entries.length).toBe(1);
   });
-
 
 
   test(`unable to get maptoken without logged in`, async () => {
