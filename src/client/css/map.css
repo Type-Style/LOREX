@@ -102,6 +102,10 @@
 		padding-block: 0.35em;
 	}
 
+	.alert {
+		color: var(--alert);
+	}
+
 	dd,
 	dt {
 		padding: 0.5rem 1.2rem;

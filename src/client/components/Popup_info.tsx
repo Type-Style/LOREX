@@ -8,6 +8,9 @@ export default function PopupInfo({ entry }: { entry: Models.IEntry }) {
         <a href={`https://www.openstreetmap.org/?mlat=${entry.lat}&mlon=${entry.lon}&zoom=12&marker=${entry!.lat}/${entry!.lon}#map=13/${entry.lat}/${entry.lon}`} className="info">
           {`${entry.lat.toFixed(4)}`} / {`${entry.lon.toFixed(4)}`}
         </a>
+        {entry.address && (
+          <div className="small">{entry.address}</div>
+        )}
       </dd>
       <dt>Height</dt>
       <dd>{`${entry.altitude.toFixed(1)} m`}</dd>

@@ -8,7 +8,14 @@ import { getDistance } from '@src/scripts/distance';
 import { getAngle } from '@src/scripts/angle';
 import { getIgnore } from '@src/scripts/ignore';
 import logger from '@src/scripts/logger';
+import { getAddressData } from "@src/scripts/getAddressData";
 
+/*
+  This variable is used for race conditions
+  It contains the timestamp when the file was last written to.
+  In case another request is faster than the previous one, the slower one will be ignored.
+*/
+let lastWrittenToFile = 0;
 
 export const entry = {
   create: async (req: Request, res: Response, next: NextFunction) => {
@@ -18,6 +25,9 @@ export const entry = {
     fileObj.content = await file.readAsJson(res, fileObj.path, next);
 
     if (!fileObj.content?.entries) { return createError(res, 500, "File Content unavailable: " + fileObj.path, next); }
+    /* </guards> */
+
+    lastWrittenToFile = file.getModificationDate(fileObj.path);;
 
     const entries = fileObj.content.entries;
     const lastEntry = fileObj.content.entries.at(-1);
@@ -32,15 +42,14 @@ export const entry = {
     entry.lon = Number(req.query.lon);
     entry.user = req.query.user as string;
     entry.ignore = false;
-    entry.eta = req.query.eta ? Number(req.query.eta) : undefined 
+    entry.eta = req.query.eta ? Number(req.query.eta) : undefined
     entry.eda = req.query.eda ? Number(req.query.eda) : undefined;
-
 
     if (lastEntry && previousEntry) {
       entry.time = getTime(Number(req.query.timestamp), lastEntry); // time data is needed for ignore calculation
 
       lastEntry.ignore = getIgnore(lastEntry, entry, Number(req.query.speed));
-      
+
       if (lastEntry.ignore) { // rectify or replace previousEntry with last non ignored element
         for (let i = entries.length - 1; i >= 0; i--) {
           if (!entries[i].ignore) {
@@ -60,16 +69,28 @@ export const entry = {
       entry.speed = getSpeed(Number(req.query.speed))
     }
 
-    if (entries.length >= 1000) {
+    const { address, maxSpeed } = await getAddressData(entry.lat, entry.lon);
+
+    entry.address = address;
+    if (maxSpeed) {
+      entry.speed.maxSpeed = maxSpeed;
+    }
+
+    if (entries.length < 1000) {
+      entries.push(entry);
+    } else {
       logger.log(`File over 1000 lines: ${fileObj.path}`);
       if (entry.hdop < 12 || (previousEntry && entry.hdop < previousEntry.hdop)) {
         entries[entries.length - 1] = entry; // replace last entry
       }
-    } else {
-      entries.push(entry);
     }
 
-    file.write(res, fileObj, next);
+    // write to file only if timestamp has of file has not changed since request was incoming
+    if (lastWrittenToFile == file.getModificationDate(fileObj.path)) {
+      file.write(res, fileObj, next);
+    } else {
+      logger.error(`⏰ File modified while request was incoming, index: ${entry.index} ${fileObj.path}`);
+    }
 
   },
   validate: [
@@ -78,7 +99,7 @@ export const entry = {
     query('lon').custom(checkNumber(-180, 180)),
     query('timestamp').custom((value) => checkTime(value)),
     query('hdop').custom(checkNumber(0, 500)),
-    query('altitude').custom(checkNumber(-100, 10000)),
+    query('altitude').custom(checkNumber(-200, 10000)),
     query('speed').custom(checkNumber(0, 300)),
     query('heading').custom(checkNumber(0, 360, "integer")),
     query('eta').optional().custom((value) => checkTime(value, { allowZero: true })),
