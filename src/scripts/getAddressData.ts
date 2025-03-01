@@ -4,7 +4,6 @@ import logger from "./logger";
 let lastNominatimRequestTimestamp = 0;
 
 async function fetchData(url: string, timeout = 3000): Promise<NominatimResponse | null> {
-	console.log("stop sending?", lastNominatimRequestTimestamp + 4000 > Date.now())
 	if (lastNominatimRequestTimestamp + 4000 > Date.now()) { // do not fetch data too often
 		logger.log("🏠 Nominatim request throttled");
 		return null;
