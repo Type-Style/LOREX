@@ -14,6 +14,7 @@ import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-markercluster/styles'
 import "../css/map.css";
 import { LayerChangeHandler } from "./LayoutChangeHandler";
+import { exceed } from "../scripts/maxSpeed";
 
 function Map({ entries }: { entries: Array<Models.IEntry> }) {
 	const [contextObj] = useContext(Context);
@@ -41,6 +42,8 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 		let className = isEnd ? "end" : isStart ? "start" : "none"; // yes end is mostrecent and is more important than start
 		const iconSize = className != "none" ? 22 : 14;
 		className = (Date.now() - entry.time.recieved) <= 60000 ? "animate " + className : className; // when entry is recent append animate class
+
+		exceed(entry) ? className += " maxSpeed " : ""; 
 
 		return { className, iconSize }
 	}
