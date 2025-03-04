@@ -11,8 +11,10 @@ async function fetchData(url: string, timeout = 3000): Promise<NominatimResponse
 
 	try {
 		lastNominatimRequestTimestamp = Date.now();
-		const responseZoom17 = await axios.get<NominatimResponse>(url + "&zoom=17", { timeout });
-		const responseZoom18 = await axios.get<NominatimResponse>(url + "&zoom=18", { timeout });
+		const [responseZoom17, responseZoom18] = await Promise.all([
+			axios.get<NominatimResponse>(url + "&zoom=17", { timeout }),
+			axios.get<NominatimResponse>(url + "&zoom=18", { timeout }),
+		]);
 		
 		const combinedResponse = {
 			...responseZoom17.data,
