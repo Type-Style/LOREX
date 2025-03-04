@@ -1,4 +1,5 @@
 import React from 'react'
+import { exceed } from "../scripts/maxSpeed"
 
 export default function PopupSpeed({ entry }: { entry: Models.IEntry }) {
   return (
@@ -20,7 +21,7 @@ export default function PopupSpeed({ entry }: { entry: Models.IEntry }) {
       {entry.speed.maxSpeed && (
         <>
           <dt>MaxSpeed</dt>
-          <dd><span className={entry.speed.maxSpeed < (3.6 * Math.max(entry.speed.gps, entry.speed.total ?? 0)) ? "alert" : ""}>{`${(entry.speed.maxSpeed).toFixed(1)} km/h`}</span></dd>
+          <dd><span className={exceed(entry) ? "alert" : ""}>{`${(entry.speed.maxSpeed).toFixed(1)} km/h`}</span></dd>
         </>
       )}
     </>
