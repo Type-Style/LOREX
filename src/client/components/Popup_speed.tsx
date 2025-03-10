@@ -12,7 +12,7 @@ export default function PopupSpeed({ entry }: { entry: Models.IEntry }) {
           <dd>{`${(entry.speed.total * 3.6).toFixed(1)} km/h`}</dd>
         </>
       )}
-      {entry.speed.vertical && (
+      {entry.speed.vertical != null && (
         <>
           <dt>Vertical</dt>
           <dd>{`${(entry.speed.vertical * 3.6).toFixed(1)} km/h`}</dd>

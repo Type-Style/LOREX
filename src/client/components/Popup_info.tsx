@@ -19,7 +19,7 @@ export default function PopupInfo({ entry }: { entry: Models.IEntry }) {
         {entry.hdop}
         <span className="small">&#160;{entry.hdop < 3.25 ? 'good' : entry.hdop < 6 ? 'ok' : 'bad'}</span>
       </dd>
-      {entry.eta && Math.round(entry.eta) > 0 && (
+      {entry.eta === "number" && Math.round(entry.eta) > 0 && (
         <>
           <dt className="small">ETA</dt>
           <dd className="small">{entry.eta && new Date(entry.eta).toLocaleString()}</dd>
