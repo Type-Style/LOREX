@@ -56,7 +56,7 @@ function Start() {
       intervalID.current = setInterval(getData, fetchIntervalMs); // capture interval ID as return from setInterval
     }
 
-    if (messageObj.isError && messageObj.status == 403 && intervalID.current) { // clear interval when logged out
+    if (messageObj.isError && intervalID.current && (messageObj.status == 403 || messageObj.status == 401)) { // clear interval when logged out
       clearInterval(intervalID.current); intervalID.current = null;
     }
 
