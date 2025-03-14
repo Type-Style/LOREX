@@ -4,7 +4,10 @@ import crypto from 'crypto';
 import { create as createError } from '@src/middleware/error';
 
 
+const expiryTimeMinutes = 29;
 const csrfTokens: Set<CSRFToken> = new Set();
+const ephemeralSecrets: Set<CSRFToken> = new Set();
+
 
 export function createCSRF(res: Response, next: NextFunction): string | false {
   if (csrfTokens.size > 100) { // Max Number of Tokens in memory
@@ -43,7 +46,7 @@ export function cleanupCSRF() {
   }
 }
 
-export function validateJWT(req: Request) {
+export function validateJWT(req: Request, res: Response) {
   const key = process.env.KEY;
   const header = req.header('Authorization');
   const [type, token] = header ? header.split(' ') : "";
@@ -51,7 +54,10 @@ export function validateJWT(req: Request) {
 
   // Guard; aka early return for common failures before verifying authorization
   if (!key) { return { success: false, status: 500, message: 'Wrong Configuration' }; }
-  if (!header) { return { success: false, status: 401, message: 'No Authorization header' }; }
+  if (!header) {
+    res.setHeader('WWW-Authenticate', 'Bearer');
+    return { success: false, status: 401, message: 'No Authorization header' };
+  }
   if (type !== 'Bearer' || !token) { return { success: false, status: 400, message: 'Invalid Authorization header' }; }
 
   try {
@@ -74,6 +80,19 @@ export function validateJWT(req: Request) {
     return { success: false, status: 403, message: 'test user not allowed on production' };
   }
 
+  let foundEphemeral = false;
+  if (typeof payload == "object" && payload.ephemeral) {
+    for (const secret of ephemeralSecrets) {
+      if (secret.token === payload.ephemeral) {
+        foundEphemeral = true;
+      }
+    }
+  }
+  if (!foundEphemeral) {
+    res.setHeader('WWW-Authenticate', 'Bearer');
+    return { success: false, status: 401, message: 'Please reLogin' };
+  }
+
   return { success: true };
 }
 
@@ -84,9 +103,25 @@ export function createJWT(req: Request, res: Response) {
   const dateString = today.toLocaleDateString("de-DE", { weekday: "short", year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
   const payload = {
     date: dateString,
+    ephemeral: generateEphemeralSecret(),
     user: req.body.user
   };
-  const token = jwt.sign(payload, key, { expiresIn: 60 * 29 });
+  const token = jwt.sign(payload, key, { expiresIn: 60 * expiryTimeMinutes });
   res.locals.token = token;
   return token;
+}
+
+const generateEphemeralSecret = function () {
+  const secret = crypto.randomBytes(32).toString('hex');
+  ephemeralSecrets.add({ token: secret, expiry: Date.now() + (expiryTimeMinutes * 60 * 1000) });
+  return secret;
+}
+
+export const cleanupEphemeralSecrets = function () {
+  const currentTime = Date.now();
+  for (const entry of ephemeralSecrets) {
+    if (entry.expiry < currentTime) {
+      ephemeralSecrets.delete(entry);
+    }
+  }
 }

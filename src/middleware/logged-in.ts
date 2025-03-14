@@ -4,7 +4,7 @@ import { create as createError } from '@src/middleware/error';
 
 
 export function isLoggedIn(req: Request, res: Response, next: NextFunction) {
-  const result = validateJWT(req);
+  const result = validateJWT(req, res);
   if (!result.success) {
     createError(res, result.status, result.message || "", next)
   } else {
