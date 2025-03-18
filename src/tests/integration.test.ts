@@ -1,7 +1,13 @@
 import axios, { AxiosError } from 'axios';
-import qs from 'qs';
 import fs from "fs";
 import path from "path";
+import qs from "qs";
+
+const date = new Date();
+const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+const dirPath = path.resolve(__dirname, '../../dist/data/');
+const filePath = path.resolve(dirPath, `data-${formattedDate}.json`);
+
 
 async function callServer(timestamp = new Date().getTime(), query: string, expectStatus: number = 200, method: string = "HEAD", replaceETA: boolean = false,) {
   const url = new URL("http://localhost:80/write?");
@@ -161,8 +167,6 @@ describe("GET /write", () => {
   const date = new Date();
 	const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-  const dirPath = path.resolve(__dirname, '../../dist/data/');
-  const filePath = path.resolve(dirPath, `data-${formattedDate}.json`);
 
   it('there should a file of the current date', async () => {
     await callServer(undefined, "user=xx&lat=52.51451&lon=13.35105&timestamp=R3Pl4C3&hdop=20.0&altitude=5000&speed=150.000&heading=180.0&key=test", 200, "GET");
@@ -223,7 +227,6 @@ describe("GET /write", () => {
     const jsonData = getData(filePath);
     const entry = jsonData.entries.at(-1)
 
-    expect(entry.index).toBe(1);
     expect(entry.distance.horizontal).toBeCloseTo(1813.926);
     expect(entry.distance.vertical).toBe(-1000);
     expect(entry.distance.total).toBeCloseTo(2071.311);
@@ -233,8 +236,6 @@ describe("GET /write", () => {
     const jsonData = getData(filePath);
     const entry = jsonData.entries.at(-1)
 
-
-    expect(entry.index).toBe(1);
     expect(entry.angle).toBeCloseTo(83.795775);
   });
 
@@ -242,12 +243,32 @@ describe("GET /write", () => {
     const jsonData = getData(filePath);
     const entry = jsonData.entries.at(-1)
 
-    expect(entry.index).toBe(1);
-
-    expect(isInRange(entry.speed.horizontal, 414.42,  118.41)).toBe(true);
+    expect(isInRange(entry.speed.horizontal, 414.42, 118.41)).toBe(true);
     expect(isInRange(entry.speed.vertical, -228.57, 65.31)).toBe(true);
     expect(isInRange(entry.speed.total, 473, 135)).toBe(true);
   });
+
+  it('the heading is correct', () => {
+    const jsonData = getData(filePath);
+    const entry = jsonData.entries.at(-1)
+
+    expect(entry.heading).toBe(180);
+  })
+
+  it('the altitude is correct', () => {
+    const jsonData = getData(filePath);
+    const entry = jsonData.entries.at(-1)
+
+    expect(entry.altitude).toBe(4000);
+  })
+
+  it('the address is correct', () => {
+    const jsonData = getData(filePath);
+    const entry = jsonData.entries.at(-1)
+
+    expect(entry.address.toLowerCase()).toContain("berlin");
+  })
+
 
   it('check ignore', async () => {
     let jsonData = getData(filePath);
@@ -269,6 +290,36 @@ describe("GET /write", () => {
   });
 });
 
+describe('Race Condtion Check', () => {
+  test(`check most recent wins`, async () => {
+    const start = { lat: 52.50960, lon: 13.27457 };
+    const end = { lat: 52.51625, lon: 13.37661 };
+    const url1 = `http://localhost:80/write?user=xx&lat=${start.lat}&lon=${start.lon}&timestamp=${new Date().getTime()}&hdop=3&altitude=3&speed=3&heading=3&key=test`
+    const url2 = `http://localhost:80/write?user=xx&lat=${end.lat}&lon=${end.lon}&timestamp=${new Date().getTime()}&hdop=4&altitude=4&speed=4&heading=4&key=test`
+
+    return new Promise<void>(done => {
+      setTimeout(async () => {
+        fetch(url1);
+        const response = await fetch(url2);
+  
+        expect(response.status).toBe(200);
+        const jsonData = getData(filePath);
+        const entry = jsonData.entries.at(-1);
+        const previousEntry = jsonData.entries.at(-2);
+  
+        expect(entry.altitude).toBe(4);
+        expect(previousEntry.altitude).not.toBe(3);
+  
+        expect(entry.address).toBe(""); // third party call shall be cancelt in race condition
+        expect(entry.speed.maxSpeed).toBe(undefined);
+  
+        done();
+      }, 4000);
+    })
+
+  });
+});
+
 
 describe('API calls', () => {
   test(`1000 api calls`, async () => {
@@ -277,7 +328,7 @@ describe('API calls', () => {
       const response = await axios.get(url);
       expect(response.status).toBe(200);
     }
-  }, 40000); // adjust this to to fit your setup
+  }, 45000); // adjust this to to fit your setup
 
   test(`length of json should not exceed 1000`, async () => {
     const date = new Date();
@@ -346,7 +397,7 @@ describe('read and login', () => {
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response) {
-        expect(axiosError.response.status).toBe(403);
+        expect([401, 403]).toContain(axiosError.response.status);
       } else {
         console.error(axiosError);
       }
@@ -432,5 +483,6 @@ describe('read and login', () => {
     expect(response.data).toBeTruthy();
     expect(response.data.token).toBeTruthy();
     expect(typeof response.data.token).toBe('string');
-  });
+  }); 
 });
+

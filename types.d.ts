@@ -27,7 +27,7 @@ namespace File {
 		content?: Models.IEntries | boolean;
 	}
 
-	type method = 'read' | 'write';	
+	type method = 'read' | 'write';
 }
 
 namespace Models {
@@ -143,45 +143,48 @@ namespace Models {
 }
 
 interface CSRFToken {
-  token: string;
-  expiry: number;
+	token: string;
+	expiry: number;
 }
 
 interface HttpError extends Error {
-  status?: number;
-  statusCode?: number;
+	status?: number;
+	statusCode?: number;
 }
 
 interface NominatimResponse {
-  place_id: number;
-  osm_type: 'node' | 'way' | 'relation';
-  osm_id: number;
-  boundingbox: [string, string, string, string];
-  lat: string;
-  lon: string;
-  display_name: string;
-  category?: string;
-  type?: string;
-  place_rank: number;
-  importance: number;
-  address: {
-    house_number: string;
-    road: string;
-    neighbourhood: string;
-    suburb: string;
-    city_district: string;
-    city: string;
-    county: string;
-    postcode: string;
-    country: string;
-    country_code: string;
-  };
-  extratags?: {
+	place_id: number;
+	osm_type: 'node' | 'way' | 'relation';
+	osm_id: number;
+	boundingbox: [string, string, string, string];
+	lat: string;
+	lon: string;
+	display_name: string;
+	category?: string;
+	type?: string;
+	place_rank: number;
+	importance: number;
+	name: string;
+	addresstype: string;
+	address: {
+		house_number: string;
+		road: string;
+		neighbourhood: string;
+		suburb: string;
+		city_district: string;
+		city?: string;
+		town: string;
+		county: string;
+		postcode: string;
+		country: string;
+		country_code: string;
+	};
+	extratags?: {
 		/**
 		* maximum allowed speed in km/h
 		*/
 		maxSpeed?: number;
-    [key: string]: string | number | undefined;
-  };
+		[key: string]: string | number | undefined;
+	};
 }
 

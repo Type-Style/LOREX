@@ -208,8 +208,12 @@ Neutral: #131211
   font-style: oblique 7.11deg;
   font-stretch: 110%;
   font-weight: calc(800 + var(--baseFontWeightModifier));
+  text-shadow: 0.02em 0.04em 0.03em var(--contrastBackground);
 }
 
+.hide {
+  display: none !important;
+}
 
 @media (max-width: 35em) {
   .hide\@mobile[class] { /* increase selector strength */

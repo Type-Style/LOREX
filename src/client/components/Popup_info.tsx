@@ -19,18 +19,7 @@ export default function PopupInfo({ entry }: { entry: Models.IEntry }) {
         {entry.hdop}
         <span className="small">&#160;{entry.hdop < 3.25 ? 'good' : entry.hdop < 6 ? 'ok' : 'bad'}</span>
       </dd>
-      {entry.eta && Math.round(entry.eta) > 0 && (
-        <>
-          <dt className="small">ETA</dt>
-          <dd className="small">{entry.eta && new Date(entry.eta).toLocaleString()}</dd>
-        </>
-      )}
-      {typeof entry.eda === "number" && Math.round(entry.eda) > 0 && (
-        <>
-          <dt className="small">EDA</dt>
-          <dd className="small">{(entry.eda / 1000).toFixed(3)} km</dd>
-        </>
-      )}
+      
 
       <dt className="small">User</dt>
       <dd className="small">{entry.user}</dd>

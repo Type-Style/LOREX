@@ -4,7 +4,6 @@ import logger from "./logger";
 let lastNominatimRequestTimestamp = 0;
 
 async function fetchData(url: string, timeout = 3000): Promise<NominatimResponse | null> {
-	console.log("stop sending?", lastNominatimRequestTimestamp + 4000 > Date.now())
 	if (lastNominatimRequestTimestamp + 4000 > Date.now()) { // do not fetch data too often
 		logger.log("🏠 Nominatim request throttled");
 		return null;
@@ -12,9 +11,11 @@ async function fetchData(url: string, timeout = 3000): Promise<NominatimResponse
 
 	try {
 		lastNominatimRequestTimestamp = Date.now();
-		const responseZoom17 = await axios.get<NominatimResponse>(url + "&zoom=17", { timeout });
-		const responseZoom18 = await axios.get<NominatimResponse>(url + "&zoom=18", { timeout });
-		
+		const [responseZoom17, responseZoom18] = await Promise.all([
+			axios.get<NominatimResponse>(url + "&zoom=17", { timeout }),
+			axios.get<NominatimResponse>(url + "&zoom=18", { timeout }),
+		]);
+
 		const combinedResponse = {
 			...responseZoom17.data,
 			...responseZoom18.data,
@@ -49,17 +50,26 @@ function sanitizeString(input: string): string {
 
 function getAddressFromResponse(response: NominatimResponse): string {
 	let address = "";
-	const appendAddressPart = (part: string | undefined) => {
-		if (part) {
-			address = address + (address ? " " : "") + sanitizeString(part);
-		}
-	};
 
-	appendAddressPart(response.address?.road);
-	appendAddressPart(response.address?.house_number) + ", ";
-	appendAddressPart(response.address?.city);
+	if (response.name &&
+		response.addresstype != "road" &&
+		response.addresstype != "state") {
+		address += "(" + sanitizeString(response.name) + ")";
+	}
 
-	return address || "";
+	if (response.address?.road) {
+		address += " " + sanitizeString(response.address?.road);
+	}
+
+	if (response.address?.house_number) {
+		address += " " + sanitizeString(response.address?.house_number);
+	}
+
+	if (response.address?.city || response.address?.town) {
+		address += ", " + sanitizeString(response.address?.city || response.address?.town);
+	}
+
+	return address;
 }
 
 function getMaxSpeedFromResponse(response: NominatimResponse): number | null {

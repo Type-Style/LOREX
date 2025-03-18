@@ -13,7 +13,7 @@ import readRouter from '@src/controller/read';
 import loginRouter from '@src/controller/login';
 import logger from '@src/scripts/logger';
 import { baseRateLimiter, cleanup as cleanupRateLimitedIps } from './middleware/limit';
-import { cleanupCSRF } from "@src/scripts/token";
+import { cleanupCSRF, cleanupEphemeralSecrets } from "@src/scripts/token";
 
 // configurations
 config(); // dotenv
@@ -83,6 +83,7 @@ const server = app.listen(80, () => {
 setInterval(() => {
   cleanupCSRF();
   cleanupRateLimitedIps();
+  cleanupEphemeralSecrets();
 }, 1000 * 60 * 5);
 
 // catching shutdowns
