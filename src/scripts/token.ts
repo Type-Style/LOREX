@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import { NextFunction, Request, Response } from 'express';
 import crypto from 'crypto';
 import { create as createError } from '@src/middleware/error';
+import logger from "./logger";
 
 
 const expiryTimeMinutes = 29;
@@ -68,7 +69,9 @@ export function validateJWT(req: Request, res: Response) {
       if (err.name == "TokenExpiredError") {
         message = "Login expired";
       } else {
-        message = `${err.name} -  ${err.message}`;
+        res.setHeader('WWW-Authenticate', 'Bearer');
+        logger.error(`${err.name} -  ${err.message}`);
+        return { success: false, status: 401, message: 'Please reLogin' };
       }
     }
 
