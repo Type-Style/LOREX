@@ -4,7 +4,7 @@ export default function PopupTime({ entry }: { entry: Models.IEntry }) {
   return (
     <>
       <dt>Created</dt>
-      <dd style={{ whiteSpace: 'nowrap' }}>{new Date(entry.time.recieved).toLocaleTimeString("de-DE", {
+      <dd style={{ whiteSpace: 'nowrap' }}>{new Date(entry.time.created).toLocaleTimeString("de-DE", {
         weekday: "short",
         year: "2-digit",
         month: "2-digit",
@@ -32,6 +32,13 @@ export default function PopupTime({ entry }: { entry: Models.IEntry }) {
         <>
           <dt>Diff</dt>
           <dd>{`${(entry.time.diff).toFixed(1)} s`}</dd>
+        </>
+      )}
+
+      {typeof entry.eta === "number" && Math.round(entry.eta) > 0 && (
+        <>
+          <dt className="small">ETA</dt>
+          <dd className="small">{entry.eta && new Date(entry.eta).toLocaleString()}</dd>
         </>
       )}
     </>
