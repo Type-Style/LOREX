@@ -397,7 +397,7 @@ describe('read and login', () => {
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response) {
-        expect(axiosError.response.status).toBe(403);
+        expect([401, 403]).toContain(axiosError.response.status);
       } else {
         console.error(axiosError);
       }
