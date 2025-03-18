@@ -1,6 +1,6 @@
-import React, { useContext, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { Context } from "../context";
-import { LayersControl, MapContainer, TileLayer } from 'react-leaflet'
+import { LayersControl, MapContainer, TileLayer, useMap, useMap } from 'react-leaflet'
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import { MapRecenter } from "./MapCenter";
 import { LocationButton } from "./LocationButton";
@@ -15,6 +15,7 @@ import 'react-leaflet-markercluster/styles'
 import "../css/map.css";
 import { LayerChangeHandler } from "./LayoutChangeHandler";
 import { exceed } from "../scripts/maxSpeed";
+import { MapHideSmallCluster } from "./MapHideSmallCluster";
 
 function Map({ entries }: { entries: Array<Models.IEntry> }) {
 	const [contextObj] = useContext(Context);
@@ -43,16 +44,18 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 		const iconSize = className != "none" ? 22 : 14;
 		className = (Date.now() - entry.time.recieved) <= 60000 ? "animate " + className : className; // when entry is recent append animate class
 
-		exceed(entry) ? className += " maxSpeed " : ""; 
+		exceed(entry) ? className += " maxSpeed " : "";
 
 		return { className, iconSize }
 	}
+
 
 
 	return (
 		<div className="mapStyle" data-mui-color-scheme={mapStyle}>
 			<MapContainer className="mapContainer" center={[lastEntry.lat, lastEntry.lon]} zoom={13} maxZoom={19}>
 				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} fly={true} />
+				<MapHideSmallCluster />
 				<LocationButton lat={lastEntry.lat} lon={lastEntry.lon} />
 				<LayerChangeHandler mapStyle={mapStyle} setMapStyle={setMapStyle} />
 				<LayersControl position="bottomright">
@@ -100,7 +103,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 				</LayersControl>
 
 				{/* markers in group for clustering */}
-				<MarkerClusterGroup key={lastEntry.index} disableClusteringAtZoom={14} animateAddingMarkers={true} maxClusterRadius={15}>
+				<MarkerClusterGroup key={lastEntry.index} disableClusteringAtZoom={14} animateAddingMarkers={true} maxClusterRadius={20}>
 					{cleanEntries.map((entry) => {
 						const iconObj = getClassName(entry);
 						if (iconObj.className.includes("end")) { return } // exclude end from being in cluster group
