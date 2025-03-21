@@ -122,7 +122,7 @@ export const entry = {
   ]
 }
 
-function checkNumber(min: number, max: number, type: string = "float") {
+export function checkNumber(min: number, max: number, type: string = "float") {
   return (value: string) => {
     if (!value) {
       throw new Error('is required');
@@ -139,7 +139,7 @@ function checkNumber(min: number, max: number, type: string = "float") {
   };
 }
 
-function checkTime(value: string, { allowZero = false } = {}) {
+export function checkTime(value: string, { allowZero = false } = {}) {
   const timestamp = parseFloat(value);
   if (allowZero && value === '0') { return true; }
 
