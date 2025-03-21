@@ -9,6 +9,7 @@ import { getAngle } from '@src/scripts/angle';
 import { getIgnore } from '@src/scripts/ignore';
 import logger from '@src/scripts/logger';
 import { getAddressData } from "@src/scripts/getAddressData";
+import { getPath, updateWithPathData } from "@src/scripts/getPath";
 
 /*
   This variable is used for race conditions
@@ -63,19 +64,30 @@ export const entry = {
       entry.angle = getAngle(previousEntry, entry);
       entry.distance = getDistance(entry, previousEntry)
       entry.speed = getSpeed(Number(req.query.speed), entry);
+
     } else {
       entry.angle = undefined;
       entry.time = getTime(Number(req.query.timestamp));
       entry.speed = getSpeed(Number(req.query.speed))
     }
 
-    const { address, maxSpeed } = await getAddressData(entry.lat, entry.lon);
+    const [addressData, pathData] = await Promise.all([
+      getAddressData(entry.lat, entry.lon),
+      previousEntry ? getPath(previousEntry, entry) : Promise.resolve(null)
+    ]);
+
+    const { address, maxSpeed } = addressData;
 
     entry.address = address;
     if (maxSpeed) {
       entry.speed.maxSpeed = maxSpeed;
     }
 
+    if (pathData) {
+      updateWithPathData(entry, pathData);
+    }
+
+    // limit max file-size
     if (entries.length < 1000) {
       entries.push(entry);
     } else {
@@ -110,7 +122,7 @@ export const entry = {
   ]
 }
 
-export function checkNumber(min: number, max: number, type: string = "float") {
+function checkNumber(min: number, max: number, type: string = "float") {
   return (value: string) => {
     if (!value) {
       throw new Error('is required');
@@ -127,7 +139,7 @@ export function checkNumber(min: number, max: number, type: string = "float") {
   };
 }
 
-export function checkTime(value: string, { allowZero = false } = {}) {
+function checkTime(value: string, { allowZero = false } = {}) {
   const timestamp = parseFloat(value);
   if (allowZero && value === '0') { return true; }
 
