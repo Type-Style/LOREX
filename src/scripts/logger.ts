@@ -10,10 +10,10 @@ if (!fs.existsSync(dirPath)) {
 	fs.mkdirSync(dirPath, { recursive: true });
 }
 
-const date = new Date().toLocaleString('de-DE', { hour12: false });
 
 export default {
 	log: (message: string | JSON, showDateInConsole: boolean = false) => {
+		const date = new Date().toLocaleString('de-DE', { hour12: false });
 		message = JSON.stringify(message);
 		fs.appendFileSync(logPath, `${date} \t|\t ${message} \n`);
 		if (showDateInConsole) {
@@ -24,6 +24,8 @@ export default {
 		}
 	},
 	error: (content: string | Response.Error) => {
+		const date = new Date().toLocaleString('de-DE', { hour12: false });
+
 		// logfile
 		const applyErrorPrefix = !/^\[\w+\]/.test(typeof content == "string" ? content : content.message);
 		const logMessageTemplate = `${date} \t|\t${applyErrorPrefix ? ' [ERROR]' : ''} ${typeof content == "string" ? content : JSON.stringify(content.message) } \n`;

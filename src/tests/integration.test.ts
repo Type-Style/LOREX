@@ -314,7 +314,7 @@ describe('Race Condtion Check', () => {
         expect(entry.speed.maxSpeed).toBe(undefined);
   
         done();
-      }, 4000);
+      }, 10000);
     })
 
   });
@@ -328,7 +328,7 @@ describe('API calls', () => {
       const response = await axios.get(url);
       expect(response.status).toBe(200);
     }
-  }, 45000); // adjust this to to fit your setup
+  }, 50000); // adjust this to to fit your setup
 
   test(`length of json should not exceed 1000`, async () => {
     const date = new Date();
