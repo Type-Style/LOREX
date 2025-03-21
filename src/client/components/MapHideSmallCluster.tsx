@@ -5,7 +5,6 @@ import { useMap } from "react-leaflet";
 export const MapHideSmallCluster = () => {
 	const map = useMap();
 	useMemo(() => {
-		console.log("setup listener");
 		const observer = new MutationObserver(() => {
 			let clusters = document.querySelectorAll(".marker-cluster");
 			if (clusters?.length) {
