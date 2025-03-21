@@ -41,6 +41,13 @@ export default function PopupTime({ entry }: { entry: Models.IEntry }) {
           <dd className="small">{entry.eta && new Date(entry.eta).toLocaleString()}</dd>
         </>
       )}
+
+      {typeof entry.time.path === "number" && (
+        <>
+          <dt className="small">Path Time</dt>
+          <dd className="small">{entry.time.path}s</dd>
+        </>
+      )}
     </>
   )
 }
