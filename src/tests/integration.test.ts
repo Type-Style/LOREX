@@ -165,7 +165,7 @@ describe('/write', () => {
 
 describe("GET /write", () => {
   const date = new Date();
-	const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
 
   it('there should a file of the current date', async () => {
@@ -301,23 +301,22 @@ describe('Race Condtion Check', () => {
       setTimeout(async () => {
         fetch(url1);
         const response = await fetch(url2);
-  
+
         expect(response.status).toBe(200);
         const jsonData = getData(filePath);
         const entry = jsonData.entries.at(-1);
         const previousEntry = jsonData.entries.at(-2);
-  
+
         expect(entry.altitude).toBe(4);
         expect(previousEntry.altitude).not.toBe(3);
-  
+
         expect(entry.address).toBe(""); // third party call shall be cancelt in race condition
         expect(entry.speed.maxSpeed).toBe(undefined);
-  
-        done();
-      }, 10000);
-    })
 
-  });
+        done();
+      }, 2000);
+    })
+  }, 5000);
 });
 
 
@@ -483,6 +482,6 @@ describe('read and login', () => {
     expect(response.data).toBeTruthy();
     expect(response.data.token).toBeTruthy();
     expect(typeof response.data.token).toBe('string');
-  }); 
+  });
 });
 
