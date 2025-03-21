@@ -24,11 +24,10 @@ export default function PopupSpeed({ entry }: { entry: Models.IEntry }) {
           <dd><span className={exceed(entry) ? "alert" : ""}>{`${(entry.speed.maxSpeed).toFixed(1)} km/h`}</span></dd>
         </>
       )}
-
-      {typeof entry.eda === "number" && Math.round(entry.eda) > 0 && (
+      {typeof entry.speed.path === "number" && (
         <>
-          <dt className="small">EDA</dt>
-          <dd className="small">{(entry.eda / 1000).toFixed(3)} km</dd>
+          <dt className="small">Path</dt>
+          <dd className="small">{`${(entry.speed.path * 3.6).toFixed(1)} km/h`}</dd>
         </>
       )}
     </>

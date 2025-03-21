@@ -34,18 +34,18 @@ export default function PopupTime({ entry }: { entry: Models.IEntry }) {
           <dd>{`${(entry.time.diff).toFixed(1)} s`}</dd>
         </>
       )}
+      
+      {typeof entry.time.path === "number" && (
+        <>
+          <dt className="small">Path Time</dt>
+          <dd className="small">{entry.time.path.toFixed(1)}s</dd>
+        </>
+      )}
 
       {typeof entry.eta === "number" && Math.round(entry.eta) > 0 && (
         <>
           <dt className="small">ETA</dt>
           <dd className="small">{entry.eta && new Date(entry.eta).toLocaleString()}</dd>
-        </>
-      )}
-
-      {typeof entry.time.path === "number" && (
-        <>
-          <dt className="small">Path Time</dt>
-          <dd className="small">{entry.time.path}s</dd>
         </>
       )}
     </>
