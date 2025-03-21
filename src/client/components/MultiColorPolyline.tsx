@@ -47,7 +47,14 @@ export const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Array<Model
 
 		let strokeDashArray:string|undefined;
 
-		
+		let pathPositions: LatLngTuple[] = [
+			[previousEntry.lat, previousEntry.lon],
+			[entry.lat, entry.lon],
+		];
+			
+		if (entry.path && entry.path != "ignore" && entry.path.length > 1) {
+			pathPositions = entry.path as LatLngTuple[];
+		}
 
 		if (entry.time.uploadDuration > 300 || entry.time.diff && (entry.time.diff > 100 || entry.time.diff < 25)) { strokeDashArray = "4 8"; }
 		return (<Polyline
