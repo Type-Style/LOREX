@@ -111,15 +111,22 @@ namespace Models {
 		/**
 		* estimated distance in meters
 		*/
-		eda?: number
+		eda?: number,
+
+		/**
+		* contains response data from graphhopper,
+		* to be used for painting route accurately
+		*/
+		path?: number[][] | "ignore" | null;
 	}
 
 	interface ITime {
 		created: number,
 		recieved: number,
 		uploadDuration: number,
-		diff?: number
-		createdString: string
+		diff?: number,
+		createdString: string,
+		path?: number
 	}
 
 	interface ISpeed {
@@ -129,16 +136,18 @@ namespace Models {
 		gps: number;
 		horizontal?: number,
 		vertical?: number,
-		total?: number
+		total?: number,
 		/**
 		* maximum allowed speed in km/h
 		*/
-		maxSpeed?: number
+		maxSpeed?: number,
+		path?: number
 	}
 	interface IDistance {
 		horizontal: number,
 		vertical: number,
 		total: number
+		path?: number
 	}
 }
 
@@ -187,4 +196,28 @@ interface NominatimResponse {
 		[key: string]: string | number | undefined;
 	};
 }
+interface GraphHopperResponse {
+	paths: GraphHopperPath[];
+}
+
+interface GraphHopperPath {
+	distance: number;
+	time: number;
+	points: GraphHopperPathCoordinates;
+	ascend: number;
+	descend: number;
+}
+
+interface GraphHopperPathCoordinates {
+	coordinates: number[][];
+}
+
+interface PathObject {
+	coordinates: number[][];
+	time: number;
+	distance: number;
+	ascend: number;
+	descend: number;
+}
+
 

@@ -23,6 +23,19 @@ export default function PopupInfo({ entry }: { entry: Models.IEntry }) {
 
       <dt className="small">User</dt>
       <dd className="small">{entry.user}</dd>
+
+      <dt className="small">index</dt>
+      <dd className="small">
+        <button className="blendIn"
+          onClick={(e) => {
+            e.preventDefault();
+            const content = JSON.stringify(entry, null, 2)
+            alert(content);
+          }}
+        >
+          {entry.index}
+        </button>
+      </dd>
     </>
   )
 }

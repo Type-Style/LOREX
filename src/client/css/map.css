@@ -81,6 +81,19 @@
 			padding-inline-end: 0.4em;
 		}
 	}
+
+	.blendIn {
+		display: inline;
+		border: 0;
+		color: inherit;
+		background: transparent;
+		margin: 0; padding: 0;
+		text-decoration: underline;
+		appearance: none;
+		font-weight: normal;
+		font-style: inherit;
+
+	}
 }
 
 .popupList {
