@@ -35,6 +35,13 @@ export default function PopupTime({ entry }: { entry: Models.IEntry }) {
         </>
       )}
 
+      {typeof entry.time.path === "number" && (
+        <>
+          <dt className="small">Path Time</dt>
+          <dd className="small">{(entry.time.path / 1000).toFixed(1)}s</dd>
+        </>
+      )}
+
       {typeof entry.eta === "number" && Math.round(entry.eta) > 0 && (
         <>
           <dt className="small">ETA</dt>
