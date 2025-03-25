@@ -42,19 +42,20 @@ async function callServer(timestamp = new Date().getTime(), query: string, expec
 
 
 describe('test Data', () => {
-  const entries = 6;
+  const entries = 7;
   const start = { lat: 52.51625, lon: 13.37661 };
   const end = { lat: 52.50960, lon: 13.27457 };
   const diff = {lat: end.lat - start.lat, lon: end.lon - start.lon};
+  const bonusEntry = {lat: 52.516097, lon: 13.261351};
   const eta = Date.now() + 151 * 1000;
 
   // eslint-disable-next-line
   it('create ' + entries + ' entries', () => {
     return new Promise<void>(done => {
 
-      for (let i = 0; i < entries; i++) {
-        const lat = (start.lat + (diff.lat / (entries - 1) * i)).toFixed(8);
-        const lon = (start.lon + (diff.lon / (entries - 1) * i)).toFixed(8);
+      for (let i = 0; i < entries -1; i++) {
+        const lat = (start.lat + (diff.lat / (entries - 2) * i)).toFixed(8);
+        const lon = (start.lon + (diff.lon / (entries - 2) * i)).toFixed(8);
         setTimeout(async () => {
           await callServer(undefined, `user=xx&lat=${lat}&lon=${lon}&timestamp=R3Pl4C3&hdop=${Math.floor(Math.random() * 11) + 1}&altitude=${i+1}&speed=${39 + i*2.5}&heading=${262 + Math.floor(Math.random() * 20) - 10}&eta=${eta}&eda=${(6.94*1000  * ((entries - 1 - i) / (entries - 1))  ).toFixed(1)}&key=${key}`, 200, "GET");
           console.log("called server " + (i + 1) + "/" + entries);
@@ -63,6 +64,8 @@ describe('test Data', () => {
       }
 
       setTimeout(async () => {
+        await callServer(undefined, `user=xx&lat=${bonusEntry.lat}&lon=${bonusEntry.lon}&timestamp=R3Pl4C3&hdop=${Math.floor(Math.random() * 11) + 1}&altitude=${entries}&speed=${18.5}&heading=${315}&eta=0&eda=0&key=${key}`, 200, "GET");
+        console.log("called server " + entries + "/" + entries);
         done();
       }, 1000 * 30 * entries);
     })
