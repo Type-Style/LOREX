@@ -117,7 +117,7 @@ namespace Models {
 		* contains response data from graphhopper,
 		* to be used for painting route accurately
 		*/
-		path?: number[][] | "ignore" | null;
+		path?: Models.IPath;
 	}
 
 	interface ITime {
@@ -148,6 +148,17 @@ namespace Models {
 		vertical: number,
 		total: number
 		path?: number
+	}
+
+	interface IPath {
+		hasFetched: boolean,
+		ignore: boolean,
+		ignoreReason?: string,
+		coordinates?: number[][],
+		time?: number,
+		distance?: number,
+		ascend?: number,
+		descend?: number
 	}
 }
 
@@ -197,27 +208,25 @@ interface NominatimResponse {
 	};
 }
 interface GraphHopperResponse {
-	paths: GraphHopperPath[];
+	hasFetched: boolean;
+	ignore: boolean;
+	ignoreReason: string;
+	data?: GraphHopperData;
+}
+
+interface GraphHopperData {
+	paths: GraphHopperPath[]
 }
 
 interface GraphHopperPath {
-	distance: number;
-	time: number;
 	points: GraphHopperPathCoordinates;
 	ascend: number;
 	descend: number;
+	distance: number;
+	time: number;
 }
 
 interface GraphHopperPathCoordinates {
 	coordinates: number[][];
 }
-
-interface PathObject {
-	coordinates: number[][];
-	time: number;
-	distance: number;
-	ascend: number;
-	descend: number;
-}
-
 

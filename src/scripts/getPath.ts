@@ -1,57 +1,82 @@
 import axios from "axios";
 import logger from "./logger";
 import toFixedNumber from "./toFixedNumber";
+import path from "path";
 let lastGraphhopperRequestTimestamp = 0;
 
-export async function getPath(lastEntry: Models.IEntry, entry: Models.IEntry): Promise<PathObject | "ignore" | null> {
+export async function getPath(lastEntry: Models.IEntry, entry: Models.IEntry): Promise<Models.IPath> {
+	let returnObj: Models.IPath = {
+		hasFetched: false,
+		ignore: false,
+	};
+
 	if (!checkPreconditions(lastEntry, entry)) {
-		return "ignore";
-	}
-	const data = await fetchGraphhopper(lastEntry, entry);
-
-	if (!data) { return null; }
-
-	if (!isValidGraphHopperResponse(data)) {
-		logger.error(`🦗 Invalid GraphHopper response: ${JSON.stringify(data)}`);
-		return null;
+		returnObj.ignore = true;
+		returnObj.ignoreReason = "Preconditions not met";
+		return returnObj;
 	}
 
-	const returnObj = {
-		coordinates: data.paths[0].points.coordinates,
-		time: toFixedNumber(data.paths[0].time, 3),
-		distance: toFixedNumber(data.paths[0].distance, 3),
-		ascend: toFixedNumber(data.paths[0].ascend, 3),
-		descend: toFixedNumber(data.paths[0].descend, 3)
+	// fetch data
+	const response = await fetchGraphhopper(lastEntry, entry);
+	if (!response) { return returnObj; }
+	returnObj = {
+		hasFetched: response.hasFetched,
+		ignore: response.ignore,
+		ignoreReason: response.ignoreReason
+	};
+
+	if (response.ignore) { return returnObj; }
+
+	if (typeof response.data === "undefined" || !isValidGraphHopperResponse(response.data)) {
+		returnObj.ignoreReason = `🦗 Invalid GraphHopper response`;
+		logger.error(returnObj.ignoreReason + JSON.stringify(response));
+		return returnObj;
+	}
+
+	returnObj = {
+		...returnObj,
+		coordinates: reorderCoordinates(response.data.paths[0].points.coordinates),
+		time: toFixedNumber(response.data.paths[0].time, 3),
+		distance: toFixedNumber(response.data.paths[0].distance, 3),
+		ascend: toFixedNumber(response.data.paths[0].ascend, 3),
+		descend: toFixedNumber(response.data.paths[0].descend, 3)
 	};
 
 	// check length of data
 	if (JSON.stringify(returnObj).length > 100000) {
 		logger.error(`🦗 GraphHopper response too big: ${JSON.stringify(returnObj).length}`);
-		return null;
+		return { ...returnObj, ignore: true, ignoreReason: `🦗 GraphHopper response too big` };
 	}
-
-	returnObj.coordinates = reorderCoordinates(returnObj.coordinates);
 
 	return returnObj;
 };
 
-async function fetchGraphhopper(lastEntry: Models.IEntry, entry: Models.IEntry): Promise<GraphHopperResponse | null> {
-	let returnData;
+async function fetchGraphhopper(lastEntry: Models.IEntry, entry: Models.IEntry): Promise<GraphHopperResponse> {
+	let returnData: GraphHopperResponse = {
+		hasFetched: false,
+		ignore: false,
+		ignoreReason: ""
+	};
+
 	let graphHopperKey = process.env.GRAPHHOPPER;
 	if (!graphHopperKey) {
-		logger.error("🦗 GRAPHHOPPERKEY missing");
-		return null;
+		returnData.ignore = true;
+		returnData.ignoreReason = "🦗 GRAPHHOPPERKEY missing";
 	}
 	if (lastGraphhopperRequestTimestamp + 4000 > Date.now()) { // do not fetch data too often
-		logger.log("🦗 Graphhopper request throttled");
-		return null;
+		returnData.ignore = true;
+		returnData.ignoreReason = "🦗 Graphhopper request throttled";
 	}
 
-
+	if (returnData.ignore) {
+		logger.error(returnData.ignoreReason);
+		return returnData;
+	}
 
 	const url = `https://graphhopper.com/api/1/route?key=${graphHopperKey}`;
 	try {
-		const { data }: { data: GraphHopperResponse } = await axios.post(url, {
+		returnData.hasFetched = true;
+		const { data }: { data: GraphHopperData } = await axios.post(url, {
 			"points": [
 				[
 					lastEntry.lon,
@@ -63,9 +88,9 @@ async function fetchGraphhopper(lastEntry: Models.IEntry, entry: Models.IEntry):
 				]
 			],
 			"snap_preventions": [
-				"ferry",
+				"ferry"
 			],
-			"profile": "small_truck",
+			"profile": "car",
 			"locale": "de",
 			"instructions": false,
 			"calc_points": true,
@@ -79,22 +104,25 @@ async function fetchGraphhopper(lastEntry: Models.IEntry, entry: Models.IEntry):
 		})
 
 		lastGraphhopperRequestTimestamp = Date.now();
-		returnData = data;
+		returnData = { ...returnData, data: data};
 	} catch (error) {
+		returnData.ignore = true;
 		if (axios.isAxiosError(error) && error.code === 'ECONNABORTED') {
-			logger.error("🦗 Graphhopper request timed out");
+			returnData.ignoreReason = ("🦗 Graphhopper request timed out");
 		} else if (axios.isAxiosError(error)) {
-			logger.error("🦗 Graphhopper request failed " + error.message);
+			returnData.ignoreReason = ("🦗 Graphhopper request failed " + error.message);
 		} else {
-			logger.error(`🦗 Graphhopper failed, ${error}`);
+			returnData.ignoreReason = (`🦗 Graphhopper failed, ${error}`);
 		}
-		return null;
+
+		logger.error(returnData.ignoreReason);
+		return returnData;
 	}
 
 	return returnData;
 }
 
-function isValidGraphHopperResponse(data: any): data is GraphHopperResponse {
+export function isValidGraphHopperResponse(data: any): data is GraphHopperData {
 	return (
 		data &&
 		Array.isArray(data.paths) &&
@@ -115,45 +143,46 @@ export function reorderCoordinates(coords: number[][]): number[][] {
 }
 
 export function checkPreconditions(lastEntry: Models.IEntry, entry: Models.IEntry): boolean {
-	if (!lastEntry || !entry || lastEntry.ignore || entry.ignore || entry.hdop > 6) { return false; }
+	if (!lastEntry || !entry ||
+		lastEntry.ignore || entry.ignore ||
+		entry.hdop > 6 ||
+		!entry.speed.total || typeof entry.distance.vertical !== "number" || !entry.time.diff) { return false }
 
 	let score = 0.5;
 	const scoreAdjustmentFactor = 0.1;
 	const up = (weight = 1) => score += scoreAdjustmentFactor * weight;
 	const down = (weight = 1) => score -= scoreAdjustmentFactor * weight;
 
-	(entry.speed.gps * 3.6 >= 20) ? up() : down();
-	(entry.speed.total) ? (entry.speed.total * 3.6 >= 20) ? up() : down() : down(2);
-	(entry.speed.vertical) ? (entry.speed.vertical > 5) ? down() : null : down();
-	(entry.distance.horizontal >= 150) ? up(2) : down(2);
-	(entry.distance.horizontal >= 2000) ? down(2) : null;
-	(Math.abs(entry.heading - lastEntry.heading) > 10) ? up(1.5) : down(2);
-	(entry.time.diff && entry.time.diff > 300) ? down(1.5) : up(0.5);
+	(entry.speed.gps * 3.6 >= 25 || entry.speed.total * 3.6 >= 20) ? up() : down();
+	(entry.distance.vertical > 5) ? down() : null;
+	(entry.distance.horizontal >= 150 && entry.distance.horizontal <= 2000) ? up(1.5) : down(2);
+	(Math.abs(entry.heading - lastEntry.heading) > 10) ? up() : down(2);
+	(entry.time.diff > 300) ? down(1.5) : up(0.5);
+
+	// TODO: check if maxSpeed is availabe and if it is exceeded, if yes up the score if not stay the same
+	
 
 	return score >= 0.5;
 }
 
 
-export function updateWithPathData(entry: Models.IEntry, pathObject: PathObject | "ignore"): void {
+export function updateWithPathData(entry: Models.IEntry, pathObject: Models.IPath): void {
+	entry.path = pathObject;
+	if (!entry.time.diff || !entry.speed.horizontal || !pathObject || pathObject.ignore) { return }
 
-	if (!entry.time.diff || !entry.speed.horizontal || !pathObject) { return }
-	if (pathObject == "ignore") {
-		entry.path = pathObject;
-		return
-	}
-
-	const pathSpeed = pathObject.distance / entry.time.diff; // new distance, actually traveled in given time
+	const pathSpeed = pathObject.distance! / entry.time.diff; // new distance, actually traveled in given time
 
 	// sanity check
 	if (entry.speed.horizontal > pathSpeed || // path too short
 		pathSpeed > entry.speed.horizontal * 1.5) { // path way to long
 		logger.error(`🦗 GraphHopper Path unlikely, index: ${entry.index} pathSpeed: ${pathSpeed}, gpsSpeed: ${entry.speed.gps} calcSpeed: ${entry.speed.horizontal}`);
-		entry.path = "ignore";
+		entry.path.ignore = true;
+		entry.path.ignoreReason = "🦗 GraphHopper Path unlikely";
 		return
 	}
 
 	entry.distance.path = pathObject.distance;
 	entry.time.path = pathObject.time;
 	entry.speed.path = pathSpeed;
-	entry.path = pathObject.coordinates;
+	entry.path.coordinates = pathObject.coordinates;
 }
