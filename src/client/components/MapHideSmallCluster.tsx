@@ -24,7 +24,7 @@ export const MapHideSmallCluster = () => {
 		};
 		const mapContainer = document.querySelector(".mapContainer");
 		observer.observe(mapContainer!, config);
-	}, [map]);
+	}, []);
 	
 	return null
 };

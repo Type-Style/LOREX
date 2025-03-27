@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 import { Context } from "../context";
-import { LayersControl, MapContainer, TileLayer, useMap, useMap } from 'react-leaflet'
+import { LayersControl, MapContainer, TileLayer } from 'react-leaflet'
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import { MapRecenter } from "./MapCenter";
 import { LocationButton } from "./LocationButton";
