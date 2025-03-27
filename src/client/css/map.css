@@ -90,9 +90,9 @@
 		margin: 0; padding: 0;
 		text-decoration: underline;
 		appearance: none;
+		font-size: inherit;
 		font-weight: normal;
 		font-style: inherit;
-
 	}
 }
 
