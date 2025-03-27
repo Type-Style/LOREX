@@ -77,7 +77,7 @@ describe("getPath", () => {
         "created": 0,
         "recieved": 0,
         "uploadDuration": 0,
-        "diff": 0,
+        "diff": 30,
         "createdString": "00:00"
       },
       "angle": 0,
@@ -104,10 +104,12 @@ describe("getPath", () => {
 
    let entry = {
       ...baseEntry,
+      "angle": 20,
       "heading": 20,
       "distance": {
         ...baseEntry.distance,
         "horizontal": 200,
+        "vertical": 0
       },
       "speed": {
         ...baseEntry.speed,
@@ -122,7 +124,5 @@ describe("getPath", () => {
 
     const result2 = checkPreconditions(lastEntry, entry);
     expect(result2).toBe(true);
-
-
   });
 });
