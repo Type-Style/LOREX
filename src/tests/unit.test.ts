@@ -104,6 +104,7 @@ describe("getPath", () => {
 
    let entry = {
       ...baseEntry,
+      "angle": 20,
       "heading": 20,
       "distance": {
         ...baseEntry.distance,

@@ -143,26 +143,41 @@ export function reorderCoordinates(coords: number[][]): number[][] {
 }
 
 export function checkPreconditions(lastEntry: Models.IEntry, entry: Models.IEntry): boolean {
+	let returnValue = true;
+
+	
+	// hard criteria for valid data
 	if (!lastEntry || !entry ||
 		lastEntry.ignore || entry.ignore ||
 		entry.hdop > 6 ||
-		!entry.speed.total || typeof entry.distance.vertical !== "number" || !entry.time.diff) { return false }
-
-	let score = 0.5;
-	const scoreAdjustmentFactor = 0.1;
-	const up = (weight = 1) => score += scoreAdjustmentFactor * weight;
-	const down = (weight = 1) => score -= scoreAdjustmentFactor * weight;
-
-	(entry.speed.gps * 3.6 >= 25 || entry.speed.total * 3.6 >= 20) ? up() : down();
-	(entry.distance.vertical > 5) ? down() : null;
-	(entry.distance.horizontal >= 150 && entry.distance.horizontal <= 2000) ? up(1.5) : down(2);
-	(Math.abs(entry.heading - lastEntry.heading) > 10) ? up() : down(2);
-	(entry.time.diff > 300) ? down(1.5) : up(0.5);
-
-	// TODO: check if maxSpeed is availabe and if it is exceeded, if yes up the score if not stay the same
+		!entry.angle ||
+		!entry.speed.total || !entry.time.diff) { return false }
 	
+	/*
+	** soft criteria ranked from least to most important
+	*/
 
-	return score >= 0.5;
+	if (entry.speed.gps * 3.6 < 25 && entry.speed.total * 3.6 < 20) {
+		returnValue = false;
+	} 
+
+	if (entry.distance.total < 100 && entry.distance.total > 5000) {
+		returnValue = false;
+	}
+
+	if (Math.abs(entry.angle - lastEntry.heading) > 10) {
+		returnValue = true;
+	}
+
+	if (entry.time.diff > 300) {
+		returnValue = false;
+	}
+
+	if (entry.speed.maxSpeed && Math.max(entry.speed.gps * 3.6, entry.speed.total * 3.6) > entry.speed.maxSpeed ) {
+		returnValue = true;
+	}
+
+	return returnValue;
 }
 
 
