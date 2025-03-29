@@ -143,41 +143,35 @@ export function reorderCoordinates(coords: number[][]): number[][] {
 }
 
 export function checkPreconditions(lastEntry: Models.IEntry, entry: Models.IEntry): boolean {
-	let returnValue = true;
-
 	
-	// hard criteria for valid data
 	if (!lastEntry || !entry ||
 		lastEntry.ignore || entry.ignore ||
 		entry.hdop > 6 ||
 		!entry.angle ||
 		!entry.speed.total || !entry.time.diff) { return false }
 	
-	/*
-	** soft criteria ranked from least to most important
-	*/
 
-	if (entry.speed.gps * 3.6 < 25 && entry.speed.total * 3.6 < 20) {
-		returnValue = false;
+	if (entry.speed.gps * 3.6 < 20 && entry.speed.total * 3.6 < 15) {
+		return false;
 	} 
 
 	if (entry.distance.total < 100 && entry.distance.total > 5000) {
-		returnValue = false;
+		return false;
 	}
-
-	if (Math.abs(entry.angle - lastEntry.heading) > 10) {
-		returnValue = true;
-	}
-
+	
 	if (entry.time.diff > 300) {
-		returnValue = false;
+		return false;
 	}
 
 	if (entry.speed.maxSpeed && Math.max(entry.speed.gps * 3.6, entry.speed.total * 3.6) > entry.speed.maxSpeed ) {
-		returnValue = true;
+		return true;
 	}
 
-	return returnValue;
+	if (Math.abs(entry.angle - lastEntry.heading) < 10) {
+		return false;
+	}
+
+	return true;
 }
 
 
