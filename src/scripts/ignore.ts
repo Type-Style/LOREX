@@ -9,7 +9,7 @@ export function getIgnore(lastEntry: Models.IEntry, entry: Models.IEntry, gpsSpe
 
   // Threshold increases with older previous entries
   if (timing > 32) {
-    threshold += Math.min(lastEntryDiff / 120, maxThreshold);
+    threshold += Math.min(lastEntryDiff / 60 / 2, maxThreshold);
   }
 
   return lastEntry.hdop > threshold; // shall ignore ?
