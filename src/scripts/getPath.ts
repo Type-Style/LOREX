@@ -1,7 +1,7 @@
 import axios from "axios";
 import logger from "./logger";
 import toFixedNumber from "./toFixedNumber";
-import path from "path";
+
 let lastGraphhopperRequestTimestamp = 0;
 
 export async function getPath(lastEntry: Models.IEntry, entry: Models.IEntry): Promise<Models.IPath> {
