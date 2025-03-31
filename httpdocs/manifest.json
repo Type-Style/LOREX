@@ -1,0 +1,16 @@
+{
+  "name": "LOREX",
+  "short_name": "LOREX",
+  "description": "LOREX - Based on leaflet, openstreetmap React and Express, save your webtracking and display it on a map",
+  "start_url": "/",
+  "display": "fullscreen",
+  "background_color": "#000000",
+  "theme_color": "#ff9900",
+  "icons": [
+    {
+      "src": "icon.png",
+      "type": "image/png",
+      "sizes": "144pxx144px"
+    }
+  ]
+}
