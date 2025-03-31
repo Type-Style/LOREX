@@ -4,8 +4,8 @@
   "description": "LOREX - Based on leaflet, openstreetmap React and Express, save your webtracking and display it on a map",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#ff9900",
+  "background_color": "#333",
+  "theme_color": "#f09000",
   "icons": [
     {
       "src": "icon.png",
