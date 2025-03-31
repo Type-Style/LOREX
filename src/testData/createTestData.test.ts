@@ -57,7 +57,7 @@ describe('test Data', () => {
         const lat = (start.lat + (diff.lat / (entries - 2) * i)).toFixed(8);
         const lon = (start.lon + (diff.lon / (entries - 2) * i)).toFixed(8);
         setTimeout(async () => {
-          await callServer(undefined, `user=xx&lat=${lat}&lon=${lon}&timestamp=R3Pl4C3&hdop=${Math.floor(Math.random() * 8) + 1}&altitude=${i+1}&speed=${39 + i*2.5}&heading=${262 + Math.floor(Math.random() * 25) - 10}&eta=${eta}&eda=${(6.94*1000  * ((entries - 1 - i) / (entries - 1))  ).toFixed(1)}&key=${key}`, 200, "GET");
+          await callServer(undefined, `user=xx&lat=${lat}&lon=${lon}&timestamp=R3Pl4C3&hdop=${Math.floor(Math.random() * 8.5)}&altitude=${i+1}&speed=${39 + i*2.5}&heading=${262 + Math.floor(Math.random() * 25) - 10}&eta=${eta}&eda=${(6.94*1000  * ((entries - 1 - i) / (entries - 1))  ).toFixed(1)}&key=${key}`, 200, "GET");
           console.log("called server " + (i + 1) + "/" + entries);
 
         }, 1000 * 30 * i);
