@@ -155,7 +155,7 @@ export function checkPreconditions(lastEntry: Models.IEntry, entry: Models.IEntr
 		return false;
 	} 
 
-	if (entry.distance.total < 100 && entry.distance.total > 5000) {
+	if (entry.distance.total < 100 || entry.distance.total > 5000) {
 		return false;
 	}
 	
