@@ -20,6 +20,16 @@ const Map = lazy(() => import('../components/Map'));
 
 const fetchIntervalMs = 1000 * 55;
 
+const getIndex = (entries: Array<Models.IEntry>): number => {
+  if (!entries.length) { return 0; }
+  const lastEntry = entries[entries.length - 1];
+  const now = new Date();
+  const lastEntryDate = new Date(lastEntry.time.created);
+  const isSameDay = lastEntryDate.toDateString() === now.toDateString();
+
+  return isSameDay ? lastEntry.index + 1  : 0;
+}
+
 function Start() {
   const [isFirstRender, setFirstRender] = useState<boolean>(true);
   const intervalID = useRef<NodeJS.Timeout>(null);
@@ -29,7 +39,9 @@ function Start() {
   const [entries, setEntries] = useState<Array<Models.IEntry>>([]);
   const [fetchTimes, setFetchTimes] = useState<{ last: number | undefined, next: number | undefined }>({ last: undefined, next: undefined });
 
-  const { fetchData } = useGetData(entries.length, fetchIntervalMs, setEntries);
+  const index = getIndex(entries);
+
+  const { fetchData } = useGetData(index, fetchIntervalMs, setEntries);
   const getData = useCallback(async () => {
     if (!contextObj.isLoggedIn) {
       setMessageObj({ isError: true, status: 403, message: contextObj.userInfo ? "Login expired" : "No valid login" });
