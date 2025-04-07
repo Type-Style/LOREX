@@ -1,9 +1,7 @@
 import { useMemo } from "react";
-import { useMap } from "react-leaflet";
 
 // Used to recenter the map to new coordinates
 export const MapHideSmallCluster = () => {
-	const map = useMap();
 	useMemo(() => {
 		const observer = new MutationObserver(() => {
 			let clusters = document.querySelectorAll(".marker-cluster");

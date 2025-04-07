@@ -107,16 +107,16 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 					{cleanEntries.map((entry) => {
 						const iconObj = getClassName(entry);
 						if (iconObj.className.includes("end")) { return } // exclude end from being in cluster group
-						return <Marker key={entry.time.created} entry={entry} cleanEntries={cleanEntries} iconObj={getClassName(entry)} />
+						return <Marker key={entry.time.created + 0.125} entry={entry} cleanEntries={cleanEntries} iconObj={getClassName(entry)} />
 
 					})}
 				</MarkerClusterGroup>
 
 
 				{/* end marker */}
-				<Marker key={lastEntry.time.created} entry={lastEntry} cleanEntries={cleanEntries} iconObj={getClassName(lastEntry)} ref={lastMarker} />
+				<Marker key={lastEntry.time.created + 0.25} entry={lastEntry} cleanEntries={cleanEntries} iconObj={getClassName(lastEntry)} ref={lastMarker} />
 
-				<MultiColorPolyline key={lastEntry.index + 1} cleanEntries={cleanEntries} />
+				<MultiColorPolyline key={lastEntry.index + 0.75} cleanEntries={cleanEntries} />
 			</MapContainer>
 		</div >
 	)

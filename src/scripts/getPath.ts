@@ -1,7 +1,7 @@
 import axios from "axios";
 import logger from "./logger";
 import toFixedNumber from "./toFixedNumber";
-import path from "path";
+
 let lastGraphhopperRequestTimestamp = 0;
 
 export async function getPath(lastEntry: Models.IEntry, entry: Models.IEntry): Promise<Models.IPath> {
@@ -155,16 +155,12 @@ export function checkPreconditions(lastEntry: Models.IEntry, entry: Models.IEntr
 		return false;
 	} 
 
-	if (entry.distance.total < 100 && entry.distance.total > 5000) {
+	if (entry.distance.total < 100 || entry.distance.total > 5000) {
 		return false;
 	}
 	
 	if (entry.time.diff > 300) {
 		return false;
-	}
-
-	if (entry.speed.maxSpeed && Math.max(entry.speed.gps * 3.6, entry.speed.total * 3.6) > entry.speed.maxSpeed ) {
-		return true;
 	}
 
 	if (Math.abs(entry.angle - lastEntry.heading) < 10) {
@@ -177,14 +173,14 @@ export function checkPreconditions(lastEntry: Models.IEntry, entry: Models.IEntr
 
 export function updateWithPathData(entry: Models.IEntry, pathObject: Models.IPath): void {
 	entry.path = pathObject;
-	if (!entry.time.diff || !entry.speed.horizontal || !pathObject || pathObject.ignore) { return }
+	if (!entry.time.diff || !entry.speed.total || !pathObject || pathObject.ignore) { return }
 
 	const pathSpeed = pathObject.distance! / entry.time.diff; // new distance, actually traveled in given time
 
 	// sanity check
-	if (entry.speed.horizontal > pathSpeed || // path too short
-		pathSpeed > entry.speed.horizontal * 1.5) { // path way to long
-		logger.error(`🦗 GraphHopper Path unlikely, index: ${entry.index} pathSpeed: ${pathSpeed}, gpsSpeed: ${entry.speed.gps} calcSpeed: ${entry.speed.horizontal}`);
+	if (entry.speed.total > pathSpeed || // path too short
+		pathSpeed > entry.speed.total * 1.75) { // path way to long
+		logger.error(`🦗 GraphHopper Path unlikely, index: ${entry.index} pathSpeed: ${pathSpeed}, calcSpeed: ${entry.speed.total}`);
 		entry.path.ignore = true;
 		entry.path.ignoreReason = "🦗 GraphHopper Path unlikely";
 		return

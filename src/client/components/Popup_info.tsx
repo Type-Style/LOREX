@@ -1,6 +1,8 @@
 import React from 'react'
 
 export default function PopupInfo({ entry }: { entry: Models.IEntry }) {
+  const hdopStatus = entry.hdop < 3.25 ? 'good' : entry.hdop < 6 ? 'ok' : 'bad';
+
   return (
     <>
       <dt>Lat / Lon</dt>
@@ -16,10 +18,8 @@ export default function PopupInfo({ entry }: { entry: Models.IEntry }) {
       <dd>{`${entry.altitude.toFixed(1)} m`}</dd>
       <dt>Precision</dt>
       <dd>
-        {entry.hdop}
-        <span className="small">&#160;{entry.hdop < 3.25 ? 'good' : entry.hdop < 6 ? 'ok' : 'bad'}</span>
+        <span className={`small hdop-status ${hdopStatus == "bad" ? "alert" : ""}`}>{entry.hdop} &#160;{hdopStatus}</span>
       </dd>
-      
 
       <dt className="small">User</dt>
       <dd className="small">{entry.user}</dd>

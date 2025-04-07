@@ -109,6 +109,7 @@ describe("getPath", () => {
       "distance": {
         ...baseEntry.distance,
         "horizontal": 200,
+        "total": 200,
         "vertical": 0
       },
       "speed": {
