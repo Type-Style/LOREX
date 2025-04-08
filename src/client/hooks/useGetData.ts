@@ -61,8 +61,9 @@ export const useGetData = (index: number, fetchIntervalMs: number, setEntries) =
 				return { ...returnObj, status: 499, message: error.message || "offline", fetchTimeData: { last: new Date().getTime(), next: new Date().getTime() + fetchIntervalMs } }
 			}
 
-			if (error.response.status == 403 || error.response.status == 401) { contextObj.setLogin(false) }
+			if (error.response.status == 403 || error.response.status == 401) { contextObj.setLogin(false); contextObj.isLoggedIn = false;}
 
+			contextObj.setLogin(true);
 			return { ...returnObj, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message, fetchTimeData: { last: null, next: null } }
 		}
 	}

@@ -130,9 +130,7 @@ function Login() {
         <h1 className="headline">
           Login Page
         </h1>
-        {contextObj.isLoggedIn &&
-          <h2 className="headline sub">You are logged in</h2>
-        }
+        
         <form action="/login" method="post" onSubmit={submit}>
           <TextField
             label="Username"
