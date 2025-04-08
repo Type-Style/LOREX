@@ -111,7 +111,7 @@ export const entry = {
     query('lon').custom(checkNumber(-180, 180)),
     query('timestamp').custom((value) => checkTime(value)),
     query('hdop').custom(checkNumber(0, 500)),
-    query('altitude').custom(checkNumber(-200, 10000)),
+    query('altitude').custom(checkNumber(-500, 10000)),
     query('speed').custom(checkNumber(0, 300)),
     query('heading').custom(checkNumber(0, 360, "integer")),
     query('eta').optional().custom((value) => checkTime(value, { allowZero: true })),
