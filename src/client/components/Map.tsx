@@ -22,6 +22,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 	const [mapStyle, setMapStyle] = useState(contextObj.mode);
 	const lastMarker = useRef(null);
 
+
 	if (!contextObj.userInfo) {
 		return <strong className="noData cut">No Login</strong>
 	}
@@ -34,6 +35,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 
 	const lastEntry = entries.at(-1) as Models.IEntry;
 	const cleanEntries = entries.filter((entry) => !entry.ignore);
+	const hasTokens = contextObj.mapToken && contextObj.trafficToken;
 	const mapToken = "XXXMaptoken";
 	const trafficToken = "XXXTraffictoken";
 
@@ -61,6 +63,16 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 				<LayersControl position="bottomright">
 					{layers.map((layer, index) => {
 						if (layer.overlay) { return }
+						let url = layer.url;
+
+						if (url.includes(mapToken)) {
+							if (hasTokens) {
+								url = layer.url.replace(mapToken, contextObj.mapToken!)
+							} else {
+								return;
+							}
+						}
+						
 						return (
 							<LayersControl.BaseLayer
 								key={index}
@@ -69,8 +81,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 							>
 								<TileLayer
 									attribution={layer.attribution}
-									url={layer.url.includes(mapToken) ? layer.url.replace(mapToken, contextObj.mapToken ?? "") :
-										layer.url.includes(trafficToken) ? layer.url.replace(trafficToken, contextObj.trafficToken ?? "") : layer.url}
+									url={url}
 									tileSize={layer.size || 256}
 									zoomOffset={layer.zoomOffset || 0}
 									maxZoom={19}
@@ -82,6 +93,16 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 					{/* overlays */
 						layers.map((layer, index) => {
 							if (!layer.overlay) { return }
+							let url = layer.url;
+					
+							if (url.includes(trafficToken)) {
+								if (hasTokens) {
+									url = layer.url.replace(trafficToken, contextObj.trafficToken!)
+								} else {
+									return;
+								}
+							}
+
 							return (
 								<LayersControl.Overlay
 									key={index}
@@ -90,8 +111,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 
 									<TileLayer
 										attribution={layer.attribution}
-										url={layer.url.includes(mapToken) ? layer.url.replace(mapToken, contextObj.mapToken ?? "") :
-											layer.url.includes(trafficToken) ? layer.url.replace(trafficToken, contextObj.trafficToken ?? "") : layer.url}
+										url={url}
 										tileSize={layer.size || 256}
 										zoomOffset={layer.zoomOffset || 0}
 										maxZoom={19}
