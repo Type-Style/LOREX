@@ -77,7 +77,7 @@ const App = () => {
     fetchToken("/read/maptoken", setMapToken);
     fetchToken("/read/traffictoken", setTrafficToken);
 
-  }, [isLoggedIn]);
+  }, [isLoggedIn, mapToken, trafficToken]);
 
   return (
     <Context value={[contextObj]}>

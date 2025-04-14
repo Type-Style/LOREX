@@ -41,6 +41,14 @@ export const layers: client.Layer[] = [
 		zoomOffset: -1
 	},
 	{
+		name: "Local",
+		attribution: 'Just Towns',
+		url: '/tiles/{z}_{x}_{y}.png',
+		markerStyle: "",
+		maxZoom: 13,
+		minZoom: 8
+	},
+	{
 		name: "OpenRailway",
 		overlay: true,
 		attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Map style: &copy; <a href="https://www.OpenRailwayMap.org',
