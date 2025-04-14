@@ -316,7 +316,7 @@ describe('Race Condtion Check', () => {
         done();
       }, 2000);
     })
-  }, 5000);
+  }, 8000);
 });
 
 

@@ -16,7 +16,7 @@ import "../css/map.css";
 import { LayerChangeHandler } from "./LayoutChangeHandler";
 import { exceed } from "../scripts/maxSpeed";
 import { MapHideSmallCluster } from "./MapHideSmallCluster";
-import { MapZoomLimit } from "./mapZoomLimit";
+import { MapZoomLimit } from "./MapZoomLimit";
 
 function Map({ entries }: { entries: Array<Models.IEntry> }) {
 	const [contextObj] = useContext(Context);

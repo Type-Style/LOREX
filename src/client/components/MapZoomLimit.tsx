@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useMap } from "react-leaflet";
 
-export const MapZoomLimit = ({ minZoom = 3, maxZoom = 19 }) => {
+export const MapZoomLimit = ({ minZoom = 3, maxZoom = 19 }: { minZoom?: number, maxZoom?: number } ) => {
   const map = useMap();
 
   useEffect(() => {
