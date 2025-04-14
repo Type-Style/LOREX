@@ -6,7 +6,7 @@ import { Context } from "../context";
 export default function MiniMap({ layer, lastEntry }: client.MiniMapProps) {
 
 	const [contextObj] = useContext(Context);
-
+	
 	const mapToken = "XXXMaptoken";
 	const trafficToken = "XXXTraffictoken";
 	const hasTokens = contextObj.mapToken && contextObj.trafficToken;
@@ -48,7 +48,7 @@ export default function MiniMap({ layer, lastEntry }: client.MiniMapProps) {
 
 	return (
 		<div className="image cut" data-name={layer.name} onClick={handleClick}>
-			<MapContainer className="miniMap" center={[lastEntry.lat, lastEntry.lon]} zoom={15}
+			<MapContainer className="miniMap" center={[lastEntry.lat, lastEntry.lon]} zoom={layer.maxZoom || 15}
 				attributionControl={false}
 				zoomControl={false}
 				boxZoom={false}
@@ -56,12 +56,14 @@ export default function MiniMap({ layer, lastEntry }: client.MiniMapProps) {
 				dragging={false}
 				scrollWheelZoom={false}
 				touchZoom={false}>
-				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} zoom={15} fly={false} />
+				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} zoom={layer.maxZoom || 15} fly={false} />
 				<TileLayer
 					attribution={layer.attribution}
 					url={url}
 					tileSize={layer.size || 256}
 					zoomOffset={layer.zoomOffset || 0}
+					maxZoom={layer.maxZoom || 18}
+					minZoom={layer.minZoom || 8}
 				/>
 			</MapContainer>
 		</div>);

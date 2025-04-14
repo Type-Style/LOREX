@@ -12,6 +12,8 @@ declare namespace client {
 		size?: number;
 		zoomOffset?: number;
 		overlay?: boolean;
+		maxZoom?: number;
+		minZoom?: number;
 	}
 
 	interface MiniMapProps {

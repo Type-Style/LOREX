@@ -16,11 +16,14 @@ import "../css/map.css";
 import { LayerChangeHandler } from "./LayoutChangeHandler";
 import { exceed } from "../scripts/maxSpeed";
 import { MapHideSmallCluster } from "./MapHideSmallCluster";
+import { MapZoomLimit } from "./mapZoomLimit";
 
 function Map({ entries }: { entries: Array<Models.IEntry> }) {
 	const [contextObj] = useContext(Context);
 	const [mapStyle, setMapStyle] = useState(contextObj.mode);
 	const lastMarker = useRef(null);
+	const [activeLayer, setActiveLayer] = useState<client.Layer>();
+
 
 
 	if (!contextObj.userInfo) {
@@ -56,10 +59,11 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 	return (
 		<div className="mapStyle" data-mui-color-scheme={mapStyle}>
 			<MapContainer className="mapContainer" center={[lastEntry.lat, lastEntry.lon]} zoom={13} maxZoom={19}>
+				<MapZoomLimit minZoom={activeLayer?.minZoom} maxZoom={activeLayer?.maxZoom} />
 				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} fly={true} />
 				<MapHideSmallCluster />
 				<LocationButton lat={lastEntry.lat} lon={lastEntry.lon} />
-				<LayerChangeHandler mapStyle={mapStyle} setMapStyle={setMapStyle} />
+				<LayerChangeHandler mapStyle={mapStyle} setMapStyle={setMapStyle} setActiveLayer={setActiveLayer} />
 				<LayersControl position="bottomright">
 					{layers.map((layer, index) => {
 						if (layer.overlay) { return }
@@ -72,7 +76,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 								return;
 							}
 						}
-						
+
 						return (
 							<LayersControl.BaseLayer
 								key={index}
@@ -84,7 +88,10 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 									url={url}
 									tileSize={layer.size || 256}
 									zoomOffset={layer.zoomOffset || 0}
-									maxZoom={19}
+									maxZoom={layer.maxZoom || 19}
+									maxNativeZoom={layer.maxZoom || 19}
+									minZoom={layer.minZoom || 0}
+									minNativeZoom={layer.minZoom || 0}
 								/>
 							</LayersControl.BaseLayer>
 						)
@@ -94,7 +101,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 						layers.map((layer, index) => {
 							if (!layer.overlay) { return }
 							let url = layer.url;
-					
+
 							if (url.includes(trafficToken)) {
 								if (hasTokens) {
 									url = layer.url.replace(trafficToken, contextObj.trafficToken!)
