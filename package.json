@@ -110,7 +110,7 @@
     "leaflet-rotatedmarker": "^0.2.0",
     "leaflet.markercluster": "^1.5.3",
     "module-alias": "^2.2.3",
-    "react": "^19.0.0",
+    "react": "^19.1.0",
     "react-dom": "^19.0.0",
     "react-leaflet": "^5.0.0",
     "react-leaflet-markercluster": "^5.0.0-rc.0",
