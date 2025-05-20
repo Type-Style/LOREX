@@ -179,8 +179,8 @@ export function updateWithPathData(entry: Models.IEntry, pathObject: Models.IPat
 
 	// sanity check
 	if (entry.speed.total > pathSpeed || // path too short
-		pathSpeed > entry.speed.total * 1.75) { // path way to long
-		logger.error(`🦗 GraphHopper Path unlikely, index: ${entry.index} pathSpeed: ${pathSpeed}, calcSpeed: ${entry.speed.total}`);
+		pathSpeed > Math.max(entry.speed.total, entry.speed.gps) * 2) { // path way to long
+		logger.error(`🦗 GraphHopper Path unlikely, index: ${entry.index} pathSpeed: ${pathSpeed}, speed: ${Math.max(entry.speed.total, entry.speed.gps)}`);
 		entry.path.ignore = true;
 		entry.path.ignoreReason = "🦗 GraphHopper Path unlikely";
 		return
