@@ -21,9 +21,12 @@
 	display: grid;
 	grid-template-columns: 1fr minmax(16rem, 40vmin);
 	grid-template-rows: minmax(3em, auto) 1fr 1fr 1fr minmax(3em, auto);
-
+	transition: grid-template-rows 1s;
+	&.collapseStatus {
+		grid-template-rows:  minmax(3em, auto) 5em 1fr 1fr minmax(3em, auto);
+	}
 	.grid-item {
-
+		
 		&.info {
 			display: flex;
 			width: 100%;
@@ -59,7 +62,9 @@
 		&.status {
 
 			@media (max-width: 35em) {
-				.start:has(.leaflet-popup) &, /* hide status on mobile when popup is open */
+
+				.start:has(.leaflet-popup) &,
+				/* hide status on mobile when popup is open */
 				&.emptyData {
 					display: none;
 				}
@@ -239,6 +244,14 @@
 				right: 0.1em;
 			}
 		}
+	}
+
+	.expand {
+		position: absolute;
+		inset: 0.3em 0.3em auto auto;
+
+		background: var(--semiBg);
+		border-radius: 50%;
 	}
 }
 
