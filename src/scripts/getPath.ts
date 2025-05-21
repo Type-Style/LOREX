@@ -163,7 +163,7 @@ export function checkPreconditions(lastEntry: Models.IEntry, entry: Models.IEntr
 		return false;
 	}
 
-	if (Math.abs(entry.angle - lastEntry.heading) < 10) {
+	if (typeof lastEntry.angle === "number" && Math.abs(entry.angle - lastEntry.angle) < 10) {
 		return false;
 	}
 
