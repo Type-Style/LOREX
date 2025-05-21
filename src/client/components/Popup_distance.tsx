@@ -14,7 +14,7 @@ export default function PopupDistance({ entry, cleanEntries }: { entry: Models.I
               <dd className="small">{`${(entry.distance.horizontal / 1000).toFixed(2)} km`}</dd>
             </>
           )}
-          {entry.distance.vertical && (
+          {typeof entry.distance.vertical === "number" &&  entry.distance.vertical && (
             <>
               <dt className="small">Vertical</dt>
               <dd className="small">{`${(entry.distance.vertical / 1000).toFixed(1)} km`}</dd>
@@ -28,7 +28,10 @@ export default function PopupDistance({ entry, cleanEntries }: { entry: Models.I
           )}
           
           <dt>Ongoing</dt>
-          <dd>{`${getDistance(cleanEntries, cleanEntries.indexOf(entry)).toFixed(2)} km`}</dd>
+          <dd>
+            {`${getDistance(cleanEntries, cleanEntries.indexOf(entry)).toFixed(2)} km`}
+            <div className="small">w/o Pause: {`${getDistance(cleanEntries, cleanEntries.indexOf(entry), true).toFixed(2)} km`}</div>
+          </dd>
 
           {typeof entry.eda === "number" && Math.round(entry.eda) > 0 && (
             <>
