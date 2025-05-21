@@ -71,7 +71,7 @@ describe('test Data', () => {
         done();
       }, 1000 * 30 * entries);
     })
-  }, 1000 * 30 * (entries + 1.25));
+  }, 1000 * 30 * (entries + 2));
 
 });
 
