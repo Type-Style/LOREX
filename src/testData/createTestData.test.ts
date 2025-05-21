@@ -57,19 +57,21 @@ describe('test Data', () => {
         const lat = (start.lat + (diff.lat / (entries - 2) * i)).toFixed(8);
         const lon = (start.lon + (diff.lon / (entries - 2) * i)).toFixed(8);
         setTimeout(async () => {
+          console.log("calling server? " + (i + 1) + "/" + entries);
           await callServer(undefined, `user=xx&lat=${lat}&lon=${lon}&timestamp=R3Pl4C3&hdop=${Math.floor(Math.random() * 8.5)}&altitude=${i+1}&speed=${39 + i*2.5}&heading=${262 + Math.floor(Math.random() * 25) - 10}&eta=${eta}&eda=${(6.94*1000  * ((entries - 1 - i) / (entries - 1))  ).toFixed(1)}&key=${key}`, 200, "GET");
-          console.log("called server " + (i + 1) + "/" + entries);
+          console.log("called server! " + (i + 1) + "/" + entries);
 
         }, 1000 * 30 * i);
       }
 
       setTimeout(async () => {
+        console.log("calling server? " + entries + "/" + entries);
         await callServer(undefined, `user=xx&lat=${bonusEntry.lat}&lon=${bonusEntry.lon}&timestamp=R3Pl4C3&hdop=${Math.floor(Math.random() * 11) + 1}&altitude=${entries}&speed=${18.5}&heading=${315}&eta=0&eda=0&key=${key}`, 200, "GET");
-        console.log("called server " + entries + "/" + entries);
+        console.log("called server! " + entries + "/" + entries);
         done();
       }, 1000 * 30 * entries);
     })
-  }, 1000 * 30 * (entries + 1));
+  }, 1000 * 30 * (entries + 1.25));
 
 });
 
