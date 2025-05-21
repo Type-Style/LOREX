@@ -2,6 +2,7 @@ import React, { useState, useContext, useRef, useCallback, Suspense, useEffect, 
 import { Context } from "../context";
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import CheckIcon from '@mui/icons-material/Check';
+import ExpandIcon from '@mui/icons-material/Expand';
 import Button from '@mui/material/Button';
 import ModeSwitcher from '../components/ModeSwitcher';
 import { useGetData } from "../hooks/useGetData";
@@ -31,6 +32,9 @@ const getIndex = (entries: Array<Models.IEntry>): number => {
 }
 
 function Start() {
+  const statusRef = useRef<{ collapseTable: () => void } | null>(null);
+  const [collapseStatus, setcollapseStatus] = useState(false);
+  
   const [isFirstRender, setFirstRender] = useState<boolean>(true);
   const intervalID = useRef<NodeJS.Timeout>(null);
 
@@ -79,11 +83,14 @@ function Start() {
     }
   }, [messageObj.isError, messageObj.status, getData]);
 
-
+  const expandClick = () => {
+    statusRef.current?.collapseTable();
+    setcollapseStatus(prev => !prev);   // update grid layout
+  }
 
   return (
     <>
-      <div className="start">
+      <div className={`start ${collapseStatus ? "collapseStatus" : ""}`}>
         <div className="grid-item info">
           <Message messageObj={messageObj} page="start" />
 
@@ -114,7 +121,8 @@ function Start() {
         {contextObj.isLoggedIn && entries.length > 0 ? (
           <div className={`grid-item status ${entries.length ? "cut-after" : 'emptyData'}`}>
             <Suspense fallback={<div className="loading"><CircularProgress color="inherit" /></div>}>
-              <Status entries={entries} />
+              <ExpandIcon className="expand" onClick={() => expandClick()} />
+              <Status entries={entries} ref={statusRef} />
             </Suspense>
           </div>
         ) : (
