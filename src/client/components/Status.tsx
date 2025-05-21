@@ -157,7 +157,7 @@ function Status({ entries, ref }: { entries: Models.IEntry[] | undefined, ref: R
 									</tbody>
 								</table>
 							) : (
-								<span>Calc. {statusData.speedCalcMean}km/h</span>
+								<span>Calc: {statusData.speedCalcMean == "NaN" ? " - " : statusData.speedCalcMean}km/h</span>
 							)}
 						</td>
 					</tr>
