@@ -169,7 +169,7 @@ describe("GET /write", () => {
 
 
   it('there should a file of the current date', async () => {
-    await callServer(undefined, "user=xx&lat=52.51451&lon=13.35105&timestamp=R3Pl4C3&hdop=20.0&altitude=5000&speed=150.000&heading=180.0&key=test", 200, "GET");
+    await callServer(undefined, "user=xx&lat=52.51451&lon=13.35105&timestamp=R3Pl4C3&hdop=2.0&altitude=5000&speed=150.000&heading=180.0&key=test", 200, "GET");
 
     fs.access(filePath, fs.constants.F_OK, (err) => {
       expect(err).toBeFalsy();
