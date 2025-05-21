@@ -64,7 +64,8 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 				<MapHideSmallCluster />
 				<LocationButton lat={lastEntry.lat} lon={lastEntry.lon} />
 				<LayerChangeHandler mapStyle={mapStyle} setMapStyle={setMapStyle} setActiveLayer={setActiveLayer} />
-				<LayersControl position="bottomright">
+				
+				{contextObj.isLoggedIn && <LayersControl position="bottomright">
 					{layers.map((layer, index) => {
 						if (layer.overlay) { return }
 						let url = layer.url;
@@ -127,7 +128,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 							)
 						})}
 
-				</LayersControl>
+				</LayersControl> }
 
 				{/* markers in group for clustering */}
 				<MarkerClusterGroup key={lastEntry.index} disableClusteringAtZoom={14} animateAddingMarkers={true} maxClusterRadius={20}>
@@ -135,7 +136,6 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 						const iconObj = getClassName(entry);
 						if (iconObj.className.includes("end")) { return } // exclude end from being in cluster group
 						return <Marker key={entry.time.created + 0.125} entry={entry} cleanEntries={cleanEntries} iconObj={getClassName(entry)} />
-
 					})}
 				</MarkerClusterGroup>
 
