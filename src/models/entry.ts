@@ -60,10 +60,16 @@ export const entry = {
         }
       }
 
-      entry.time = getTime(Number(req.query.timestamp), previousEntry); // overwrite time in case previousEnty was changed
-      entry.angle = getAngle(previousEntry, entry);
-      entry.distance = getDistance(entry, previousEntry)
-      entry.speed = getSpeed(Number(req.query.speed), entry);
+      if (!previousEntry.ignore) {
+        entry.time = getTime(Number(req.query.timestamp), previousEntry); // overwrite time in case previousEnty was changed
+        entry.angle = getAngle(previousEntry, entry);
+        entry.distance = getDistance(entry, previousEntry);
+        entry.speed = getSpeed(Number(req.query.speed), entry);
+      } else { // treat like its the first entry 
+        entry.angle = undefined;
+        entry.time = getTime(Number(req.query.timestamp));
+        entry.speed = getSpeed(Number(req.query.speed))
+      }
 
     } else {
       entry.angle = undefined;
