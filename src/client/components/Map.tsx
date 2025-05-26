@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { Context } from "../context";
 import { LayersControl, MapContainer, TileLayer } from 'react-leaflet'
 import MarkerClusterGroup from "react-leaflet-markercluster";
@@ -17,14 +17,26 @@ import { LayerChangeHandler } from "./LayoutChangeHandler";
 import { exceed } from "../scripts/maxSpeed";
 import { MapHideSmallCluster } from "./MapHideSmallCluster";
 import { MapZoomLimit } from "./MapZoomLimit";
+import { usePopup } from "../hooks/usePopup";
 
 function Map({ entries }: { entries: Array<Models.IEntry> }) {
+	const cleanEntries = entries.filter((entry) => !entry.ignore);
 	const [contextObj] = useContext(Context);
 	const [mapStyle, setMapStyle] = useState(contextObj.mode);
-	const lastMarker = useRef(null);
 	const [activeLayer, setActiveLayer] = useState<client.Layer>();
+	const { getUrlParameterValue } = usePopup();
+	const [markersReady, setMarkersReady] = useState(false);
+	const markerRefs = useRef<Record<number, L.Marker>>({});
+	const handleMarkerRef = useCallback((index: number, marker: L.Marker | null) => {
+		if (marker) {
+			markerRefs.current[index] = marker;
 
-
+			// When all markers are set, mark ready
+			if (Object.keys(markerRefs.current).length === cleanEntries.length) {
+				setMarkersReady(true);
+			}
+		}
+	}, [cleanEntries.length]);
 
 	if (!contextObj.userInfo) {
 		return <strong className="noData cut">No Login</strong>
@@ -37,7 +49,6 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 	}
 
 	const lastEntry = entries.at(-1) as Models.IEntry;
-	const cleanEntries = entries.filter((entry) => !entry.ignore);
 	const hasTokens = contextObj.mapToken && contextObj.trafficToken;
 	const mapToken = "XXXMaptoken";
 	const trafficToken = "XXXTraffictoken";
@@ -54,6 +65,22 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 		return { className, iconSize }
 	}
 
+	useEffect(() => { // opening popups based on URL or most recent marker if fresh
+		if (!markersReady) return;
+		const popupIndex = getUrlParameterValue("popup");
+		cleanEntries.forEach(entry => {
+			const marker = markerRefs.current[entry.index];
+			if (!marker) return;
+			const parameterMatchesMarker = popupIndex === entry.index.toString();
+			const isLastMarker = entry === lastEntry;
+			const iconObj = getClassName(entry);
+			if ((iconObj.className.includes("animate") && isLastMarker) || parameterMatchesMarker) {
+				setTimeout(() => { // mandatory for marker inside cluster group
+					marker.openPopup();
+				}, 150);
+			}
+		});
+	}, [markersReady, entries]);
 
 
 	return (
@@ -64,7 +91,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 				<MapHideSmallCluster />
 				<LocationButton lat={lastEntry.lat} lon={lastEntry.lon} />
 				<LayerChangeHandler mapStyle={mapStyle} setMapStyle={setMapStyle} setActiveLayer={setActiveLayer} />
-				
+
 				{contextObj.isLoggedIn && <LayersControl position="bottomright">
 					{layers.map((layer, index) => {
 						if (layer.overlay) { return }
@@ -128,20 +155,32 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 							)
 						})}
 
-				</LayersControl> }
+				</LayersControl>}
 
 				{/* markers in group for clustering */}
 				<MarkerClusterGroup key={lastEntry.index} disableClusteringAtZoom={14} animateAddingMarkers={true} maxClusterRadius={20}>
-					{cleanEntries.map((entry) => {
+					{cleanEntries.map((entry, index) => {
 						const iconObj = getClassName(entry);
 						if (iconObj.className.includes("end")) { return } // exclude end from being in cluster group
-						return <Marker key={entry.time.created + 0.125} entry={entry} cleanEntries={cleanEntries} iconObj={getClassName(entry)} />
+						return <Marker
+							key={entry.time.created + 0.125}
+							entry={entry} cleanEntries={cleanEntries}
+							iconObj={getClassName(entry)}
+							markerRef={(marker) => handleMarkerRef(entry.index, marker)}
+						/>
 					})}
 				</MarkerClusterGroup>
 
 
-				{/* end marker */}
-				<Marker key={lastEntry.time.created + 0.25} entry={lastEntry} cleanEntries={cleanEntries} iconObj={getClassName(lastEntry)} ref={lastMarker} />
+				{/* end marker or last / current marker */}
+				<Marker
+					key={lastEntry.time.created + 0.25}
+					entry={lastEntry}
+					cleanEntries={cleanEntries}
+					iconObj={getClassName(lastEntry)}
+					markerRef={(marker) => handleMarkerRef(lastEntry.index, marker)}
+					lastMarker={true}
+				/>
 
 				<MultiColorPolyline key={lastEntry.index + 0.75} cleanEntries={cleanEntries} />
 			</MapContainer>

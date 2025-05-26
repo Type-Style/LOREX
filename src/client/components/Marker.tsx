@@ -1,29 +1,45 @@
-import React, { useEffect } from 'react'
-import { Marker as LeafletMarker, Popup} from 'react-leaflet';
+import React, { useEffect, useRef } from 'react';
+import { Marker as LeafletMarker, Popup } from 'react-leaflet';
 import { Icon } from "./Icon";
 import { PopupContent } from "./PopupContent";
+import { usePopup } from "../hooks/usePopup";
 
-export const Marker = ({ entry, iconObj, ref, cleanEntries }: { entry: Models.IEntry; iconObj: { className: string; iconSize: number }, ref?: any, cleanEntries: Models.IEntry[] }) => {
+export const Marker = ({ entry, iconObj, markerRef, cleanEntries }: {
+	entry: Models.IEntry; iconObj: { className: string; iconSize: number }; markerRef?: (marker: L.Marker | null) => void; cleanEntries: Models.IEntry[];
+}) => {
+	const { opened, closed } = usePopup();
+	const internalRef = useRef<L.Marker | null>(null);
 
-	useEffect(() => {
-		if (ref?.current && iconObj.className.includes("animate")) {
-			ref.current.openPopup();
-		}
-	}, [ref, iconObj]);
+	useEffect(() => { // register popup events
+		const marker = internalRef.current;
+		if (!marker) return;
+
+		const handleOpen = () => opened(entry, internalRef);
+		const handleClose = () => closed(entry, internalRef);
+
+		marker.on('popupopen', handleOpen);
+		marker.on('popupclose', handleClose);
+
+		return () => {
+			marker.off('popupopen', handleOpen);
+			marker.off('popupclose', handleClose);
+		};
+	}, [entry, opened, closed]);
 
 	return (
 		<LeafletMarker
-			key={entry.time.created + 0.5}
 			position={[entry.lat, entry.lon]}
 			icon={Icon(iconObj, entry)}
 			rotationAngle={entry.heading}
 			rotationOrigin="center"
-			ref={ref}
+			ref={(markerInstance) => {
+				internalRef.current = markerInstance;
+				if (markerRef) markerRef(markerInstance);
+			}}
 		>
 			<Popup>
 				<PopupContent entry={entry} cleanEntries={cleanEntries} />
-				{/* <pre>{JSON.stringify(entry, null, 2)}</pre> */}
 			</Popup>
 		</LeafletMarker>
-	)
-}
+	);
+};
