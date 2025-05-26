@@ -1,6 +1,6 @@
 {
   "name": "lorex",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "Leaflet Osmand React ExpressJS Coordinates (X)\r > Remember an \"X\" marks the spot.",
   "main": "index.js",
   "scripts": {
