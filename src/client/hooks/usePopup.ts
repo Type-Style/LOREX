@@ -14,10 +14,11 @@ const updateUrlParams = (key: string, value?: string) => {
   window.history.replaceState({}, '', url.toString());
 };
 
-const getUrlParameterValue = (key: string): string | null => {
+const getUrlParameterValue = <T>(key: string, validation: (value: string) => T | null): T | null => {
   const url = new URL(window.location.href);
   const params = new URLSearchParams(url.search);
-  return params.get(key);
+  const value = params.get(key);
+  return value ? validation(value) : null;
 };
 
 export const usePopup = () => {

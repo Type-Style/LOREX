@@ -29,7 +29,11 @@ export const PopupContent = ({ entry, cleanEntries }: { entry: Models.IEntry, cl
   };
 
   useEffect(() => { // initial value
-    let tabValue = getUrlParameterValue("tab");
+    let tabValue = getUrlParameterValue<string>("popup", (value) => {
+      const parsedValue = parseInt(value, 10);
+      return isNaN(parsedValue) ? null : parsedValue.toString();
+    });
+    
     if (!tabValue) {
       tabValue = tabs[0].name;
       updated(tabs[0].name);
