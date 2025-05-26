@@ -30,8 +30,12 @@
 		font-style: oblique 10deg;
 		letter-spacing: 0.0125em;
 
+		vertical-align: top;
+  	padding-top: 0.275em;
+
 		&.icon {
 			vertical-align: top;
+			padding-top: 0;
 		}
 	}
 
@@ -100,7 +104,6 @@
 		font-size: 1.3rem;
 
 		.subTable {
-
 			th,
 			td {
 				text-align: left;
@@ -114,8 +117,9 @@
 		display: none;
 	}
 
-	td {
+	.statusTable td {
 		padding-inline: 0.2rem;
+		padding-top: 0.34em;
 	}
 
 
