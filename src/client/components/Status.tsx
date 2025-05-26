@@ -106,16 +106,16 @@ function getStatusData(entries: Models.IEntry[]) {
 
 function Status({ entries, ref }: { entries: Models.IEntry[] | undefined, ref: React.Ref<{ collapseTable: () => void }> }) {
 	const [collapse, setCollapse] = useState(false);
-	if (!entries?.length) { return; }
-	const statusData = getStatusData(entries);
-
-	const hasPause = statusData.speedCalcMeanIgnorePause !== statusData.speedCalcMean;
-
 	function collapseTable() {
 		setCollapse((prev) => !prev);
 	}
 
 	useImperativeHandle(ref, () => ({ collapseTable }));
+	if (!entries?.length) { return; }
+	const statusData = getStatusData(entries);
+
+	const hasPause = statusData.speedCalcMeanIgnorePause !== statusData.speedCalcMean;
+
 
 	return (
 		<div className={`wrapper ${collapse ? 'collapse' : ''}`}>
