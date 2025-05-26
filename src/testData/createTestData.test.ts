@@ -68,10 +68,14 @@ describe('test Data', () => {
         console.log("calling server? " + entries + "/" + entries);
         await callServer(undefined, `user=xx&lat=${bonusEntry.lat}&lon=${bonusEntry.lon}&timestamp=R3Pl4C3&hdop=${Math.floor(Math.random() * 11) + 1}&altitude=${entries}&speed=${18.5}&heading=${315}&eta=0&eda=0&key=${key}`, 200, "GET");
         console.log("called server! " + entries + "/" + entries);
-        done();
       }, 1000 * 30 * entries);
+
+      setTimeout(() => {
+        console.log("test done");
+        done();
+      }, 1000 * 30 * (entries + 0.25));
     })
-  }, 1000 * 30 * (entries + 2));
+  }, 1000 * 30 * (entries + 1));
 
 });
 
