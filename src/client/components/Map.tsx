@@ -67,7 +67,11 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 
 	useEffect(() => { // opening popups based on URL or most recent marker if fresh
 		if (!markersReady) return;
-		const popupIndex = getUrlParameterValue("popup");
+		const popupIndex = getUrlParameterValue<string>("popup", (value) => {
+      const parsedValue = parseInt(value, 10);
+      return isNaN(parsedValue) ? null : parsedValue.toString();
+    });
+		
 		cleanEntries.forEach(entry => {
 			const marker = markerRefs.current[entry.index];
 			if (!marker) return;
