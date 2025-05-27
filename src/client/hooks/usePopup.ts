@@ -24,7 +24,6 @@ const getUrlParameterValue = <T>(key: string, validation: (value: string) => T |
 export const usePopup = () => {
   const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
 
-  let timeoutId: NodeJS.Timeout;
   const opened = (entry: Models.IEntry, ref: React.RefObject<any>) => {
     setTimeout(() => {
       if (timeoutIdRef.current) {
