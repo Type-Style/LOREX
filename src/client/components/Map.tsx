@@ -183,7 +183,6 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 					cleanEntries={cleanEntries}
 					iconObj={getClassName(lastEntry)}
 					markerRef={(marker) => handleMarkerRef(lastEntry.index, marker)}
-					lastMarker={true}
 				/>
 
 				<MultiColorPolyline key={lastEntry.index + 0.75} cleanEntries={cleanEntries} />
