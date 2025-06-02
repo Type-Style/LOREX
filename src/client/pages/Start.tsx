@@ -1,11 +1,11 @@
 import React, { useState, useContext, useRef, useCallback, Suspense, useEffect, lazy } from 'react'
-import { Context } from "../context";
+import { Context, ActionContext } from "../context";
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import CheckIcon from '@mui/icons-material/Check';
 import ExpandIcon from '@mui/icons-material/Expand';
 import Button from '@mui/material/Button';
 import ModeSwitcher from '../components/ModeSwitcher';
-import { useGetData } from "../hooks/useGetData";
+import { useGetData } from "../hooks/useData";
 import { layers } from "../scripts/layers";
 import { timeAgo } from "../scripts/timeAgo";
 import "../css/start.css";
@@ -28,13 +28,13 @@ const getIndex = (entries: Array<Models.IEntry>): number => {
   const lastEntryDate = new Date(lastEntry.time.created);
   const isSameDay = lastEntryDate.toDateString() === now.toDateString();
 
-  return isSameDay ? lastEntry.index + 1  : 0;
+  return isSameDay ? lastEntry.index + 1 : 0;
 }
 
 function Start() {
   const statusRef = useRef<{ collapseTable: () => void } | null>(null);
   const [collapseStatus, setcollapseStatus] = useState(false);
-  
+
   const [isFirstRender, setFirstRender] = useState<boolean>(true);
   const intervalID = useRef<NodeJS.Timeout>(null);
 
@@ -42,6 +42,8 @@ function Start() {
   const [messageObj, setMessageObj] = useState<Omit<client.entryData, 'fetchTimeData'>>({ isError: false, status: 200, message: "" });
   const [entries, setEntries] = useState<Array<Models.IEntry>>([]);
   const [fetchTimes, setFetchTimes] = useState<{ last: number | undefined, next: number | undefined }>({ last: undefined, next: undefined });
+
+  const actionContext: client.ActionContext = { entries, setEntries };
 
   const index = getIndex(entries);
 
@@ -89,7 +91,7 @@ function Start() {
   }
 
   return (
-    <>
+    <ActionContext value={[actionContext]}>
       <div className={`start ${collapseStatus ? "collapseStatus" : ""}`}>
         <div className="grid-item info">
           <Message messageObj={messageObj} page="start" />
@@ -163,7 +165,7 @@ function Start() {
       <svg className="bg-pattern" xmlns="http://www.w3.org/2000/svg">
         <rect width="100%" height="100%" fill="url(#repeatingGradient)" />
       </svg>
-    </>
+    </ActionContext>
   )
 }
 

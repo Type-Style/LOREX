@@ -41,6 +41,12 @@ declare namespace client {
 		mapToken: string | null;
 		trafficToken: string | null;
 	}
+
+	interface ActionContext  {
+		entries: Models.IEntry[];
+		setEntries: React.Dispatch<React.SetStateAction<Models.IEntry[]>>;
+	}
+
 	
 }
 

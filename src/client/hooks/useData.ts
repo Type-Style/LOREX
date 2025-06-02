@@ -1,6 +1,7 @@
 import { useContext } from "react";
-import { Context } from "../context";
+import { ActionContext, Context } from "../context";
 import axios, { AxiosResponse } from "axios";
+import e from "express";
 
 export const useGetData = (index: number, fetchIntervalMs: number, setEntries) => {
 	const [contextObj] = useContext(Context);
@@ -48,7 +49,7 @@ export const useGetData = (index: number, fetchIntervalMs: number, setEntries) =
 			const endTime = Date.now();
 			const delay = endTime - startTime;
 
-			returnObj.fetchTimeData.last = 	endTime;
+			returnObj.fetchTimeData.last = endTime;
 			returnObj.fetchTimeData.next = endTime + fetchIntervalMs + delay;
 
 			return returnObj;
@@ -61,7 +62,7 @@ export const useGetData = (index: number, fetchIntervalMs: number, setEntries) =
 				return { ...returnObj, status: 499, message: error.message || "offline", fetchTimeData: { last: new Date().getTime(), next: new Date().getTime() + fetchIntervalMs } }
 			}
 
-			if (error.response.status == 403 || error.response.status == 401) { 
+			if (error.response.status == 403 || error.response.status == 401) {
 				contextObj.setLogin(false);
 				return { ...returnObj, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message, fetchTimeData: { last: null, next: null } }
 			}
@@ -74,3 +75,45 @@ export const useGetData = (index: number, fetchIntervalMs: number, setEntries) =
 	return { fetchData }
 
 };
+
+
+
+
+export const useIgnoreData = () => {
+	const [actionContext] = useContext(ActionContext);
+	const setEntries = actionContext.setEntries;
+	const entries = actionContext.entries;
+
+	const ignoreData = (index: number, direction?: "before" | "after"): boolean => {
+		const entryWithIndex = entries.find(entry => entry.index === index);
+		if (!entryWithIndex) {
+			return false;
+		}
+
+		const entryIndex = entries.indexOf(entryWithIndex);
+
+		if (entryIndex === -1) {
+			return false;
+		}
+	
+		if (direction === undefined) { // ignore the entry (self)
+			setEntries(entries.filter((_, i) => i !== entryIndex));
+			return true;
+		}
+	
+		if (direction === "before") {
+			setEntries(entries.slice(entryIndex));
+			return true;
+		}
+	
+		if (direction === "after") {
+			setEntries(entries.slice(0, entryIndex + 1));
+			return true;
+		}
+
+		return false;
+	}
+
+	return { ignoreData };
+	
+}
