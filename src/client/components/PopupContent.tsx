@@ -21,7 +21,7 @@ const tabs = [
 export const PopupContent = ({ entry, cleanEntries }: { entry: Models.IEntry, cleanEntries: Models.IEntry[] }) => {
   const [value, setValue] = useState(0);
   const { updated, getUrlParameterValue } = usePopup();
-  
+
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -33,12 +33,12 @@ export const PopupContent = ({ entry, cleanEntries }: { entry: Models.IEntry, cl
       const parsedValue = parseInt(value, 10);
       return isNaN(parsedValue) ? null : parsedValue.toString();
     });
-    
+
     if (!tabValue) {
       tabValue = tabs[0].name;
       updated(tabs[0].name);
     }
-    const newValue = tabs.findIndex(tab => tab.name === tabValue);
+    const newValue = Math.max(tabs.findIndex(tab => tab.name === tabValue), 0);
     setValue(newValue);
   }, []);
 
