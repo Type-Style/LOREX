@@ -119,10 +119,20 @@
 		color: var(--alert);
 	}
 
-	.buttons {
+	.actions {
 		display: flex;
 		justify-content: flex-end;
+		align-items: center;
 		gap: 0.75em;
+
+		.MuiSvgIcon-root {
+			height: 100%;
+		}
+	}
+
+	.left {
+		display: flex;
+		justify-self: flex-start;
 	}
 
 	dd,

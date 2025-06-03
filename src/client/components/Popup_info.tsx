@@ -1,5 +1,6 @@
 import React from 'react'
 import { useIgnoreData } from "../hooks/useData";
+import RestorePageIcon from '@mui/icons-material/RestorePage';
 
 export default function PopupInfo({ entry }: { entry: Models.IEntry }) {
   const hdopStatus = entry.hdop < 3.25 ? 'good' : entry.hdop < 6 ? 'ok' : 'bad';
@@ -40,15 +41,19 @@ export default function PopupInfo({ entry }: { entry: Models.IEntry }) {
       </dd>
 
       <dt>ignore</dt>
-      <dd className="buttons">
-        <button  onClick={() => ignoreData(entry.index, "before")}>
-           before
+      <dd className="actions">
+        <button className="left blendIn" onClick={() => window.location.reload()}>
+          <RestorePageIcon />
         </button>
-          
+
+        <button onClick={() => ignoreData(entry.index, "before")}>
+          before
+        </button>
+
         <button onClick={() => ignoreData(entry.index)}>
           ignore
         </button>
-          
+
         <button onClick={() => ignoreData(entry.index, "after")}>
           after
         </button>
