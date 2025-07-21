@@ -36,7 +36,7 @@
     "axios": "^1.9.0",
     "bcrypt": "^6.0.0",
     "chalk": "^4.1.2",
-    "compression": "^1.8.0",
+    "compression": "^1.8.1",
     "cross-spawn": "^7.0.6",
     "culori": "^4.0.1",
     "decompress": "^4.2.1",
