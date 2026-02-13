@@ -264,8 +264,7 @@ describe("GET /write", () => {
 
   it('the address is correct', () => {
     const jsonData = getData(filePath);
-    const entry = jsonData.entries.at(-1)
-
+    const entry = jsonData.entries.at(-2);
     expect(entry.address.toLowerCase()).toContain("berlin");
   })
 
