@@ -4,7 +4,7 @@ import { useMemo } from "react";
 export const MapHideSmallCluster = () => {
 	useMemo(() => {
 		const observer = new MutationObserver(() => {
-			let clusters = document.querySelectorAll(".marker-cluster");
+			const clusters = document.querySelectorAll(".marker-cluster");
 			if (clusters?.length) {
 				clusters.forEach(cluster => {
 					const span = cluster.querySelector("span");

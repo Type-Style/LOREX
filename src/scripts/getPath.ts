@@ -58,7 +58,7 @@ async function fetchGraphhopper(lastEntry: Models.IEntry, entry: Models.IEntry):
 		ignoreReason: ""
 	};
 
-	let graphHopperKey = process.env.GRAPHHOPPER;
+	const graphHopperKey = process.env.GRAPHHOPPER;
 	if (!graphHopperKey) {
 		returnData.ignore = true;
 		returnData.ignoreReason = "🦗 GRAPHHOPPERKEY missing";

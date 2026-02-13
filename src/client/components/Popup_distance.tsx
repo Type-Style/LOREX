@@ -1,5 +1,5 @@
 import React from 'react'
-import { getDistance } from "../scripts/getDistance"
+import { getDistance } from "../scripts/getDistance";
 
 export default function PopupDistance({ entry, cleanEntries }: { entry: Models.IEntry, cleanEntries: Models.IEntry[] }) {
   return (

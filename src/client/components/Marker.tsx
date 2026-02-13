@@ -5,14 +5,14 @@ import { PopupContent } from "./PopupContent";
 import { usePopup } from "../hooks/usePopup";
 
 export const Marker = ({ entry, iconObj, markerRef, cleanEntries }: {
-	entry: Models.IEntry; iconObj: { className: string; iconSize: number }; markerRef?: (marker: L.Marker | null) => void; cleanEntries: Models.IEntry[];
+	entry: Models.IEntry; iconObj: { className: string; iconSize: number }; markerRef?: (_: L.Marker | null) => void; cleanEntries: Models.IEntry[];
 }) => {
 	const { opened, closed } = usePopup();
 	const internalRef = useRef<L.Marker | null>(null);
 
 	useEffect(() => { // register popup events
 		const marker = internalRef.current;
-		if (!marker) return;
+		if (!marker) {return;}
 
 		const handleOpen = () => opened(entry, internalRef);
 		const handleClose = () => closed(entry, internalRef);
@@ -34,7 +34,7 @@ export const Marker = ({ entry, iconObj, markerRef, cleanEntries }: {
 			rotationOrigin="center"
 			ref={(markerInstance) => {
 				internalRef.current = markerInstance;
-				if (markerRef) markerRef(markerInstance);
+				if (markerRef) {markerRef(markerInstance);}
 			}}
 		>
 			<Popup>

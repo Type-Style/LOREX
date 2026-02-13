@@ -21,12 +21,26 @@ import { usePopup } from "../hooks/usePopup";
 
 function Map({ entries }: { entries: Array<Models.IEntry> }) {
 	const cleanEntries = entries.filter((entry) => !entry.ignore);
+	const lastEntry = cleanEntries.at(-1);
 	const [contextObj] = useContext(Context);
 	const [mapStyle, setMapStyle] = useState(contextObj.mode);
 	const [activeLayer, setActiveLayer] = useState<client.Layer>();
 	const { getUrlParameterValue } = usePopup();
 	const [markersReady, setMarkersReady] = useState(false);
 	const markerRefs = useRef<Record<number, L.Marker>>({});
+
+	const getClassName = useCallback((entry: Models.IEntry) => {
+		const isStart = entry === cleanEntries[0] || (entry.time.diff && entry.time.diff >= 300);
+		const isEnd = entry === lastEntry;
+		let className = isEnd ? "end" : isStart ? "start" : "none"; // yes end is most recent and is more important than start
+		const iconSize = className != "none" ? 22 : 14;
+		className = (Date.now() - entry.time.recieved) <= 60000 ? "animate " + className : className; // when entry is recent append animate class
+
+		exceed(entry) ? className += " maxSpeed " : "";
+
+		return { className, iconSize }
+	}, [cleanEntries, lastEntry]);
+
 	const handleMarkerRef = useCallback((index: number, marker: L.Marker | null) => {
 		if (marker) {
 			markerRefs.current[index] = marker;
@@ -38,35 +52,8 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 		}
 	}, [cleanEntries.length]);
 
-	if (!contextObj.userInfo) {
-		return <strong className="noData cut">No Login</strong>
-	}
-	if (!entries?.length && contextObj.userInfo && !contextObj.isLoggedIn) {  // check for entries prevents hiding map when logged out due expired token
-		return ""; // empty here, since map is still there when entries, and expired message is shown in top row
-	}
-	if (!entries?.length) {
-		return <span className="noData cut">No Data to be displayed</span>
-	}
-
-	const lastEntry = entries.at(-1) as Models.IEntry;
-	const hasTokens = contextObj.mapToken && contextObj.trafficToken;
-	const mapToken = "XXXMaptoken";
-	const trafficToken = "XXXTraffictoken";
-
-	const getClassName = (entry: Models.IEntry) => {
-		const isStart = entry == cleanEntries[0] || (entry.time.diff && entry.time.diff >= 300);
-		const isEnd = entry == lastEntry;
-		let className = isEnd ? "end" : isStart ? "start" : "none"; // yes end is mostrecent and is more important than start
-		const iconSize = className != "none" ? 22 : 14;
-		className = (Date.now() - entry.time.recieved) <= 60000 ? "animate " + className : className; // when entry is recent append animate class
-
-		exceed(entry) ? className += " maxSpeed " : "";
-
-		return { className, iconSize }
-	}
-
 	useEffect(() => { // opening popups based on URL or most recent marker if fresh
-		if (!markersReady) return;
+		if (!markersReady) {return;}
 		const popupIndex = getUrlParameterValue<string>("popup", (value) => {
       const parsedValue = parseInt(value, 10);
       return isNaN(parsedValue) ? null : parsedValue.toString();
@@ -74,7 +61,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 		
 		cleanEntries.forEach(entry => {
 			const marker = markerRefs.current[entry.index];
-			if (!marker) return;
+			if (!marker) {return;}
 			const parameterMatchesMarker = popupIndex === entry.index.toString();
 			const isLastMarker = entry === lastEntry;
 			const iconObj = getClassName(entry);
@@ -84,7 +71,21 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 				}, 150);
 			}
 		});
-	}, [markersReady, entries]);
+	}, [markersReady, cleanEntries, getClassName, getUrlParameterValue, lastEntry]);
+
+	if (!contextObj.userInfo) {
+		return <strong className="noData cut">No Login</strong>
+	}
+	if (!entries?.length && contextObj.userInfo && !contextObj.isLoggedIn) {  // check for entries prevents hiding map when logged out due expired token
+		return ""; // empty here, since map is still there when entries, and expired message is shown in top row
+	}
+	if (!entries?.length || !cleanEntries.length || !lastEntry) {
+		return <span className="noData cut">No Data to be displayed</span>
+	}
+
+	const hasTokens = contextObj.mapToken && contextObj.trafficToken;
+	const mapToken = "XXXMaptoken";
+	const trafficToken = "XXXTraffictoken";
 
 
 	return (
@@ -163,7 +164,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 
 				{/* markers in group for clustering */}
 				<MarkerClusterGroup key={lastEntry.index} disableClusteringAtZoom={14} animateAddingMarkers={true} maxClusterRadius={20}>
-					{cleanEntries.map((entry, index) => {
+					{cleanEntries.map((entry) => {
 						const iconObj = getClassName(entry);
 						if (iconObj.className.includes("end")) { return } // exclude end from being in cluster group
 						return <Marker

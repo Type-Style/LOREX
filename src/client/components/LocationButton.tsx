@@ -8,7 +8,7 @@ import { renderToString } from 'react-dom/server';
 export const LocationButton = ({ lat, lon }: { lat: number, lon: number }) => {
 	const map = useMap();
 	const gpsIcon = renderToString(<GpsFixedIcon style={{ width: '100%', height: '100%', fill: "currentcolor" }} />);
-	let justClicked = useRef(false);
+	const justClicked = useRef(false);
 	const buttonRef = useRef<L.Control | null>(null);
 	const markerRef = useRef<L.Marker | null>(null);
 	const [active, setActive] = useState(false);

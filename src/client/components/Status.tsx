@@ -9,7 +9,7 @@ import ShowChartIcon from '@mui/icons-material/ShowChart';
 import EastIcon from '@mui/icons-material/East';
 import WatchLaterOutlinedIcon from '@mui/icons-material/WatchLaterOutlined';
 import SportsScoreIcon from '@mui/icons-material/SportsScore';
-import { getDistance } from "../scripts/getDistance";
+import { getDistance } from "../scripts/distance";
 
 
 function getStatusData(entries: Models.IEntry[]) {

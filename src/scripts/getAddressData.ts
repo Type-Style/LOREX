@@ -43,7 +43,7 @@ async function fetchData(url: string, timeout = 3000): Promise<NominatimResponse
 
 function sanitizeString(input: string): string {
 	if (!input && typeof input !== 'string') return '';
-	let sanitized = input.trim().substring(0, 100); // Limit to 100 chars
+	const sanitized = input.trim().substring(0, 100); // Limit to 100 chars
 	return sanitized.replace(/[&<>"'`]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' }[char] || '')); // Escape special characters
 }
 

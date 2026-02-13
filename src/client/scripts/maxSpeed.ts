@@ -12,7 +12,7 @@ export const exceed = function (entry: Models.IEntry) {
 	const currentSpeed = entry.speed.gps * 3.6;
 	const calcSpeed = entry.speed.total ? entry.speed.total * 3.6 : null;
 
-	let harmonicMean:number = calcSpeed ? 2 * (currentSpeed * calcSpeed) / (currentSpeed + calcSpeed) : 0; // Harmonic Mean;
+	const harmonicMean:number = calcSpeed ? 2 * (currentSpeed * calcSpeed) / (currentSpeed + calcSpeed) : 0; // Harmonic Mean;
 
 	compareSpeed = Math.floor(Math.max(currentSpeed, harmonicMean));
 	compareSpeed = Math.floor(compareSpeed - entry.hdop);

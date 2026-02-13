@@ -1,7 +1,6 @@
 import { useContext } from "react";
 import { ActionContext, Context } from "../context";
 import axios, { AxiosResponse } from "axios";
-import e from "express";
 
 export const useGetData = (index: number, fetchIntervalMs: number, setEntries) => {
 	const [contextObj] = useContext(Context);
@@ -10,7 +9,7 @@ export const useGetData = (index: number, fetchIntervalMs: number, setEntries) =
 		const token = localStorage.getItem("jwt");
 		let response: AxiosResponse<Models.IEntries>;
 
-		let returnObj: client.entryData = { isError: false, status: 200, message: "", fetchTimeData: { last: null, next: null } }
+		const returnObj: client.entryData = { isError: false, status: 200, message: "", fetchTimeData: { last: null, next: null } }
 
 		if (!token) {
 			contextObj.setLogin(false);
@@ -95,22 +94,31 @@ export const useIgnoreData = () => {
 		if (entryIndex === -1) {
 			return false;
 		}
-	
-		if (direction === undefined) { // ignore the entry (self)
-			setEntries(entries.filter((_, i) => i !== entryIndex));
+
+		const ignoreEntries = (condition: (i: number) => boolean) => {
+			const newEntries = entries.map((entry, i) => condition(i) ? { ...entry, ignore: true } : entry);
+			
+			const nextEntry = newEntries.slice(entryIndex + 1).find(entry => !entry.ignore);
+			const prevEntry = newEntries.slice(0, entryIndex).reverse().find(entry => !entry.ignore);
+
+
+			
+			setEntries(newEntries);
 			return true;
-		}
-	
-		if (direction === "before") {
-			setEntries(entries.slice(entryIndex));
-			return true;
-		}
-	
-		if (direction === "after") {
-			setEntries(entries.slice(0, entryIndex + 1));
-			return true;
+		};
+
+		if (direction === undefined) {
+			return ignoreEntries(i => i === entryIndex);
 		}
 
+		if (direction === "before") { 
+			return ignoreEntries(i => i < entryIndex);
+		}
+
+		if (direction === "after") {
+			return ignoreEntries(i => i > entryIndex);
+		}
+	
 		return false;
 	}
 
