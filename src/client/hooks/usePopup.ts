@@ -1,6 +1,6 @@
 import { useRef } from "react";
 
-const updateUrlParams = (key: string, value?: string) => {
+const updateUrlParams = (key: string, value?: string | null) => {
   const url = new URL(window.location.href);
   const params = new URLSearchParams(url.search);
   
@@ -43,10 +43,7 @@ export const usePopup = () => {
     }
   };
 
-  const updated = (value: string) => {
-    updateUrlParams("tab", value);
-  };
 
-  return { opened, closed, updated, getUrlParameterValue };
+  return { opened, closed, getUrlParameterValue, updateUrlParams };
 };
 

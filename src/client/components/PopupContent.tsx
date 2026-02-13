@@ -16,60 +16,54 @@ const tabs = [
   { name: "speed", icon: <SpeedIcon /> },
   { name: "distance", icon: <EastIcon /> },
   { name: "time", icon: <WatchLaterOutlinedIcon /> },
-];
+] as const;
 
 export const PopupContent = ({ entry, cleanEntries }: { entry: Models.IEntry, cleanEntries: Models.IEntry[] }) => {
   const [value, setValue] = useState(0);
-  const { updated, getUrlParameterValue } = usePopup();
-
+  const { updateUrlParams, getUrlParameterValue } = usePopup();
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     setValue(newValue);
-    updated(tabs[newValue].name);
+    const tabName = tabs[newValue].name;
+    updateUrlParams("tab", tabName);
   };
 
   useEffect(() => { // initial value
-    let tabValue = getUrlParameterValue<string>("popup", (value) => {
-      const parsedValue = parseInt(value, 10);
-      return isNaN(parsedValue) ? null : parsedValue.toString();
-    });
-
-    if (!tabValue) {
-      tabValue = tabs[0].name;
-      updated(tabs[0].name);
-    }
-    const newValue = Math.max(tabs.findIndex(tab => tab.name === tabValue), 0);
+    let tabValue = getUrlParameterValue("popup", (value) => tabs.some(tab => tab.name === value) ? value : null);
+    if (!tabValue) { tabValue = "info" };
+    const newValue = tabs.findIndex(tab => tab.name === tabValue);
     setValue(newValue);
-  }, []);
+    updateUrlParams("tab", tabValue);
+  }, [getUrlParameterValue, updateUrlParams]);
 
-  return (
-    <div className="bg cut cut-after">
-      <Tabs value={value} onChange={handleChange}>
-        {tabs.map((tab, index) => (
-          <Tab key={index} icon={tab.icon} label={tab.name} />
-        ))}
-      </Tabs>
+return (
+  <div className="bg cut cut-after">
+    <Tabs value={value} onChange={handleChange} variant="scrollable">
+      {tabs.map((tab, index) => (
+        <Tab key={index} icon={tab.icon} label={tab.name} value={index} />
+      ))}
+    </Tabs>
 
-      <dl className="popupList">
-        {tabs.map((tab, index) => (
-          index === value && (
-            <React.Fragment key={index}>
-              {tab.name === "info" && (
-                <PopupInfo entry={entry} />
-              )}
-              {tab.name === "speed" && (
-                <PopupSpeed entry={entry} />
-              )}
-              {tab.name === "distance" && (
-                <PopupDistance entry={entry} cleanEntries={cleanEntries} />
-              )}
-              {tab.name === "time" && (
-                <PopupTime entry={entry} />
-              )}
-            </React.Fragment>
-          )
-        ))}
-      </dl>
-    </div>
-  );
+    <dl className="popupList">
+      {tabs.map((tab, index) => (
+        index === value && (
+          <React.Fragment key={index}>
+            {tab.name === "info" && (
+              <PopupInfo entry={entry} />
+            )}
+            {tab.name === "speed" && (
+              <PopupSpeed entry={entry} />
+            )}
+            {tab.name === "distance" && (
+              <PopupDistance entry={entry} cleanEntries={cleanEntries} />
+            )}
+            {tab.name === "time" && (
+              <PopupTime entry={entry} />
+            )}
+          </React.Fragment>
+        )
+      ))}
+    </dl>
+  </div>
+);
 };
