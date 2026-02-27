@@ -1,7 +1,19 @@
 import axios from "axios";
 import logger from "./logger";
+import { readFileSync } from "fs";
+import { join, dirname } from "path";
 
 let lastNominatimRequestTimestamp = 0;
+
+// Build dynamic User-Agent header
+let userAgent = "lorex/unknown";
+try {
+	const packageJsonPath = join(__dirname, "../../package.json");
+	const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
+	userAgent = `${packageJson.name}/${packageJson.version}`;
+} catch (error) {
+	logger.error(`Failed to read package.json for User-Agent header: ${error}`);
+}
 
 async function fetchData(url: string, timeout = 3000): Promise<NominatimResponse | null> {
 	if (lastNominatimRequestTimestamp + 4000 > Date.now()) { // do not fetch data too often
@@ -12,8 +24,8 @@ async function fetchData(url: string, timeout = 3000): Promise<NominatimResponse
 	try {
 		lastNominatimRequestTimestamp = Date.now();
 		const [responseZoom17, responseZoom18] = await Promise.all([
-			axios.get<NominatimResponse>(url + "&zoom=17", { timeout }),
-			axios.get<NominatimResponse>(url + "&zoom=18", { timeout }),
+			axios.get<NominatimResponse>(url + "&zoom=17", { timeout, headers: { "User-Agent": userAgent } }),
+			axios.get<NominatimResponse>(url + "&zoom=18", { timeout, headers: { "User-Agent": userAgent } }),
 		]);
 
 		const combinedResponse = {
