@@ -6,6 +6,10 @@
     "jsx": "react",
     "esModuleInterop": true,
     "strictNullChecks": true,
+    "skipLibCheck": true,
+    "module": "esnext",
+    "moduleResolution": "bundler"
   },
-  "include": ["**/*.tsx", "**/*.ts", "types.d.ts", "types_easyButton.d.ts", "../../types.d.ts"]
+  "include": ["**/*.tsx", "**/*.ts", "types.d.ts", "types_easyButton.d.ts"],
+  "files": ["../../types.d.ts"]
 }
