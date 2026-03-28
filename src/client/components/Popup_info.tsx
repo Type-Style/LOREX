@@ -1,13 +1,16 @@
 import React from 'react'
+import { useIgnoreData } from "../hooks/useData";
+import RestorePageIcon from '@mui/icons-material/RestorePage';
 
 export default function PopupInfo({ entry }: { entry: Models.IEntry }) {
   const hdopStatus = entry.hdop < 3.25 ? 'good' : entry.hdop < 6 ? 'ok' : 'bad';
+  const { ignoreData } = useIgnoreData();
 
   return (
     <>
       <dt>Lat / Lon</dt>
       <dd>
-        <a href={`https://www.openstreetmap.org/?mlat=${entry.lat}&mlon=${entry.lon}&zoom=12&marker=${entry!.lat}/${entry!.lon}#map=13/${entry.lat}/${entry.lon}`} className="info">
+        <a href={`https://www.openstreetmap.org/?mlat=${entry.lat}&mlon=${entry.lon}&zoom=12&marker=${entry.lat}/${entry.lon}#map=13/${entry.lat}/${entry.lon}`} className="info">
           {`${entry.lat.toFixed(4)}`} / {`${entry.lon.toFixed(4)}`}
         </a>
         {entry.address && (
@@ -34,6 +37,25 @@ export default function PopupInfo({ entry }: { entry: Models.IEntry }) {
           }}
         >
           {entry.index}
+        </button>
+      </dd>
+
+      <dt>ignore</dt>
+      <dd className="actions">
+        <button className="left blendIn" onClick={() => window.location.reload()}>
+          <RestorePageIcon />
+        </button>
+
+        <button onClick={() => ignoreData(entry.index, "before")}>
+          before
+        </button>
+
+        <button onClick={() => ignoreData(entry.index)}>
+          ignore
+        </button>
+
+        <button onClick={() => ignoreData(entry.index, "after")}>
+          after
         </button>
       </dd>
     </>

@@ -3,6 +3,7 @@ import * as file from '@src/scripts/file';
 import { create as createError } from '@src/middleware/error';
 import { validationResult, query } from 'express-validator';
 import { isLoggedIn } from '@src/middleware/logged-in';
+import { readSlowDown } from "@src/middleware/limit";
 
 const router = express.Router();
 
@@ -37,6 +38,7 @@ router.get('/',
 
 
 router.get('/maptoken',
+  readSlowDown,
   isLoggedIn,
   async function mapToken(req: Request, res: Response, next: NextFunction) {
     const token = process.env.MAPBOX;
@@ -47,9 +49,10 @@ router.get('/maptoken',
 );
 
 router.get('/traffictoken',
+  readSlowDown,
   isLoggedIn,
   async function mapToken(req: Request, res: Response, next: NextFunction) {
-    const token  = process.env.TOMTOM;
+    const token = process.env.TOMTOM;
     if (!token) { return createError(res, undefined, `Missing configuration, environment variable not defined`, next); }
 
     res.json({ token });

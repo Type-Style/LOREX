@@ -55,9 +55,11 @@ export default [
             ...reactHooks.configs.recommended.rules,
             'react-compiler/react-compiler': 'error',
             'no-else-return': 'error',
-            '@/no-unused-vars': [
+            '@typescript-eslint/no-unused-vars': [
                 'warn',
                 {
+                    argsIgnorePattern: '^_',
+                    varsIgnorePattern: '^_',
                     destructuredArrayIgnorePattern: '^_',
                     ignoreRestSiblings: true,
                 },
@@ -66,7 +68,7 @@ export default [
             'import/first': 'error',
             'import/newline-after-import': 'warn',
             'import/no-duplicates': 'error',
-            '@/no-empty-function': ['off'],
+            '@typescript-eslint/no-empty-function': 'off',
             curly: ['error', 'all'],
         },
     },

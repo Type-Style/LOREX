@@ -21,7 +21,7 @@ const baseSlowDownOptions: Partial<slowDownOptions> = {
 
 const baseRateLimitOptions: Partial<rateLimiterOptions> = {
   ...baseOptions,
-  limit: 50, // Limit each IP per window
+  limit: 70, // Limit each IP per window
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   handler: function rateHandler(req: Request, res: Response, next: NextFunction, options: rateLimiterOptions) {
@@ -35,7 +35,6 @@ const baseRateLimitOptions: Partial<rateLimiterOptions> = {
 }
 
 
-
 /*
 ** exported section
 */
@@ -45,6 +44,12 @@ export const loginSlowDown = slowDown({
   ...baseSlowDownOptions,
   delayAfter: 2, // no delay for amount of attempts
   delayMs: (used: number) => (used - 1) * 500, // Add delay after delayAfter is reached
+});
+
+export const readSlowDown = slowDown({
+  ...baseSlowDownOptions,
+  delayAfter: 4, // no delay for amount of attempts
+  delayMs: (used: number) => (used - 1) * 333, // Add delay after delayAfter is reached
 });
 
 export const baseRateLimiter = rateLimit(baseRateLimitOptions);
@@ -60,7 +65,20 @@ export const loginLimiter = rateLimit({
   message: 'Too many attempts without valid login',
 });
 
+export const readLimiter = rateLimit({
+  ...baseRateLimitOptions,
+  windowMs: 2 * 60 * 1000,
+  limit: 6,
+  message: 'Too many unauthorized requests',
+});
 
+
+/**
+ * Cleans up IP addresses that have reached the rate limit.
+ * 
+ * This function iterates over the `ipsThatReachedLimit` object and removes
+ * entries of IP addresses that reached the rate limit more than an hour ago.
+ */
 export function cleanup() {
   const oneHourAgo = Date.now() - 60 * 60 * 1000;
   for (const ip in ipsThatReachedLimit) {

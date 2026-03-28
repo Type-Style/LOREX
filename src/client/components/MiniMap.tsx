@@ -6,11 +6,23 @@ import { Context } from "../context";
 export default function MiniMap({ layer, lastEntry }: client.MiniMapProps) {
 
 	const [contextObj] = useContext(Context);
-
+	
 	const mapToken = "XXXMaptoken";
 	const trafficToken = "XXXTraffictoken";
+	const hasTokens = contextObj.mapToken && contextObj.trafficToken;
+	let url = layer.url;
 
-	function handleClick(e) {
+	if (url.includes(mapToken)) {
+		if (!hasTokens) { return; }
+		url = layer.url.replace(mapToken, contextObj.mapToken!)
+	}
+
+	if (url.includes(trafficToken)) {
+		if (!hasTokens) { return; }
+		url = layer.url.replace(trafficToken, contextObj.trafficToken!)
+	}
+
+	function handleClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
 		const name = (e.currentTarget as HTMLElement).dataset.name;
 
 		// Select all input elements
@@ -36,7 +48,7 @@ export default function MiniMap({ layer, lastEntry }: client.MiniMapProps) {
 
 	return (
 		<div className="image cut" data-name={layer.name} onClick={handleClick}>
-			<MapContainer className="miniMap" center={[lastEntry.lat, lastEntry.lon]} zoom={15}
+			<MapContainer className="miniMap" center={[lastEntry.lat, lastEntry.lon]} zoom={layer.maxZoom || 15}
 				attributionControl={false}
 				zoomControl={false}
 				boxZoom={false}
@@ -44,13 +56,14 @@ export default function MiniMap({ layer, lastEntry }: client.MiniMapProps) {
 				dragging={false}
 				scrollWheelZoom={false}
 				touchZoom={false}>
-				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} zoom={15} fly={false} />
+				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} zoom={layer.maxZoom || 15} fly={false} />
 				<TileLayer
 					attribution={layer.attribution}
-					url={layer.url.includes(mapToken) ? layer.url.replace(mapToken, contextObj.mapToken ?? "") :
-						layer.url.includes(trafficToken) ? layer.url.replace(trafficToken, contextObj.trafficToken ?? "") : layer.url}
+					url={url}
 					tileSize={layer.size || 256}
 					zoomOffset={layer.zoomOffset || 0}
+					maxZoom={layer.maxZoom || 18}
+					minZoom={layer.minZoom || 8}
 				/>
 			</MapContainer>
 		</div>);

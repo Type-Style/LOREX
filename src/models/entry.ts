@@ -60,10 +60,16 @@ export const entry = {
         }
       }
 
-      entry.time = getTime(Number(req.query.timestamp), previousEntry); // overwrite time in case previousEnty was changed
-      entry.angle = getAngle(previousEntry, entry);
-      entry.distance = getDistance(entry, previousEntry)
-      entry.speed = getSpeed(Number(req.query.speed), entry);
+      if (!previousEntry.ignore) {
+        entry.time = getTime(Number(req.query.timestamp), previousEntry); // overwrite time in case previousEnty was changed
+        entry.angle = getAngle(previousEntry, entry);
+        entry.distance = getDistance(entry, previousEntry);
+        entry.speed = getSpeed(Number(req.query.speed), entry);
+      } else { // treat like its the first entry 
+        entry.angle = undefined;
+        entry.time = getTime(Number(req.query.timestamp));
+        entry.speed = getSpeed(Number(req.query.speed))
+      }
 
     } else {
       entry.angle = undefined;
@@ -110,8 +116,8 @@ export const entry = {
     query('lat').custom(checkNumber(-90, 90)),
     query('lon').custom(checkNumber(-180, 180)),
     query('timestamp').custom((value) => checkTime(value)),
-    query('hdop').custom(checkNumber(0, 500)),
-    query('altitude').custom(checkNumber(-200, 10000)),
+    query('hdop').custom(checkNumber(0, 100)),
+    query('altitude').custom(checkNumber(-600, 10000)),
     query('speed').custom(checkNumber(0, 300)),
     query('heading').custom(checkNumber(0, 360, "integer")),
     query('eta').optional().custom((value) => checkTime(value, { allowZero: true })),

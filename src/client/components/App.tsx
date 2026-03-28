@@ -10,7 +10,6 @@ import { Context } from "../context";
 
 const Login = React.lazy(() => import('../pages/Login'));
 
-
 function loginDefault(userInfo) {
   if (!userInfo) { return false; }
 
@@ -56,7 +55,7 @@ const App = () => {
 
 
   useEffect(() => {
-    if (!isLoggedIn) {return;}
+    if (!isLoggedIn || mapToken && trafficToken) {return;}
     const fetchToken = async (path: string, setState: React.Dispatch<React.SetStateAction<string | null>>) => {
       try {
         const token = localStorage.getItem("jwt");
@@ -68,6 +67,9 @@ const App = () => {
 
         setState(response.data.token);
       } catch (error) {
+        if (error.response.status >= 400 && error.response.status < 500) {
+          setLogin(false);
+        }
         console.error(`Error fetching ${path}:`, error);
       }
     };
@@ -75,7 +77,7 @@ const App = () => {
     fetchToken("/read/maptoken", setMapToken);
     fetchToken("/read/traffictoken", setTrafficToken);
 
-  }, [isLoggedIn]);
+  }, [isLoggedIn, mapToken, trafficToken]);
 
   return (
     <Context value={[contextObj]}>

@@ -12,6 +12,8 @@ declare namespace client {
 		size?: number;
 		zoomOffset?: number;
 		overlay?: boolean;
+		maxZoom?: number;
+		minZoom?: number;
 	}
 
 	interface MiniMapProps {
@@ -39,6 +41,12 @@ declare namespace client {
 		mapToken: string | null;
 		trafficToken: string | null;
 	}
+
+	interface ActionContext  {
+		entries: Models.IEntry[];
+		setEntries: React.Dispatch<React.SetStateAction<Models.IEntry[]>>;
+	}
+
 	
 }
 

@@ -14,7 +14,7 @@ jobs:
       with:
         node-version: 20
     - name: Install dependencies
-      run: npm install --legacy-peer-deps
+      run: npm install
     - name: preBuild
       run: npm run prebuild
     - name: Build
