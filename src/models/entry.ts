@@ -19,6 +19,93 @@ import { getPath, updateWithPathData } from "@src/scripts/getPath";
 let lastWrittenToFile = 0;
 
 export const entry = {
+  recalculate: (entries: Models.IEntry[], index: number, direction?: "before" | "after"): Models.IEntry[] => {
+    // Deep copy — never mutate persisted data
+    const result: Models.IEntry[] = entries.map(e => ({
+      ...e,
+      time: { ...e.time },
+      distance: { ...e.distance },
+      speed: { ...e.speed },
+      path: e.path ? { ...e.path } : undefined,
+    }));
+
+    // Mark entries as ignored based on direction (additive on top of existing auto-ignores)
+    for (const e of result) {
+      if (direction === undefined && e.index === index) { e.ignore = true; }
+      else if (direction === "before" && e.index < index) { e.ignore = true; }
+      else if (direction === "after" && e.index > index) { e.ignore = true; }
+    }
+
+    // Recalculate relational properties for all non-ignored entries
+    let prevEntry: Models.IEntry | undefined = undefined;
+
+    for (let i = 0; i < result.length; i++) {
+      const e = result[i];
+      if (e.ignore) { continue; }
+
+      const originalEntry = entries[i];
+
+      // Find the original previous non-ignored neighbor
+      const originalPrev = (() => {
+        let p: Models.IEntry | undefined;
+        for (const orig of entries) {
+          if (orig.index === e.index) break;
+          if (!orig.ignore) p = orig;
+        }
+        return p;
+      })();
+
+      const neighborChanged = originalPrev?.index !== prevEntry?.index;
+
+      if (prevEntry) {
+        e.time = getTime(e.time.created, prevEntry, originalEntry.time);
+        e.angle = getAngle(prevEntry, e);
+        const newDistance = getDistance(e, prevEntry);
+        e.distance = neighborChanged
+          ? newDistance
+          : { ...newDistance, path: originalEntry.distance?.path };
+        e.speed = getSpeed(e.speed.gps, e);
+        if (!neighborChanged) { e.speed.path = originalEntry.speed?.path; }
+
+        if (neighborChanged && e.path) {
+          if (direction === undefined) {
+            // Self ignored: draw a straight line between the new neighbors
+            e.path = { hasFetched: false, ignore: false, coordinates: [[prevEntry.lat, prevEntry.lon], [e.lat, e.lon]] };
+            e.time = { ...e.time, path: undefined };
+            e.distance = { ...e.distance, path: undefined };
+            e.speed = { ...e.speed, path: undefined };
+          } else {
+            e.path = { hasFetched: e.path.hasFetched, ignore: true, ignoreReason: "♻ Neighbor changed due to manual ignore" };
+            e.time = { ...e.time, path: undefined };
+          }
+        }
+      } else {
+        // First non-ignored entry
+        e.time = getTime(e.time.created, undefined, originalEntry.time);
+        e.angle = undefined;
+        if (neighborChanged) {
+          if (direction === "before") {
+            // Preserve path-related properties, clear only relational ones
+            e.distance = { horizontal: 0, vertical: 0, total: 0, path: originalEntry.distance?.path };
+            const speed = getSpeed(e.speed.gps);
+            e.speed = { ...speed, path: originalEntry.speed?.path, maxSpeed: originalEntry.speed?.maxSpeed };
+          } else {
+            e.distance = { horizontal: 0, vertical: 0, total: 0 };
+            e.speed = getSpeed(e.speed.gps);
+            if (e.path) {
+              e.path = { hasFetched: e.path.hasFetched, ignore: true, ignoreReason: "♻ Neighbor changed due to manual ignore" };
+              e.time = { ...e.time, path: undefined };
+            }
+          }
+        }
+      }
+
+      prevEntry = e;
+    }
+
+    return result;
+  },
+
   create: async (req: Request, res: Response, next: NextFunction) => {
     const fileObj: File.Obj = file.getFile(res, next, "write");
     if (!fileObj.content) { return createError(res, 500, "File does not exist: " + fileObj.path, next); }

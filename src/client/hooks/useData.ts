@@ -80,48 +80,82 @@ export const useGetData = (index: number, fetchIntervalMs: number, setEntries) =
 
 export const useIgnoreData = () => {
 	const [actionContext] = useContext(ActionContext);
+	const [contextObj] = useContext(Context);
+
 	const setEntries = actionContext.setEntries;
-	const entries = actionContext.entries;
 
-	const ignoreData = (index: number, direction?: "before" | "after"): boolean => {
-		const entryWithIndex = entries.find(entry => entry.index === index);
-		if (!entryWithIndex) {
-			return false;
+	const ignoreData = async (index: number, direction?: "before" | "after"): Promise<Omit<client.entryData, 'fetchTimeData'>> => {
+		const returnObj: Omit<client.entryData, 'fetchTimeData'> = { isError: false, status: 200, message: "" };
+		const token = localStorage.getItem("jwt");
+
+		const url = "/read/ignore?index=" + index + (direction ? "&direction=" + direction : "");
+
+		try {
+			const response = await axios<Models.IEntries>({
+				method: 'get',
+				url,
+				headers: {
+					'Authorization': `Bearer ${token}`
+				}
+			});
+
+			setEntries(response.data.entries);
+
+			return returnObj;
+
+		} catch (error) {
+			console.log("error fetching data %o", error);
+			returnObj.isError = true;
+
+			if (!error.response) {
+				return { ...returnObj, status: 499, message: error.message || "offline" }
+			}
+
+			if (error.response.status == 403 || error.response.status == 401) {
+				contextObj.setLogin(false);
+				return { ...returnObj, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message }
+			}
+
+			contextObj.setLogin(true);
+			return { ...returnObj, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message }
 		}
-
-		const entryIndex = entries.indexOf(entryWithIndex);
-
-		if (entryIndex === -1) {
-			return false;
-		}
-
-		const ignoreEntries = (condition: (i: number) => boolean) => {
-			const newEntries = entries.map((entry, i) => condition(i) ? { ...entry, ignore: true } : entry);
-			
-			const nextEntry = newEntries.slice(entryIndex + 1).find(entry => !entry.ignore);
-			const prevEntry = newEntries.slice(0, entryIndex).reverse().find(entry => !entry.ignore);
-
-
-			
-			setEntries(newEntries);
-			return true;
-		};
-
-		if (direction === undefined) {
-			return ignoreEntries(i => i === entryIndex);
-		}
-
-		if (direction === "before") { 
-			return ignoreEntries(i => i < entryIndex);
-		}
-
-		if (direction === "after") {
-			return ignoreEntries(i => i > entryIndex);
-		}
-	
-		return false;
 	}
 
-	return { ignoreData };
-	
+	const resetData = async (): Promise<Omit<client.entryData, 'fetchTimeData'>> => {
+		const returnObj: Omit<client.entryData, 'fetchTimeData'> = { isError: false, status: 200, message: "" };
+		const token = localStorage.getItem("jwt");
+
+		try {
+			const response = await axios<Models.IEntries>({
+				method: 'get',
+				url: "/read?index=0",
+				headers: {
+					'Authorization': `Bearer ${token}`
+				}
+			});
+
+			setEntries(response.data.entries);
+
+			return returnObj;
+
+		} catch (error) {
+			console.log("error fetching data %o", error);
+			returnObj.isError = true;
+
+			if (!error.response) {
+				return { ...returnObj, status: 499, message: error.message || "offline" }
+			}
+
+			if (error.response.status == 403 || error.response.status == 401) {
+				contextObj.setLogin(false);
+				return { ...returnObj, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message }
+			}
+
+			contextObj.setLogin(true);
+			return { ...returnObj, status: error.response.data.status || error.response.status, message: error.response.data.message || error.message }
+		}
+	}
+
+	return { ignoreData, resetData };
+
 }

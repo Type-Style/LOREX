@@ -124,15 +124,42 @@
 		justify-content: flex-end;
 		align-items: center;
 		gap: 0.75em;
+		font-size: 0.8em;
 
 		.MuiSvgIcon-root {
 			height: 100%;
+		}
+		
+		.MuiButton-root {
+			min-width: min-content;
+		}
+
+		.button-label {
+			display: none;
+		}
+
+		.MuiButton-startIcon {
+			margin-inline: 0;
+		}
+
+		@media (min-width: 30em) {
+	
+			.button-label {
+				display: inline;
+			}
+
+			.MuiButton-startIcon {
+				margin-left: -4px;
+				margin-right: 8px;
+			}
 		}
 	}
 
 	.left {
 		display: flex;
 		justify-self: flex-start;
+		font-size: 0.8em;
+		text-align: center;
 	}
 
 	dd,

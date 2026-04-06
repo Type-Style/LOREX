@@ -1,8 +1,14 @@
 import logger from '@src/scripts/logger';
 
-export function getTime(time: number, entry?: Models.IEntry): Models.ITime {
-	const now = new Date();
+export function getTime(time: number, entry?: Models.IEntry, existingTime?: Models.ITime): Models.ITime {
 	const created = Number(time);
+	const diff = entry ? (created - entry.time.created) / 1000 : undefined;
+
+	if (existingTime) {
+		return { ...existingTime, diff };
+	}
+
+	const now = new Date();
 	const recieved = now.getTime();
 	const uploadDuration = (recieved - created) / 1000;
 	const createdString = now.toLocaleString("de-DE", {
@@ -15,7 +21,6 @@ export function getTime(time: number, entry?: Models.IEntry): Models.ITime {
 		minute: '2-digit',
 		second: '2-digit'
 	});
-	const diff = entry ? (created - entry.time.created) / 1000 : undefined;
 
 	if (uploadDuration < 0) {
 		logger.error(`upload Duration is negative: ${createdString}, index: ${entry ? entry.index + 1 : 0}`);

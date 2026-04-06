@@ -319,6 +319,246 @@ describe('Race Condtion Check', () => {
 });
 
 
+describe('read/ignore', () => {
+  let token = "";
+  const testData = {
+    user: "TEST",
+    password: "test",
+    csrfToken: ""
+  }
+
+  it('get csrfToken', async () => {
+    const response = await axios({
+      method: "post",
+      url: "http://localhost/login/csrf",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        "x-requested-with": "XMLHttpRequest"
+      }
+    });
+
+    testData.csrfToken = response.data;
+    expect(testData.csrfToken).toBeTruthy();
+  });
+
+  it('test user can login', async () => {
+    const response = await axios.post('http://localhost:80/login', qs.stringify(testData));
+    expect(response.status).toBe(200);
+    token = response.data.token;
+  });
+
+  // Validation tests
+
+  test('401 without auth', async () => {
+    try {
+      await axios.get("http://localhost:80/read/ignore?index=0");
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        expect(axiosError.response.status).toBe(401);
+      } else {
+        console.error(axiosError);
+      }
+    }
+  });
+
+  test('400 with missing index', async () => {
+    try {
+      await verifiedRequest("http://localhost:80/read/ignore", token);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        expect(axiosError.response.status).toBe(400);
+      } else {
+        console.error(axiosError);
+      }
+    }
+  });
+
+  test('400 with non-integer index', async () => {
+    try {
+      await verifiedRequest("http://localhost:80/read/ignore?index=abc", token);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        expect(axiosError.response.status).toBe(400);
+      } else {
+        console.error(axiosError);
+      }
+    }
+  });
+
+  test('400 with index out of range', async () => {
+    try {
+      await verifiedRequest("http://localhost:80/read/ignore?index=1000", token);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        expect(axiosError.response.status).toBe(400);
+      } else {
+        console.error(axiosError);
+      }
+    }
+  });
+
+  test('400 with invalid direction', async () => {
+    try {
+      await verifiedRequest("http://localhost:80/read/ignore?index=0&direction=sideways", token);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (axiosError.response) {
+        expect(axiosError.response.status).toBe(400);
+      } else {
+        console.error(axiosError);
+      }
+    }
+  });
+
+  // Valid requests
+
+  test('200 with valid index (self)', async () => {
+    const response = await verifiedRequest("http://localhost:80/read/ignore?index=0", token);
+    expect(response.status).toBe(200);
+    expect(response.data.entries).toBeDefined();
+    expect(Array.isArray(response.data.entries)).toBe(true);
+  });
+
+  test('200 with direction=before', async () => {
+    const response = await verifiedRequest("http://localhost:80/read/ignore?index=1&direction=before", token);
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.data.entries)).toBe(true);
+  });
+
+  test('200 with direction=after', async () => {
+    const response = await verifiedRequest("http://localhost:80/read/ignore?index=0&direction=after", token);
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.data.entries)).toBe(true);
+  });
+
+  // Functional tests
+
+  test('self: targeted entry has ignore true, others unchanged', async () => {
+    const readResponse = await verifiedRequest("http://localhost:80/read?index=0", token);
+    const entries = readResponse.data.entries;
+    const targetIndex = entries.findIndex((e: Models.IEntry) => !e.ignore);
+
+    const response = await verifiedRequest(`http://localhost:80/read/ignore?index=${targetIndex}`, token);
+    const result = response.data.entries;
+
+    expect(result[targetIndex].ignore).toBe(true);
+
+    for (const e of result) {
+      if (e.index !== targetIndex) {
+        expect(e.ignore).toBe(entries[e.index].ignore);
+      }
+    }
+  });
+
+  test('before: all entries before index have ignore true', async () => {
+    const readResponse = await verifiedRequest("http://localhost:80/read?index=0", token);
+    const entries = readResponse.data.entries;
+
+    // Find a non-auto-ignored entry that is not the first
+    let targetIndex = -1;
+    for (let i = 1; i < entries.length; i++) {
+      if (!entries[i].ignore) { targetIndex = i; break; }
+    }
+    expect(targetIndex).toBeGreaterThan(0);
+
+    const response = await verifiedRequest(`http://localhost:80/read/ignore?index=${targetIndex}&direction=before`, token);
+    const result = response.data.entries;
+
+    for (const e of result) {
+      if (e.index < targetIndex) {
+        expect(e.ignore).toBe(true);
+      }
+    }
+    // The targeted entry itself should keep its original ignore value
+    expect(result[targetIndex].ignore).toBe(entries[targetIndex].ignore);
+  });
+
+  test('after: all entries after index have ignore true', async () => {
+    const readResponse = await verifiedRequest("http://localhost:80/read?index=0", token);
+    const entries = readResponse.data.entries;
+
+    const response = await verifiedRequest("http://localhost:80/read/ignore?index=0&direction=after", token);
+    const result = response.data.entries;
+
+    for (const e of result) {
+      if (e.index > 0) {
+        expect(e.ignore).toBe(true);
+      }
+    }
+    expect(result[0].ignore).toBe(entries[0].ignore);
+  });
+
+  test('recalculation: first non-ignored entry has no diff when predecessor is removed', async () => {
+    const readResponse = await verifiedRequest("http://localhost:80/read?index=0", token);
+    const entries = readResponse.data.entries;
+
+    // Find the first two non-ignored entries
+    const nonIgnored = entries.filter((e: Models.IEntry) => !e.ignore);
+    if (nonIgnored.length < 2) return;
+
+    const firstIndex = nonIgnored[0].index;
+    const secondIndex = nonIgnored[1].index;
+    const originalSecond = entries[secondIndex];
+
+    // Ignore the first non-ignored entry — the second becomes the new first
+    const response = await verifiedRequest(`http://localhost:80/read/ignore?index=${firstIndex}`, token);
+    const result = response.data.entries;
+
+    const newFirst = result[secondIndex];
+    expect(newFirst.ignore).toBe(false);
+    // As the new first non-ignored entry, diff should be undefined
+    expect(newFirst.time.diff).toBeUndefined();
+    // Write-time fields should be preserved
+    expect(newFirst.time.created).toBe(originalSecond.time.created);
+    expect(newFirst.time.recieved).toBe(originalSecond.time.recieved);
+    expect(newFirst.time.createdString).toBe(originalSecond.time.createdString);
+    // Angle should be undefined for the first entry
+    expect(newFirst.angle).toBeUndefined();
+    // Distance should be zeroed
+    expect(newFirst.distance.horizontal).toBe(0);
+    expect(newFirst.distance.vertical).toBe(0);
+    expect(newFirst.distance.total).toBe(0);
+  });
+
+  test('recalculation: diff changes when neighbor changes due to self ignore', async () => {
+    const readResponse = await verifiedRequest("http://localhost:80/read?index=0", token);
+    const entries = readResponse.data.entries;
+
+    const nonIgnored = entries.filter((e: Models.IEntry) => !e.ignore);
+    if (nonIgnored.length < 3) return;
+
+    // Ignore the middle one — the third entry's neighbor changes from middle to first
+    const middleIndex = nonIgnored[1].index;
+    const thirdIndex = nonIgnored[2].index;
+    const originalThird = entries[thirdIndex];
+
+    const response = await verifiedRequest(`http://localhost:80/read/ignore?index=${middleIndex}`, token);
+    const result = response.data.entries;
+
+    const updated = result[thirdIndex];
+    expect(updated.ignore).toBe(false);
+    // diff should be recalculated (now spans over the ignored entry, so it should be larger)
+    expect(updated.time.diff).toBeGreaterThan(originalThird.time.diff);
+    // Write-time fields should be preserved
+    expect(updated.time.created).toBe(originalThird.time.created);
+    expect(updated.time.recieved).toBe(originalThird.time.recieved);
+  });
+
+  test('no file mutation: original file unchanged after ignore call', async () => {
+    const beforeData = getData(filePath);
+
+    await verifiedRequest("http://localhost:80/read/ignore?index=0", token);
+
+    const afterData = getData(filePath);
+    expect(JSON.stringify(afterData)).toBe(JSON.stringify(beforeData));
+  });
+});
+
+
 describe('API calls', () => {
   test(`1000 api calls`, async () => {
     for (let i = 0; i < 1000; i++) {
