@@ -19,12 +19,7 @@ export function getIgnore(lastEntry: Models.IEntry, entry: Models.IEntry, gpsSpe
   return lastEntry.hdop > threshold; // shall ignore ?
 }
 
-/*
-  Returns true when the three given entries are tightly clustered:
-  consecutive horizontal distances must each be below CLOSE_M + entry.hdop
-  (hdop is treated as meters of GPS uncertainty).
-  Caller is responsible for passing the last two NON-ignored neighbors.
-*/
+// True when three non-ignored entries are tightly clustered by consecutive horizontal distance.
 export function getIgnoreClose(
   prevPrev: Models.IEntry | undefined,
   prev: Models.IEntry,

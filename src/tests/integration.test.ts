@@ -289,32 +289,23 @@ describe("GET /write", () => {
   });
 });
 
-describe('close-3 ignore (#312)', () => {
+describe('ignores middle entry if 3 close together', () => {
   /*
-    Posts three entries clustered within ~10 m of each other at lat=50, lon=8.
-    Expected: the middle of the three new arrivals is flagged ignore=true
-    once the third arrives. Hdop is kept at 2 to keep the existing hdop-based
-    getIgnore inactive (threshold ~4.5).
+    Three entries clustered within ~10 m of each other at lat=50, lon=8.
+    Expected: the middle is flagged ignore=true once the third arrives.
   */
 
-  // eslint-disable-next-line jest/expect-expect
-  it('posts three close-together entries', async () => {
+  it('marks the middle of the three as ignored', async() => {
+
     const base = "user=CL&lon=8.000&hdop=2&altitude=10&speed=5&heading=180.0&timestamp=R3Pl4C3&key=test";
     await callServer(undefined, `${base}&lat=50.00000`, 200, "GET");
     await callServer(undefined, `${base}&lat=50.00009`, 200, "GET");
     await callServer(undefined, `${base}&lat=50.00018`, 200, "GET");
-  });
 
-  it('marks the middle of the three as ignored', () => {
     const jsonData = getData(filePath);
     const last = jsonData.entries.at(-1);
     const middle = jsonData.entries.at(-2);
     const first = jsonData.entries.at(-3);
-
-    // middle entry is the one inserted between first and last new arrivals
-    expect(first.user).toBe("CL");
-    expect(middle.user).toBe("CL");
-    expect(last.user).toBe("CL");
 
     expect(last.ignore).toBe(false);   // newest is always shown
     expect(middle.ignore).toBe(true);  // middle of the cluster is dropped
