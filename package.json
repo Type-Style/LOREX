@@ -26,8 +26,9 @@
     "test:login": "jest src/tests/login.test.ts",
     "test:unit": "jest src/tests/unit.test.ts",
     "test:integration": "jest src/tests/integration.test.ts",
+    "test:postClear": "npm run prebuild && npm run postbuild",
     "postinstall": "node scripts/fix-react-leaflet-markercluster.js",
-    "unzipTiles": "node scripts/unzipTiles.js"
+    "unzipTiles": "node scripts/unzipTiles.js"  
   },
   "keywords": [],
   "author": "Type-Style",
