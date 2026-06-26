@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import react, { reactCompilerPreset } from '@vitejs/plugin-react';
+import babel from '@rolldown/plugin-babel';
 import path from 'path';
 
 const ReactCompilerConfig = { /* ... */ };
@@ -7,14 +8,15 @@ const ReactCompilerConfig = { /* ... */ };
 export default defineConfig({
   root: path.resolve(__dirname), 
 	plugins: [
-		[react(), 'babel-plugin-react-compiler', ReactCompilerConfig]
+		react(),
+		babel({ presets: [reactCompilerPreset(ReactCompilerConfig)] })
 	],
   css: {
     postcss: path.resolve(__dirname, 'postcss.config.js'),
   },
   build: {
     target: 'esnext',
-		chunkSizeWarningLimit: "800kb",
+		chunkSizeWarningLimit: 800,
     rollupOptions: {
       input: path.resolve(__dirname, 'index.tsx'),
 			output: {

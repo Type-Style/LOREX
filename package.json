@@ -26,7 +26,7 @@
     "test:login": "jest src/tests/login.test.ts",
     "test:unit": "jest src/tests/unit.test.ts",
     "test:integration": "jest src/tests/integration.test.ts",
-    "test:postClear": "npm run prebuild && npm run postbuild",
+    "test:postClear": "npm run build",
     "postinstall": "node scripts/fix-react-leaflet-markercluster.js",
     "unzipTiles": "node scripts/unzipTiles.js"  
   },
@@ -95,12 +95,14 @@
     "@typescript-eslint/parser": "^8.32.1",
     "@typescript-eslint/typescript-estree": "^8.32.1",
     "@vitejs/plugin-react": "^6.0.3",
-    "babel-plugin-react-compiler": "^19.1.0-rc.2",
+    "@babel/core": "^7.29.7",
+    "@rolldown/plugin-babel": "^0.1.7",
+    "babel-plugin-react-compiler": "^1.0.0",
     "codemod": "^0.10.23",
     "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
     "css-loader": "^7.1.2",
-    "esbuild": "^0.25.4",
+    "esbuild": "^0.28.1",
     "eslint": "^9.27.0",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-import-resolver-typescript": "^4.3.5",
@@ -123,5 +125,16 @@
     "typescript-eslint": "^8.32.1",
     "vite": "^8.1.0",
     "vite-tsconfig-paths": "^5.1.4"
+  },
+  "overrides": {
+    "@eslint/eslintrc": {
+      "js-yaml": "4.2.0"
+    },
+    "@istanbuljs/load-nyc-config": {
+      "js-yaml": "4.2.0"
+    },
+    "minimatch@9.0.7": {
+      "brace-expansion": "5.0.6"
+    }
   }
 }
