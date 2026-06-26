@@ -197,6 +197,7 @@ export const entry = {
     } else {
       logger.log(`File over 1000 lines: ${fileObj.path}`);
       if (entry.hdop < 12 || (previousEntry && entry.hdop < previousEntry.hdop)) {
+        entry.index = entries.length - 1;
         entries[entries.length - 1] = entry; // replace last entry
       }
     }

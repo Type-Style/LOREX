@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios';
 import fs from "fs";
 import path from "path";
 import qs from "qs";
+import { axiosTestRequest, getAxiosTestError, requestStatus } from './axiosTestError';
 
 const date = new Date();
 const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -26,9 +27,9 @@ async function callServer(timestamp = new Date().getTime(), query: string, expec
   let response;
   if (expectStatus == 200) {
     if (method == "GET") {
-      response = await axios.get(url.toString());
+      response = await axiosTestRequest(axios.get(url.toString()));
     } else {
-      response = await axios.head(url.toString());
+      response = await axiosTestRequest(axios.head(url.toString()));
     }
     expect(response.status).toBe(expectStatus);
   } else {
@@ -39,7 +40,7 @@ async function callServer(timestamp = new Date().getTime(), query: string, expec
       if (axiosError.response) {
         expect(axiosError.response.status).toBe(expectStatus);
       } else {
-        console.error(axiosError);
+        throw getAxiosTestError(error);
       }
     }
   }
@@ -56,17 +57,15 @@ function isInRange(actual: string | number, expected: number, range: number) {
 }
 
 async function verifiedRequest(url: string, token: string) {
-  const response = await axios({
+  const response = await axiosTestRequest(axios({
     method: 'get',
     url: url,
     headers: {
       'Authorization': `Bearer ${token}`,
     }
-  });
+  }));
   return response;
 }
-
-
 
 describe('/write', () => {
   // eslint-disable-next-line jest/expect-expect
@@ -344,117 +343,81 @@ describe('Race Condtion Check', () => {
 
 
 describe('read/ignore', () => {
-  let token = "";
   const testData = {
     user: "TEST",
     password: "test",
-    csrfToken: ""
+    csrfToken: "",
+    token: ""
   }
 
   it('get csrfToken', async () => {
-    const response = await axios({
+    const response = await axiosTestRequest(axios({
       method: "post",
       url: "http://localhost/login/csrf",
       headers: {
         "content-type": "application/x-www-form-urlencoded",
         "x-requested-with": "XMLHttpRequest"
       }
-    });
+    }));
 
     testData.csrfToken = response.data;
     expect(testData.csrfToken).toBeTruthy();
   });
 
   it('test user can login', async () => {
-    const response = await axios.post('http://localhost:80/login', qs.stringify(testData));
+    const response = await axiosTestRequest(axios.post('http://localhost:80/login', qs.stringify({
+      user: testData.user,
+      password: testData.password,
+      csrfToken: testData.csrfToken,
+    })));
     expect(response.status).toBe(200);
-    token = response.data.token;
-  });
+    testData.token = response.data.token;
+  }, 15000);
 
   // Validation tests
 
   test('401 without auth', async () => {
-    try {
-      await axios.get("http://localhost:80/read/ignore?index=0");
-    } catch (error) {
-      const axiosError = error as AxiosError;
-      if (axiosError.response) {
-        expect(axiosError.response.status).toBe(401);
-      } else {
-        console.error(axiosError);
-      }
-    }
+    const response = await requestStatus("http://localhost:80/read/ignore?index=0");
+    expect(response.status).toBe(401);
   });
 
   test('400 with missing index', async () => {
-    try {
-      await verifiedRequest("http://localhost:80/read/ignore", token);
-    } catch (error) {
-      const axiosError = error as AxiosError;
-      if (axiosError.response) {
-        expect(axiosError.response.status).toBe(400);
-      } else {
-        console.error(axiosError);
-      }
-    }
+    const response = await requestStatus("http://localhost:80/read/ignore", testData.token);
+    expect(response.status).toBe(400);
   });
 
   test('400 with non-integer index', async () => {
-    try {
-      await verifiedRequest("http://localhost:80/read/ignore?index=abc", token);
-    } catch (error) {
-      const axiosError = error as AxiosError;
-      if (axiosError.response) {
-        expect(axiosError.response.status).toBe(400);
-      } else {
-        console.error(axiosError);
-      }
-    }
+    const response = await requestStatus("http://localhost:80/read/ignore?index=abc", testData.token);
+    expect(response.status).toBe(400);
   });
 
   test('400 with index out of range', async () => {
-    try {
-      await verifiedRequest("http://localhost:80/read/ignore?index=1000", token);
-    } catch (error) {
-      const axiosError = error as AxiosError;
-      if (axiosError.response) {
-        expect(axiosError.response.status).toBe(400);
-      } else {
-        console.error(axiosError);
-      }
-    }
+    const response = await requestStatus("http://localhost:80/read/ignore?index=1000", testData.token);
+    expect(response.status).toBe(400);
   });
 
   test('400 with invalid direction', async () => {
-    try {
-      await verifiedRequest("http://localhost:80/read/ignore?index=0&direction=sideways", token);
-    } catch (error) {
-      const axiosError = error as AxiosError;
-      if (axiosError.response) {
-        expect(axiosError.response.status).toBe(400);
-      } else {
-        console.error(axiosError);
-      }
-    }
+    const response = await requestStatus("http://localhost:80/read/ignore?index=0&direction=sideways", testData.token);
+    expect(response.status).toBe(400);
   });
 
   // Valid requests
 
   test('200 with valid index (self)', async () => {
-    const response = await verifiedRequest("http://localhost:80/read/ignore?index=0", token);
+    const response = await verifiedRequest("http://localhost:80/read/ignore?index=0", testData.token);
     expect(response.status).toBe(200);
     expect(response.data.entries).toBeDefined();
     expect(Array.isArray(response.data.entries)).toBe(true);
   });
 
   test('200 with direction=before', async () => {
-    const response = await verifiedRequest("http://localhost:80/read/ignore?index=1&direction=before", token);
+    const response = await verifiedRequest("http://localhost:80/read/ignore?index=1&direction=before", testData.token);
     expect(response.status).toBe(200);
     expect(Array.isArray(response.data.entries)).toBe(true);
   });
 
   test('200 with direction=after', async () => {
-    const response = await verifiedRequest("http://localhost:80/read/ignore?index=0&direction=after", token);
+    const response = await verifiedRequest("http://localhost:80/read/ignore?index=0&direction=after", testData.token);
     expect(response.status).toBe(200);
     expect(Array.isArray(response.data.entries)).toBe(true);
   });
@@ -462,11 +425,11 @@ describe('read/ignore', () => {
   // Functional tests
 
   test('self: targeted entry has ignore true, others unchanged', async () => {
-    const readResponse = await verifiedRequest("http://localhost:80/read?index=0", token);
+    const readResponse = await verifiedRequest("http://localhost:80/read?index=0", testData.token);
     const entries = readResponse.data.entries;
     const targetIndex = entries.findIndex((e: Models.IEntry) => !e.ignore);
 
-    const response = await verifiedRequest(`http://localhost:80/read/ignore?index=${targetIndex}`, token);
+    const response = await verifiedRequest(`http://localhost:80/read/ignore?index=${targetIndex}`, testData.token);
     const result = response.data.entries;
 
     expect(result[targetIndex].ignore).toBe(true);
@@ -479,7 +442,7 @@ describe('read/ignore', () => {
   });
 
   test('before: all entries before index have ignore true', async () => {
-    const readResponse = await verifiedRequest("http://localhost:80/read?index=0", token);
+    const readResponse = await verifiedRequest("http://localhost:80/read?index=0", testData.token);
     const entries = readResponse.data.entries;
 
     // Find a non-auto-ignored entry that is not the first
@@ -489,7 +452,7 @@ describe('read/ignore', () => {
     }
     expect(targetIndex).toBeGreaterThan(0);
 
-    const response = await verifiedRequest(`http://localhost:80/read/ignore?index=${targetIndex}&direction=before`, token);
+    const response = await verifiedRequest(`http://localhost:80/read/ignore?index=${targetIndex}&direction=before`, testData.token);
     const result = response.data.entries;
 
     for (const e of result) {
@@ -502,10 +465,10 @@ describe('read/ignore', () => {
   });
 
   test('after: all entries after index have ignore true', async () => {
-    const readResponse = await verifiedRequest("http://localhost:80/read?index=0", token);
+    const readResponse = await verifiedRequest("http://localhost:80/read?index=0", testData.token);
     const entries = readResponse.data.entries;
 
-    const response = await verifiedRequest("http://localhost:80/read/ignore?index=0&direction=after", token);
+    const response = await verifiedRequest("http://localhost:80/read/ignore?index=0&direction=after", testData.token);
     const result = response.data.entries;
 
     for (const e of result) {
@@ -517,7 +480,7 @@ describe('read/ignore', () => {
   });
 
   test('recalculation: first non-ignored entry has no diff when predecessor is removed', async () => {
-    const readResponse = await verifiedRequest("http://localhost:80/read?index=0", token);
+    const readResponse = await verifiedRequest("http://localhost:80/read?index=0", testData.token);
     const entries = readResponse.data.entries;
 
     // Find the first two non-ignored entries
@@ -529,7 +492,7 @@ describe('read/ignore', () => {
     const originalSecond = entries[secondIndex];
 
     // Ignore the first non-ignored entry — the second becomes the new first
-    const response = await verifiedRequest(`http://localhost:80/read/ignore?index=${firstIndex}`, token);
+    const response = await verifiedRequest(`http://localhost:80/read/ignore?index=${firstIndex}`, testData.token);
     const result = response.data.entries;
 
     const newFirst = result[secondIndex];
@@ -549,7 +512,7 @@ describe('read/ignore', () => {
   });
 
   test('recalculation: diff changes when neighbor changes due to self ignore', async () => {
-    const readResponse = await verifiedRequest("http://localhost:80/read?index=0", token);
+    const readResponse = await verifiedRequest("http://localhost:80/read?index=0", testData.token);
     const entries = readResponse.data.entries;
 
     const nonIgnored = entries.filter((e: Models.IEntry) => !e.ignore);
@@ -560,7 +523,7 @@ describe('read/ignore', () => {
     const thirdIndex = nonIgnored[2].index;
     const originalThird = entries[thirdIndex];
 
-    const response = await verifiedRequest(`http://localhost:80/read/ignore?index=${middleIndex}`, token);
+    const response = await verifiedRequest(`http://localhost:80/read/ignore?index=${middleIndex}`, testData.token);
     const result = response.data.entries;
 
     const updated = result[thirdIndex];
@@ -575,7 +538,7 @@ describe('read/ignore', () => {
   test('no file mutation: original file unchanged after ignore call', async () => {
     const beforeData = getData(filePath);
 
-    await verifiedRequest("http://localhost:80/read/ignore?index=0", token);
+    await verifiedRequest("http://localhost:80/read/ignore?index=0", testData.token);
 
     const afterData = getData(filePath);
     expect(JSON.stringify(afterData)).toBe(JSON.stringify(beforeData));
@@ -614,16 +577,16 @@ describe('read and login', () => {
   it('get csrfToken', async () => {
     let response = { data: "" };
     try {
-      response = await axios({
+      response = await axiosTestRequest(axios({
         method: "post",
         url: "http://localhost/login/csrf",
         headers: {
           "content-type": "application/x-www-form-urlencoded",
           "x-requested-with": "XMLHttpRequest"
         }
-      })
+      }))
     } catch (error) {
-      console.error(error);
+      throw getAxiosTestError(error);
     }
 
     testData.csrfToken = response.data;
@@ -631,39 +594,23 @@ describe('read and login', () => {
   })
 
   test(`redirect without logged in`, async () => {
-    try {
-      await axios.get("http://localhost:80/read/");
-    } catch (error) {
-      const axiosError = error as AxiosError;
-      if (axiosError.response) {
-        expect(axiosError.response.status).toBe(401);
-      } else {
-        console.error(axiosError);
-      }
-    }
+    const response = await requestStatus("http://localhost:80/read/");
+    expect(response.status).toBe(401);
   });
 
   it('test user can login', async () => {
-    const response = await axios.post('http://localhost:80/login', qs.stringify(testData));
+    const response = await axiosTestRequest(axios.post('http://localhost:80/login', qs.stringify(testData)));
 
     expect(response.status).toBe(200);
     expect(response.headers['content-type']).toEqual(expect.stringContaining('application/json'));
     expect(response).toHaveProperty('data.token');
     expect(response.data.token).not.toBeNull();
     token = response.data.token;
-  })
+  }, 15000)
 
   test('wrong token get error', async () => {
-    try {
-      await verifiedRequest("http://localhost:80/read?index=0", "justWrongValue");
-    } catch (error) {
-      const axiosError = error as AxiosError;
-      if (axiosError.response) {
-        expect([401, 403]).toContain(axiosError.response.status);
-      } else {
-        console.error(axiosError);
-      }
-    }
+    const response = await requestStatus("http://localhost:80/read?index=0", "justWrongValue");
+    expect([401, 403]).toContain(response.status);
   });
 
   test('verified request returns json', async () => {
@@ -673,49 +620,27 @@ describe('read and login', () => {
   });
 
   test(`index parameter to long`, async () => {
-    try {
-      await verifiedRequest("http://localhost:80/read?index=1234", token);
-    } catch (error) {
-      const axiosError = error as AxiosError;
-      if (axiosError.response) {
-        expect(axiosError.response.status).toBe(400);
-      } else {
-        console.error(axiosError);
-      }
-    }
+    const response = await requestStatus("http://localhost:80/read?index=1234", token);
+    expect(response.status).toBe(400);
   });
 
   test(`index parameter to be a number`, async () => {
-    try {
-      await verifiedRequest("http://localhost:80/read?index=a9", token);
-    } catch (error) {
-      const axiosError = error as AxiosError;
-      if (axiosError.response) {
-        expect(axiosError.response.status).toBe(400);
-      } else {
-        console.error(axiosError);
-      }
-    }
+    const response = await requestStatus("http://localhost:80/read?index=a9", token);
+    expect(response.status).toBe(400);
   });
 
   test(`index parameter reduces length of json`, async () => {
-    const response = await verifiedRequest("http://localhost:80/read?index=999", token);
+    const allEntriesResponse = await verifiedRequest("http://localhost:80/read?index=0", token);
+    const lastEntryIndex = allEntriesResponse.data.entries.at(-1).index;
+    const response = await verifiedRequest(`http://localhost:80/read?index=${lastEntryIndex}`, token);
     expect(response.status).toBe(200);
     expect(response.data.entries.length).toBe(1);
   });
 
 
   test(`unable to get maptoken without logged in`, async () => {
-    try {
-      await axios.get("http://localhost:80/read/maptoken");
-    } catch (error) {
-      const axiosError = error as AxiosError;
-      if (axiosError.response) {
-        expect(axiosError.response.status).toBe(401);
-      } else {
-        console.error(axiosError);
-      }
-    }
+    const response = await requestStatus("http://localhost:80/read/maptoken");
+    expect(response.status).toBe(401);
   });
 
   test(`get maptoken with login`, async () => {
@@ -727,16 +652,8 @@ describe('read and login', () => {
   });
 
   test(`unable to get traffictoken without logged in`, async () => {
-    try {
-      await axios.get("http://localhost:80/read/traffictoken");
-    } catch (error) {
-      const axiosError = error as AxiosError;
-      if (axiosError.response) {
-        expect(axiosError.response.status).toBe(401);
-      } else {
-        console.error(axiosError);
-      }
-    }
+    const response = await requestStatus("http://localhost:80/read/traffictoken");
+    expect(response.status).toBe(401);
   });
 
   test(`get traffictoken with login`, async () => {

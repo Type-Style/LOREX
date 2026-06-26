@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import qs from 'qs';
+import { getAxiosTestError } from './axiosTestError';
 
 jest.setTimeout(10000);
 
@@ -35,8 +36,7 @@ describe('Login', () => {
       })
       serverStatus = response.status;
     } catch (error) {
-      console.error(error);
-      throw Error("fail");
+      throw getAxiosTestError(error);
     }
 
 
@@ -56,7 +56,7 @@ describe('Login', () => {
       if (axiosError.response) {
         expect(axiosError.response.status).toBe(413);
       } else {
-        console.error(axiosError);
+        throw getAxiosTestError(error);
       }
     }
   })
@@ -71,10 +71,10 @@ describe('Login', () => {
         if (axiosError.response.data) {
           expect(JSON.stringify(axiosError.response.data)).toContain('Invalid CSRF');
         } else {
-          throw Error("fail");
+          throw new Error("Missing response data");
         }
       } else {
-        console.error(axiosError);
+        throw getAxiosTestError(error);
       }
     }
   })
@@ -91,10 +91,10 @@ describe('Login', () => {
         if (axiosError.response.data) {
           expect(JSON.stringify(axiosError.response.data)).toContain('Invalid credentials');
         } else {
-          throw Error("fail");
+          throw new Error("Missing response data");
         }
       } else {
-        console.error(axiosError);
+        throw getAxiosTestError(error);
       }
     }
   })

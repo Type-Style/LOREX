@@ -1,5 +1,6 @@
 import axios from 'axios';
 import qs from 'qs';
+import { getAxiosTestError } from './axiosTestError';
 
 // random data of 0.75Kb pre GZIP
 const randomData = qs.stringify({ 
@@ -14,8 +15,7 @@ describe('Server Status', () => {
       response = await axios.get('http://localhost:80/');
       serverStatus = response.status;
     } catch (error) {
-      console.error(error);
-      return;
+      throw getAxiosTestError(error);
     }
 
     expect(serverStatus).toBe(200);
@@ -29,7 +29,7 @@ describe('Server Status', () => {
       response = await axios.get('http://localhost:80/js/index.js');
       serverStatus = response.status;
     } catch (error) {
-      console.error(error);
+      throw getAxiosTestError(error);
     }
 
     expect(serverStatus).toBe(200);
@@ -45,7 +45,7 @@ describe('Server Status', () => {
       });
       serverStatus = response.status;
     } catch (error) {
-      console.error(error);
+      throw getAxiosTestError(error);
     }
 
     expect(serverStatus).toBe(200);

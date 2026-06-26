@@ -6,7 +6,9 @@ import chalk from "chalk";
 const dirPath = path.resolve(__dirname, '../httpdocs/log');
 const logPath = path.resolve(dirPath, 'start.txt');
 
-if (!fs.existsSync(dirPath)) {
+
+function ensureLogDir() {
+	if (fs.existsSync(dirPath)) { return; }
 	fs.mkdirSync(dirPath, { recursive: true });
 }
 
@@ -15,6 +17,7 @@ export default {
 	log: (message: string | JSON, showDateInConsole: boolean = false) => {
 		const date = new Date().toLocaleString('de-DE', { hour12: false });
 		message = JSON.stringify(message);
+		ensureLogDir();
 		fs.appendFileSync(logPath, `${date} \t|\t ${message} \n`);
 		if (showDateInConsole) {
 			message = `${chalk.dim(date + ":")} ${message}`;
@@ -29,6 +32,7 @@ export default {
 		// logfile
 		const applyErrorPrefix = !/^\[\w+\]/.test(typeof content == "string" ? content : content.message);
 		const logMessageTemplate = `${date} \t|\t${applyErrorPrefix ? ' [ERROR]' : ''} ${typeof content == "string" ? content : JSON.stringify(content.message) } \n`;
+		ensureLogDir();
 		fs.appendFileSync(logPath, logMessageTemplate);
 		if (process.env.NODE_ENV == "production") { return; }
 
