@@ -6,7 +6,7 @@ import { getTime } from '@src/scripts/time';
 import { getSpeed } from '@src/scripts/speed';
 import { getDistance } from '@src/scripts/distance';
 import { getAngle } from '@src/scripts/angle';
-import { getIgnore } from '@src/scripts/ignore';
+import { getIgnore, getIgnoreClose } from '@src/scripts/ignore';
 import logger from '@src/scripts/logger';
 import { getAddressData } from "@src/scripts/getAddressData";
 import { getPath, updateWithPathData } from "@src/scripts/getPath";
@@ -137,6 +137,17 @@ export const entry = {
       entry.time = getTime(Number(req.query.timestamp), lastEntry); // time data is needed for ignore calculation
 
       lastEntry.ignore = getIgnore(lastEntry, entry, Number(req.query.speed));
+
+      if (!lastEntry.ignore) {
+        // Issue #312: ignore the middle of three tightly-clustered entries
+        let secondToLast: Models.IEntry | undefined;
+        for (let i = entries.length - 2; i >= 0; i--) {
+          if (!entries[i].ignore) { secondToLast = entries[i]; break; }
+        }
+        if (getIgnoreClose(secondToLast, lastEntry, entry)) {
+          lastEntry.ignore = true;
+        }
+      }
 
       if (lastEntry.ignore) { // rectify or replace previousEntry with last non ignored element
         for (let i = entries.length - 1; i >= 0; i--) {

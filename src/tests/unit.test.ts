@@ -1,6 +1,7 @@
 import { checkNumber, checkTime } from "../models/entry";
 import toFixedNumber from "../scripts/toFixedNumber";
 import { checkPreconditions, reorderCoordinates } from "../scripts/getPath";
+import { getIgnoreClose } from "../scripts/ignore";
 
 
 describe("entry checkNumber", () => {
@@ -125,5 +126,60 @@ describe("getPath", () => {
 
     const result2 = checkPreconditions(lastEntry, entry);
     expect(result2).toBe(true);
+  });
+});
+
+describe("getIgnoreClose", () => {
+  /* Diagonal lat/lon offsets at lat=50 exercise ~16 m and ~22-24 m legs. */
+  const baseEntry = {
+    altitude: 0,
+    hdop: 1,
+    heading: 0,
+    index: 0,
+    lat: 50,
+    lon: 8,
+    user: "MS",
+    ignore: false,
+    eta: 0,
+    eda: 0,
+    time: { created: 0, recieved: 0, uploadDuration: 0, diff: 30, createdString: "00:00" },
+    angle: 0,
+    distance: { horizontal: 0, vertical: 0, total: 0 },
+    speed: { gps: 0, horizontal: 0, vertical: 0, total: 0, maxSpeed: 0 },
+    address: ""
+  };
+
+  const at = (latOffset: number, lonOffset: number, hdop = 1) => ({
+    ...baseEntry,
+    lat: baseEntry.lat + latOffset,
+    lon: baseEntry.lon + lonOffset,
+    hdop
+  });
+
+  const closeOffset = 0.00012;
+  const farOffset = 0.00018;
+  const hdopOffset = 0.00017;
+
+  it("returns false when prevPrev is undefined", () => {
+    expect(getIgnoreClose(undefined, at(closeOffset, closeOffset), at(closeOffset * 2, closeOffset * 2))).toBe(false);
+  });
+
+  it("returns true when all three are within ~16m diagonal legs and hdop=1", () => {
+    expect(getIgnoreClose(at(0, 0), at(closeOffset, closeOffset), at(closeOffset * 2, closeOffset * 2))).toBe(true);
+  });
+
+  it("returns false when current↔prev distance is too large", () => {
+    // dist1 ~24m > 21 (20 + hdop 1)
+    expect(getIgnoreClose(at(0, 0), at(closeOffset, closeOffset), at(closeOffset + farOffset, closeOffset + farOffset))).toBe(false);
+  });
+
+  it("returns false when prev↔prevPrev distance is too large", () => {
+    // dist2 ~24m > 21
+    expect(getIgnoreClose(at(0, 0), at(farOffset, farOffset), at(farOffset + closeOffset, farOffset + closeOffset))).toBe(false);
+  });
+
+  it("returns false when diagonal distance slightly exceeds threshold", () => {
+    // dist1 ~22m, entry.hdop=2 gives a 22m threshold.
+    expect(getIgnoreClose(at(0, 0), at(hdopOffset, hdopOffset), at(hdopOffset * 2, hdopOffset * 2, 2))).toBe(false);
   });
 });

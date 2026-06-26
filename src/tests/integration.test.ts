@@ -289,6 +289,30 @@ describe("GET /write", () => {
   });
 });
 
+describe('ignores middle entry if 3 close together', () => {
+  /*
+    Three entries clustered within ~10 m of each other at lat=50, lon=8.
+    Expected: the middle is flagged ignore=true once the third arrives.
+  */
+
+  it('marks the middle of the three as ignored', async() => {
+
+    const base = "user=CL&lon=8.000&hdop=2&altitude=10&speed=5&heading=180.0&timestamp=R3Pl4C3&key=test";
+    await callServer(undefined, `${base}&lat=50.00000`, 200, "GET");
+    await callServer(undefined, `${base}&lat=50.00009`, 200, "GET");
+    await callServer(undefined, `${base}&lat=50.00018`, 200, "GET");
+
+    const jsonData = getData(filePath);
+    const last = jsonData.entries.at(-1);
+    const middle = jsonData.entries.at(-2);
+    const first = jsonData.entries.at(-3);
+
+    expect(last.ignore).toBe(false);   // newest is always shown
+    expect(middle.ignore).toBe(true);  // middle of the cluster is dropped
+    expect(first.ignore).toBe(false);  // first of the cluster stays
+  });
+});
+
 describe('Race Condtion Check', () => {
   test(`check most recent wins`, async () => {
     const start = { lat: 52.50960, lon: 13.27457 };
