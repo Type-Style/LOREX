@@ -33,9 +33,12 @@ export const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Array<Model
 	}
 
 	return cleanEntries.map((entry, index) => {
-		if (!index || !entry.time.diff || entry.time.diff > 300) { return false; }
+		const hasPathCoordinates = entry.path?.coordinates && !entry.path.ignore && entry.path.coordinates.length > 1;
 
-		const previousEntry = cleanEntries[index - 1];
+		if (!index && !hasPathCoordinates) { return false; }
+		if (index && (!entry.time.diff || entry.time.diff > 300)) { return false; }
+
+		const previousEntry = index ? cleanEntries[index - 1] : null;
 		const color = structuredClone(startColor);
 		const currentSpeed = entry.speed.gps * 3.6; // convert to km/h
 		const calcSpeed = entry.speed.horizontal ?? entry.speed.gps * 3.6;
@@ -47,13 +50,15 @@ export const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Array<Model
 
 		let strokeDashArray:string|undefined;
 
-		let pathPositions: LatLngTuple[] = [
-			[previousEntry.lat, previousEntry.lon],
-			[entry.lat, entry.lon],
-		];
-			
-		if (entry.path?.coordinates && !entry.path.ignore && entry.path.coordinates.length > 1) {
-			pathPositions = entry.path.coordinates as LatLngTuple[];
+		let pathPositions: LatLngTuple[];
+
+		if (hasPathCoordinates) {
+			pathPositions = entry.path!.coordinates as LatLngTuple[];
+		} else {
+			pathPositions = [
+				[previousEntry!.lat, previousEntry!.lon],
+				[entry.lat, entry.lon],
+			];
 		}
 
 		if (entry.time.uploadDuration > 300 || entry.time.diff && (entry.time.diff > 100 || entry.time.diff < 25)) { strokeDashArray = "4 8"; }

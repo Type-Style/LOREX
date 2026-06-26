@@ -1,9 +1,10 @@
 import express, { Request, Response, NextFunction } from 'express';
 import * as file from '@src/scripts/file';
 import { create as createError } from '@src/middleware/error';
-import { validationResult, query } from 'express-validator';
+import { validationResult, query, matchedData } from 'express-validator';
 import { isLoggedIn } from '@src/middleware/logged-in';
 import { readSlowDown } from "@src/middleware/limit";
+import { entry } from '@src/models/entry';
 
 const router = express.Router();
 
@@ -32,6 +33,34 @@ router.get('/',
     if (req.query.index) {
       entries = entries.slice(Number(req.query.index));
     }
+
+    res.json({ entries });
+  });
+
+
+router.get('/ignore',
+  isLoggedIn,
+  [
+    query('index').isInt({ min: 0, max: 999 }).withMessage("index must be an integer between 0 and 999").toInt(),
+    query('direction').optional().isIn(["before", "after"]).withMessage("direction must be 'before' or 'after'"),
+  ],
+  async function getIgnore(req: Request, res: Response, next: NextFunction) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return createError(res, 400, JSON.stringify({ errors: errors.array() }), next);
+    }
+
+    const fileObj: File.Obj = file.getFile(res, next, "read");
+    if (fileObj.content == false) { res.json({ entries: [] }); return; }
+
+    fileObj.content = await file.readAsJson(res, fileObj.path, next);
+    if (!fileObj.content || !Array.isArray(fileObj.content.entries)) {
+      return createError(res, undefined, `File corrupt: ${fileObj.path}`, next);
+    }
+
+    const { index, direction } = matchedData(req);
+
+    const entries = entry.recalculate(fileObj.content.entries, index, direction);
 
     res.json({ entries });
   });
