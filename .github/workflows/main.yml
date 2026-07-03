@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NODE_ENV: ${{ vars.NODE_ENV }}
+      ROOT: ${{ secrets.ROOT }}
       KEY: ${{ secrets.KEY }}
       USER_TEST: ${{ secrets.USER_TEST }}
       MAPBOX: ${{ secrets.MAPBOX }}
@@ -43,6 +44,10 @@ jobs:
     - run: echo "--- base tests complete ---"
     - name: Run integration tests
       run: npm run test:integration
+    - name: Run production guard tests (local, NODE_ENV=production in-process)
+      run: npm run test:production
+    - name: Run production live tests (against ROOT)
+      run: npm run test:production:prod
       
    
     

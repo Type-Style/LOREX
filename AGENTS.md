@@ -7,10 +7,8 @@
 - Static files live in `httpdocs/`; builds copy them into ignored `dist/httpdocs/`. Runtime data is written under ignored `dist/data/`.
 
 ## Commands
-- `postinstall` patches `react-leaflet-markercluster`, so do not remove that generated node_modules fix unless the dependency changes.
 - DONT START THE Dev server expect it to be running. If not and request fail because of it, inform the user!
 - Verification for code changes: run `npm run lint`, `npm run typecheck`.
-- Focused checks: `npm run typecheck:backend`, `npm run typecheck:frontend`, `npm run test:unit`, `npm run test:app`, `npm run test:login`, `npm run test:integration`.
 - React Compiler is enabled through Vite/Babel and enforced by ESLint;
 
 ## Tests
@@ -18,8 +16,11 @@
 - Integration tests mutate `dist/data/data-YYYY-MM-DD.json` and assume today’s file state/order; remove or isolate generated `dist/data/` only when you intentionally reset test data using `npm run test:postClear`
 - `src/testData/createTestData.test.ts` is excluded from normal Jest and runs via `npm run test:data`; it sends entries every 30 seconds to a running server.
 
+### Test style 
+Avoid mocking. The tests test real functionality rather than the code itself (unless unit test). End to end style tests are prefered that actually verify the implementation over ensure the code runs as expected.
+
 ## Runtime Gotchas
 - `NODE_ENV=development` disables Helmet and allows the special write key `test`; `NODE_ENV=production` blocks `USER_TEST` login.
 
 ## Analysis output
-Use the temp folder in root of the project to output .md files for analyis.
+Use the temp folder in root of the project to output .md files for analysis.
