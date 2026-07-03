@@ -1,10 +1,11 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
+
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  modulePathIgnorePatterns: ['<rootDir>/dist/', '<rootDir>/src/testData/', '<rootDir>/src/tests/productionServer.test.ts'],
   moduleNameMapper: {
     '^@src/(.*)$': '<rootDir>/src/$1',
   },
+  testMatch: ['<rootDir>/src/tests/productionServer.test.ts'],
   bail: true
 };

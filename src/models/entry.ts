@@ -273,7 +273,7 @@ export function checkTime(value: string, { allowZero = false } = {}) {
 async function checkKey(value: string) {
   if (!value) { throw new Error('Key required'); }
   if (!process.env.KEY) { throw new Error('Configuration wrong: KEY is missing in environment variables'); }
-  if (process.env.NODE_ENV != "production" && value == "test") {
+  if (process.env.NODE_ENV == "development" && value == "test") {
     return true; // dev testing convenience 
   }
 
