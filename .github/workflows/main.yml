@@ -50,13 +50,15 @@ jobs:
     - run: echo "--- base tests complete ---"
     - name: Run integration tests
       run: npm run test:integration
-    # Browser E2E (playwright). Convention: postClear before e2e - the integration
+    # Browser E2E (playwright). Convention: clean data before e2e - the integration
     # tests fill today's data file to the 1000-entry cap, where /write silently
     # stops appending, and the e2e specs seed the entries they need themselves.
-    # The already-running server survives the wipe: the rebuild recreates dist
-    # in place and the data folder is recreated on the first /write.
+    # Locally that is npm run test:postClear; here the build is already fresh and
+    # the server (running as root for port 80) owns the runtime files, so only
+    # the data folder is cleared, with sudo. The server recreates it on the
+    # first /write (src/scripts/file.ts).
     - name: Reset test data for e2e
-      run: npm run test:postClear
+      run: sudo rm -rf dist/data
     - name: Cache playwright browser
       uses: actions/cache@v4
       with:
