@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { uiLogin } from './helpers';
 
 // The logged-in empty state: with no entries the Start page says so and renders
 // no map. An actually-empty day cannot be guaranteed on the shared dev server
@@ -10,11 +11,7 @@ test('a logged-in user without entries sees the no-data state instead of the map
 	// stub only the entries fetch (/read?...) - /read/maptoken and /read/traffictoken stay real
 	await page.route(/\/read\?/, (route) => route.fulfill({ json: { entries: [] } }));
 
-	await page.goto('/login');
-	await page.getByLabel('Username').fill('TEST');
-	await page.getByLabel('Password').fill('test');
-	await page.getByRole('button', { name: 'Login' }).click();
-	await expect(page.getByText('Logged In')).toBeVisible();
+	await uiLogin(page);
 
 	// the stubbed empty read leaves the logged-in page bare: message instead of map
 	await expect(page.getByText('No Data to be displayed')).toBeVisible();

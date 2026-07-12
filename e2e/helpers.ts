@@ -58,6 +58,18 @@ export async function writeEntry(request: APIRequestContext, params: WriteParams
 	return response;
 }
 
+// Full UI login through the /login form with the dev-only TEST account, waited
+// out to the logged-in Start page ("Logged In" appears after real bcrypt + the
+// 1s redirect). Every logged-in spec starts here; keep the credentials in sync
+// with the dev-only TEST user (src/controller/login.ts, blocked in production).
+export async function uiLogin(page: Page): Promise<void> {
+	await page.goto('/login');
+	await page.getByLabel('Username').fill('TEST');
+	await page.getByLabel('Password').fill('test');
+	await page.getByRole('button', { name: 'Login' }).click();
+	await expect(page.getByText('Logged In')).toBeVisible();
+}
+
 // Reads today's entries through the API with the jwt the UI login stored -
 // the server state, not the UI, decides seeding/skipping in the specs.
 export async function readEntries(page: Page, request: APIRequestContext): Promise<Models.IEntry[]> {

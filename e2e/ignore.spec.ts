@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { readEntries, writeEntry } from './helpers';
+import { readEntries, uiLogin, writeEntry } from './helpers';
 
 // Frontend counterpart to the server-side ignore checks: a freshly written entry
 // is always visible (the latest entry is never ignored), but once the NEXT entry
@@ -12,11 +12,7 @@ import { readEntries, writeEntry } from './helpers';
 // entry A on the map instead of joining it. Appends to today's data file:
 // run after the Jest integration suite, like map.spec.ts.
 test('a high-hdop entry loses its marker once the next entry arrives', async ({ page, request }) => {
-	await page.goto('/login');
-	await page.getByLabel('Username').fill('TEST');
-	await page.getByLabel('Password').fill('test');
-	await page.getByRole('button', { name: 'Login' }).click();
-	await expect(page.getByText('Logged In')).toBeVisible();
+	await uiLogin(page);
 
 	// this test appends two entries, but at the 1000-entry cap /write stops appending
 	// (src/controller/write.ts): A would be dropped and B would replace the last

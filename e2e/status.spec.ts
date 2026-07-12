@@ -1,15 +1,11 @@
 import { expect, test } from '@playwright/test';
-import { seedIfEmpty } from './helpers';
+import { seedIfEmpty, uiLogin } from './helpers';
 
 // The logged-in, data-rich UI in a real browser: statistics panel and the
 // bottom gps info. Seeds one entry when the day is still empty, so the spec
 // also runs standalone against a clean server.
 test('the status panel and gps info render for the logged-in user', async ({ page, request }) => {
-	await page.goto('/login');
-	await page.getByLabel('Username').fill('TEST');
-	await page.getByLabel('Password').fill('test');
-	await page.getByRole('button', { name: 'Login' }).click();
-	await expect(page.getByText('Logged In')).toBeVisible();
+	await uiLogin(page);
 
 	await seedIfEmpty(page, request);
 
