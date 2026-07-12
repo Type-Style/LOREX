@@ -73,8 +73,8 @@ export async function readEntries(page: Page, request: APIRequestContext): Promi
 // writes one default entry when the day is still empty, so specs that only read
 // find something to assert on. Reloads so the already-open page picks it up.
 // ONLY for specs whose assertions need data to exist. Never call it (or writeEntry)
-// in a spec that asserts the empty or logged-out state - and any future "No Data"
-// spec must also run before the writing specs (alphabetical file order decides).
+// in a spec that asserts the empty or logged-out state - no-data specs stub the
+// entries fetch instead of relying on an empty server (see noData.spec.ts).
 export async function seedIfEmpty(page: Page, request: APIRequestContext): Promise<Models.IEntry[]> {
 	let entries = await readEntries(page, request);
 	if (entries.length === 0) {
