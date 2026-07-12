@@ -41,9 +41,39 @@ jobs:
       run: npm run test:login
     - name: Run unit tests
       run: npm run test:unit
+    # React client tests (vitest + jsdom). The page tests log in with the
+    # dev-only TEST user, so NODE_ENV must not be production and USER_TEST
+    # must be a bcrypt hash of "test". They read from the server but never
+    # write entries, so they are safe to run before the integration tests.
+    - name: Run react client tests
+      run: npm run test:react
     - run: echo "--- base tests complete ---"
     - name: Run integration tests
       run: npm run test:integration
+    # Browser E2E (playwright). Convention: postClear before e2e - the integration
+    # tests fill today's data file to the 1000-entry cap, where /write silently
+    # stops appending, and the e2e specs seed the entries they need themselves.
+    # The already-running server survives the wipe: the rebuild recreates dist
+    # in place and the data folder is recreated on the first /write.
+    - name: Reset test data for e2e
+      run: npm run test:postClear
+    - name: Cache playwright browser
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+    - name: Install playwright browser
+      run: npx playwright install --with-deps chromium
+    - name: Run e2e tests
+      run: npm run test:e2e
+    - name: Upload playwright traces
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-results
+        path: test-results/
+        retention-days: 7
+        if-no-files-found: ignore
     - name: Run production guard tests (local, NODE_ENV=production in-process)
       run: npm run test:production
     - name: Run production live tests (against ROOT)
