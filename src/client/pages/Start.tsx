@@ -21,7 +21,8 @@ const Map = lazy(() => import('../components/Map'));
 
 const fetchIntervalMs = 1000 * 55;
 
-const getIndex = (entries: Array<Models.IEntry>): number => {
+// eslint-disable-next-line react-refresh/only-export-components -- exported for tests; dev builds use vite build --watch, no fast refresh
+export const getIndex = (entries: Array<Models.IEntry>): number => {
   if (!entries.length) { return 0; }
   const lastEntry = entries[entries.length - 1];
   const now = new Date();
