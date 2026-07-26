@@ -252,7 +252,7 @@
 
 	/* ignored entries revealed via the status table toggle: faded so they read as "not counted" */
 	& .icon.ignored {
-		opacity: 0.5;
+		opacity: 0.75;
 	}
 
 	& .icon.maxSpeed {
