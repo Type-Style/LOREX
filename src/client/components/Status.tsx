@@ -1,4 +1,5 @@
-import React, { useImperativeHandle, useState } from 'react'
+import React, { useContext, useImperativeHandle, useState } from 'react'
+import { ActionContext } from "../context";
 import { getMaxSpeed } from "../scripts/maxSpeed";
 import "../css/status.css";
 import StorageIcon from '@mui/icons-material/Storage';
@@ -106,8 +107,13 @@ function getStatusData(entries: Models.IEntry[]) {
 
 function Status({ entries, ref }: { entries: Models.IEntry[] | undefined, ref: React.Ref<{ collapseTable: () => void }> }) {
 	const [collapse, setCollapse] = useState(false);
+	const [actionObj] = useContext(ActionContext);
+	const showIgnored = actionObj?.showIgnored ?? false;
 	function collapseTable() {
 		setCollapse((prev) => !prev);
+	}
+	function toggleIgnored() {
+		actionObj?.setShowIgnored?.((prev) => !prev);
 	}
 
 	useImperativeHandle(ref, () => ({ collapseTable }));
@@ -121,11 +127,15 @@ function Status({ entries, ref }: { entries: Models.IEntry[] | undefined, ref: R
 		<div className={`wrapper ${collapse ? 'collapse' : ''}`}>
 			<table className="statusTable" >
 				<tbody>
-					<tr>
+					<tr
+						className={`dataRow ${showIgnored ? 'showIgnored' : ''}`}
+						onClick={toggleIgnored}
+						title="Toggle ignored entries on the map"
+					>
 						<td className="icon"><StorageIcon /></td>
 						<th>data</th>
 						<td>
-							{entries.length - statusData.ignoredEntries}<i className="strike" title="ignored">({statusData.ignoredEntries})</i>
+							<span className="visibleCount">{entries.length - statusData.ignoredEntries}</span><i className="strike ignoredCount" title="ignored">({statusData.ignoredEntries})</i>
 						</td>
 					</tr>
 					{statusData.uploadMean &&

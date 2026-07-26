@@ -250,6 +250,11 @@
 		filter: drop-shadow(0 0 5px var(--contrastBackground));
 	}
 
+	/* ignored entries revealed via the status table toggle: faded so they read as "not counted" */
+	& .icon.ignored {
+		opacity: 0.5;
+	}
+
 	& .icon.maxSpeed {
 		svg {
 			--fillColor: var(--alert);

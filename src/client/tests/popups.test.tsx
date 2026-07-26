@@ -17,7 +17,7 @@ const noop = () => {};
  */
 function renderPopup(ui: React.ReactElement) {
 	const contextObj = makeContext();
-	const actionContext: client.ActionContext = { entries: [], setEntries: noop };
+	const actionContext: client.ActionContext = { entries: [], setEntries: noop, showIgnored: false, setShowIgnored: noop };
 	return render(
 		<Context value={[contextObj]}>
 			<ActionContext value={[actionContext]}>{ui}</ActionContext>
