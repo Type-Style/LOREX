@@ -1,0 +1,495 @@
+{
+  "entries": [
+    {
+      "altitude": 1,
+      "hdop": 8,
+      "heading": 263,
+      "index": 0,
+      "lat": 52.51625,
+      "lon": 13.37661,
+      "user": "xx",
+      "ignore": true,
+      "eta": 1784184182923,
+      "eda": 6940,
+      "time": {
+        "created": 1784097631938,
+        "recieved": 1784097632001,
+        "uploadDuration": 0.063,
+        "createdString": "Mittwoch, 15. Juli 2026 um 08:40:32"
+      },
+      "speed": {
+        "gps": 39,
+        "maxSpeed": 50
+      },
+      "address": " Straße des 17. Juni, Berlin"
+    },
+    {
+      "altitude": 2,
+      "hdop": 5,
+      "heading": 252,
+      "index": 1,
+      "lat": 52.51492,
+      "lon": 13.356202,
+      "user": "xx",
+      "ignore": false,
+      "eta": 1784184182923,
+      "eda": 5783.3,
+      "time": {
+        "created": 1784097661937,
+        "recieved": 1784097661951,
+        "uploadDuration": 0.014,
+        "createdString": "Mittwoch, 15. Juli 2026 um 08:41:01"
+      },
+      "speed": {
+        "gps": 41.5,
+        "maxSpeed": 50
+      },
+      "address": " Straße des 17. Juni, Berlin",
+      "path": {
+        "hasFetched": false,
+        "ignore": true,
+        "ignoreReason": "Preconditions not met"
+      }
+    },
+    {
+      "altitude": 3,
+      "hdop": 0,
+      "heading": 271,
+      "index": 2,
+      "lat": 52.51359,
+      "lon": 13.335794,
+      "user": "xx",
+      "ignore": false,
+      "eta": 1784184182923,
+      "eda": 4626.7,
+      "time": {
+        "created": 1784097691941,
+        "recieved": 1784097691952,
+        "uploadDuration": 0.011,
+        "diff": 30.004,
+        "createdString": "Mittwoch, 15. Juli 2026 um 08:41:31",
+        "path": 161555
+      },
+      "angle": 263.89564342806545,
+      "distance": {
+        "horizontal": 1388.8897711322147,
+        "vertical": 1,
+        "total": 1388.8901311319394,
+        "path": 1436.032
+      },
+      "speed": {
+        "gps": 44,
+        "horizontal": 46.29015368391597,
+        "vertical": 0.03332888948140248,
+        "total": 46.290165682307006,
+        "maxSpeed": 50,
+        "path": 47.86135181975736
+      },
+      "address": " Straße des 17. Juni 106, Berlin",
+      "path": {
+        "hasFetched": true,
+        "ignore": false,
+        "ignoreReason": "",
+        "coordinates": [
+          [
+            52.514953,
+            13.356196
+          ],
+          [
+            52.514685,
+            13.352012
+          ],
+          [
+            52.514685,
+            13.351716
+          ],
+          [
+            52.514707,
+            13.351518
+          ],
+          [
+            52.514736,
+            13.351357
+          ],
+          [
+            52.51482,
+            13.350995
+          ],
+          [
+            52.51496,
+            13.35082
+          ],
+          [
+            52.515017,
+            13.350713
+          ],
+          [
+            52.515064,
+            13.350595
+          ],
+          [
+            52.515101,
+            13.350467
+          ],
+          [
+            52.515125,
+            13.350342
+          ],
+          [
+            52.51514,
+            13.350213
+          ],
+          [
+            52.515144,
+            13.350082
+          ],
+          [
+            52.515139,
+            13.349952
+          ],
+          [
+            52.515123,
+            13.349823
+          ],
+          [
+            52.515098,
+            13.349699
+          ],
+          [
+            52.515044,
+            13.349517
+          ],
+          [
+            52.514979,
+            13.349389
+          ],
+          [
+            52.51487,
+            13.349234
+          ],
+          [
+            52.514816,
+            13.349182
+          ],
+          [
+            52.514668,
+            13.349084
+          ],
+          [
+            52.514519,
+            13.3487
+          ],
+          [
+            52.514484,
+            13.348589
+          ],
+          [
+            52.514455,
+            13.348445
+          ],
+          [
+            52.514032,
+            13.342288
+          ],
+          [
+            52.513949,
+            13.341955
+          ],
+          [
+            52.513924,
+            13.341692
+          ],
+          [
+            52.51373,
+            13.338927
+          ],
+          [
+            52.513733,
+            13.338799
+          ],
+          [
+            52.51376,
+            13.338524
+          ],
+          [
+            52.513758,
+            13.338296
+          ],
+          [
+            52.513595,
+            13.335793
+          ]
+        ],
+        "time": 161555,
+        "distance": 1436.032,
+        "ascend": 0.232,
+        "descend": 0.232
+      }
+    },
+    {
+      "altitude": 4,
+      "hdop": 0,
+      "heading": 260,
+      "index": 3,
+      "lat": 52.51226,
+      "lon": 13.315386,
+      "user": "xx",
+      "ignore": false,
+      "eta": 1784184182923,
+      "eda": 3470,
+      "time": {
+        "created": 1784097721936,
+        "recieved": 1784097721947,
+        "uploadDuration": 0.011,
+        "diff": 29.995,
+        "createdString": "Mittwoch, 15. Juli 2026 um 08:42:01"
+      },
+      "angle": 263.8958268830944,
+      "distance": {
+        "horizontal": 1388.9313319509545,
+        "vertical": 1,
+        "total": 1388.9316919399068
+      },
+      "speed": {
+        "gps": 46.5,
+        "horizontal": 46.30542863647123,
+        "vertical": 0.03333888981496916,
+        "total": 46.30544063810324,
+        "maxSpeed": 50
+      },
+      "address": " Bismarckstraße, Berlin",
+      "path": {
+        "hasFetched": false,
+        "ignore": true,
+        "ignoreReason": "Preconditions not met"
+      }
+    },
+    {
+      "altitude": 5,
+      "hdop": 4,
+      "heading": 276,
+      "index": 4,
+      "lat": 52.51093,
+      "lon": 13.294978,
+      "user": "xx",
+      "ignore": false,
+      "eta": 1784184182923,
+      "eda": 2313.3,
+      "time": {
+        "created": 1784097751938,
+        "recieved": 1784097751951,
+        "uploadDuration": 0.013,
+        "diff": 30.002,
+        "createdString": "Mittwoch, 15. Juli 2026 um 08:42:31"
+      },
+      "angle": 263.8960103239241,
+      "distance": {
+        "horizontal": 1388.9728920438633,
+        "vertical": 1,
+        "total": 1388.9732520220443
+      },
+      "speed": {
+        "gps": 49,
+        "horizontal": 46.29601000079539,
+        "vertical": 0.03333111125924938,
+        "total": 46.2960219992682,
+        "maxSpeed": 50
+      },
+      "address": " Kaiserdamm 2, Berlin",
+      "path": {
+        "hasFetched": false,
+        "ignore": true,
+        "ignoreReason": "Preconditions not met"
+      }
+    },
+    {
+      "altitude": 6,
+      "hdop": 2,
+      "heading": 254,
+      "index": 5,
+      "lat": 52.5096,
+      "lon": 13.27457,
+      "user": "xx",
+      "ignore": false,
+      "eta": 1784184182923,
+      "eda": 1156.7,
+      "time": {
+        "created": 1784097781937,
+        "recieved": 1784097781947,
+        "uploadDuration": 0.01,
+        "diff": 29.999,
+        "createdString": "Mittwoch, 15. Juli 2026 um 08:43:01"
+      },
+      "angle": 263.89619375042537,
+      "distance": {
+        "horizontal": 1389.0144514112533,
+        "vertical": 1,
+        "total": 1389.0148113786638
+      },
+      "speed": {
+        "gps": 51.5,
+        "horizontal": 46.30202511454559,
+        "vertical": 0.03333444448148272,
+        "total": 46.30203711385926,
+        "maxSpeed": 50
+      },
+      "address": " Kaiserdamm 40, Berlin",
+      "path": {
+        "hasFetched": false,
+        "ignore": true,
+        "ignoreReason": "Preconditions not met"
+      }
+    },
+    {
+      "altitude": 7,
+      "hdop": 5,
+      "heading": 315,
+      "index": 6,
+      "lat": 52.516097,
+      "lon": 13.261351,
+      "user": "xx",
+      "ignore": false,
+      "eta": 0,
+      "eda": 0,
+      "time": {
+        "created": 1784097841942,
+        "recieved": 1784097841950,
+        "uploadDuration": 0.008,
+        "diff": 60.005,
+        "createdString": "Mittwoch, 15. Juli 2026 um 08:44:01",
+        "path": 131676
+      },
+      "angle": 308.92944373418436,
+      "distance": {
+        "horizontal": 1149.8376281887179,
+        "vertical": 1,
+        "total": 1149.8380630326412,
+        "path": 1173.653
+      },
+      "speed": {
+        "gps": 18.5,
+        "horizontal": 19.162363606178115,
+        "vertical": 0.016665277893508874,
+        "total": 19.162370852972938,
+        "maxSpeed": 50,
+        "path": 19.55925339555037
+      },
+      "address": " Reichsstraße 23, Berlin",
+      "path": {
+        "hasFetched": true,
+        "ignore": false,
+        "ignoreReason": "",
+        "coordinates": [
+          [
+            52.509607,
+            13.274569
+          ],
+          [
+            52.509597,
+            13.274389
+          ],
+          [
+            52.509601,
+            13.274255
+          ],
+          [
+            52.509619,
+            13.27415
+          ],
+          [
+            52.509738,
+            13.273776
+          ],
+          [
+            52.509768,
+            13.273635
+          ],
+          [
+            52.509921,
+            13.272698
+          ],
+          [
+            52.510078,
+            13.271657
+          ],
+          [
+            52.510124,
+            13.271477
+          ],
+          [
+            52.510165,
+            13.27136
+          ],
+          [
+            52.51025,
+            13.271174
+          ],
+          [
+            52.511158,
+            13.269653
+          ],
+          [
+            52.513115,
+            13.266334
+          ],
+          [
+            52.514342,
+            13.264233
+          ],
+          [
+            52.514417,
+            13.264123
+          ],
+          [
+            52.514962,
+            13.263169
+          ],
+          [
+            52.516065,
+            13.2613
+          ]
+        ],
+        "time": 131676,
+        "distance": 1173.653,
+        "ascend": 3.225,
+        "descend": 2
+      }
+    },
+    {
+      "altitude": 5000,
+      "hdop": 50,
+      "heading": 180,
+      "index": 8,
+      "lat": 52.52771,
+      "lon": 13.21033,
+      "user": "xx",
+      "ignore": false,
+      "time": {
+        "created": 1784098535567,
+        "recieved": 1784098539057,
+        "uploadDuration": 3.49,
+        "diff": 693.625,
+        "createdString": "Mittwoch, 15. Juli 2026 um 08:55:39"
+      },
+      "angle": 290.53007423570864,
+      "distance": {
+        "horizontal": 3685.5715117139193,
+        "vertical": 4993,
+        "total": 6205.923490340276
+      },
+      "speed": {
+        "gps": 30,
+        "horizontal": 5.31349289848826,
+        "vertical": 7.198414128671833,
+        "total": 8.947087389209264,
+        "maxSpeed": 50
+      },
+      "address": " Ruhlebener Straße 12, Berlin",
+      "path": {
+        "hasFetched": false,
+        "ignore": true,
+        "ignoreReason": "Preconditions not met"
+      }
+    }
+  ]
+}
