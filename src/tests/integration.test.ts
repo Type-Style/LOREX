@@ -3,6 +3,11 @@ import fs from "fs";
 import path from "path";
 import qs from "qs";
 import { axiosTestRequest, getAxiosTestError, requestStatus } from './axiosTestError';
+import { entry } from '../models/entry';
+import { getDistance } from '../scripts/distance';
+import { getTime } from '../scripts/time';
+import { getSpeed } from '../scripts/speed';
+import { getMaxSpeedSeverity } from '../scripts/maxSpeed';
 
 const date = new Date();
 const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -545,6 +550,99 @@ describe('read/ignore', () => {
   });
 });
 
+
+describe('entry.recalculate: maxSpeed severity happy path', () => {
+  /*
+    A true end-to-end /write -> Nominatim -> /read/ignore test can't reliably assert on a real
+    maxSpeed limit: getAddressData() hits the live OpenStreetMap Nominatim API and throttles
+    requests to 1 per 4s (see src/scripts/getAddressData.ts), so the returned legal speed limit
+    for any given coordinate can't be pinned down or mocked in this test file (no jest.mock is
+    set up here, and none of the other tests in this file rely on Nominatim's maxSpeed data —
+    see the Race Condition test's `expect(entry.speed.maxSpeed).toBe(undefined)` below).
+    Instead this exercises entry.recalculate() directly -- the same function used by the
+    /read/ignore route -- against entries carrying a preset speed.maxSpeed limit, to verify the
+    severity is correctly recomputed (not dropped or left stale) once a neighbor is marked ignored
+    and the entry's derived total speed changes as a result.
+  */
+  const makeEntry = (overrides: Partial<Models.IEntry>): Models.IEntry => ({
+    altitude: 0,
+    hdop: 2,
+    heading: 0,
+    index: 0,
+    lat: 0,
+    lon: 0,
+    user: "TE",
+    ignore: false,
+    eta: 0,
+    eda: 0,
+    time: { created: 0, recieved: 0, uploadDuration: 0, createdString: "" },
+    angle: 0,
+    distance: { horizontal: 0, vertical: 0, total: 0 },
+    speed: { gps: 0, horizontal: 0, vertical: 0, total: 0 },
+    address: "",
+    ...overrides,
+  });
+
+  it('recomputes maxSpeed severity for the new neighbor after a middle entry is ignored', () => {
+    const limit = 80; // km/h
+
+    const first = makeEntry({
+      index: 0,
+      lat: 52.00000,
+      lon: 13.00000,
+      time: { created: 0, recieved: 0, uploadDuration: 0, createdString: "" },
+    });
+
+    const middle = makeEntry({
+      index: 1,
+      lat: 52.01000,
+      lon: 13.00000,
+      time: { created: 15000, recieved: 0, uploadDuration: 0, createdString: "" },
+      speed: { gps: 5, horizontal: 0, vertical: 0, total: 0 },
+    });
+
+    const last = makeEntry({
+      index: 2,
+      lat: 52.02246,
+      lon: 13.00000,
+      time: { created: 30000, recieved: 0, uploadDuration: 0, createdString: "" },
+      speed: {
+        gps: 20, // moderate own gps speed, comfortably under the limit on its own
+        horizontal: 0,
+        vertical: 0,
+        total: 0,
+        // preset as already stored (e.g. computed at write-time against the short middle->last leg):
+        // comfortably under the limit, to prove the recompute below actually changes it
+        maxSpeed: { value: limit, warning: false, alert: false },
+      },
+    });
+
+    const entries = [first, middle, last];
+
+    // Ignore the middle entry -> `last`'s neighbor changes from `middle` to `first`,
+    // a much longer hop covered in the same time, driving its derived total speed up.
+    const result = entry.recalculate(entries, 1);
+
+    expect(result[1].ignore).toBe(true);
+    expect(result[0].ignore).toBe(false);
+    expect(result[2].ignore).toBe(false);
+
+    // Independently compute the expected severity using the same pure helpers recalculate()
+    // uses internally (each already covered by their own unit tests), applied to the new
+    // first->last hop, to verify entry.ts's wiring recomputes (rather than drops/carries over) it.
+    const expectedDistance = getDistance(last, first);
+    const expectedTime = getTime(last.time.created, first, last.time);
+    const expectedSpeed = getSpeed(last.speed.gps, { ...last, time: expectedTime, distance: expectedDistance });
+    const expectedMaxSpeed = getMaxSpeedSeverity({ speed: expectedSpeed, hdop: last.hdop }, limit);
+
+    // Sanity check that this scenario is meaningful: the recomputed severity should indeed
+    // have flipped from the preset "false/false" to "true/true", proving recalculation happened.
+    expect(expectedMaxSpeed.warning).toBe(true);
+    expect(expectedMaxSpeed.alert).toBe(true);
+
+    expect(result[2].speed.maxSpeed).toEqual(expectedMaxSpeed);
+  });
+});
 
 describe('API calls', () => {
   test(`1000 api calls`, async () => {

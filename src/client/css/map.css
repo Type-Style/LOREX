@@ -119,6 +119,10 @@
 		color: var(--alert);
 	}
 
+	.main {
+		color: var(--main);
+	}
+
 	.actions {
 		display: flex;
 		justify-content: flex-end;
@@ -259,7 +263,16 @@
 		}
 	}
 
-	& .icon.maxSpeed {
+	& .icon.maxSpeed.warning {
+		svg {
+			--fillColor: var(--main);
+		}
+		&.none svg {
+			--strokeColor: var(--main);
+		}
+	}
+
+	& .icon.maxSpeed.alert {
 		svg {
 			--fillColor: var(--alert);
 		}

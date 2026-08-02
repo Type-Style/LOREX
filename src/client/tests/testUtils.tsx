@@ -123,7 +123,7 @@ export const makeEntry = (overrides: Partial<Models.IEntry> = {}): Models.IEntry
 	time: { created: Date.now(), recieved: Date.now(), uploadDuration: 0.5, diff: 30, createdString: '12:00' },
 	angle: 45,
 	distance: { horizontal: 0, vertical: 0, total: 0 },
-	speed: { gps: 0, horizontal: 0, vertical: 0, total: 0, maxSpeed: 100 },
+	speed: { gps: 0, horizontal: 0, vertical: 0, total: 0, maxSpeed: { value: 100, warning: false, alert: false } },
 	address: 'Test Street, Test Town',
 	...overrides,
 });

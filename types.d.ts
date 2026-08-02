@@ -138,10 +138,25 @@ namespace Models {
 		vertical?: number,
 		total?: number,
 		/**
-		* maximum allowed speed in km/h
+		* legal speed limit (km/h) at this location plus the severity of exceeding it
 		*/
-		maxSpeed?: number,
+		maxSpeed?: Models.IMaxSpeed,
 		path?: number
+	}
+
+	interface IMaxSpeed {
+		/**
+		* legal speed limit in km/h, as retrieved from map data
+		*/
+		value: number,
+		/**
+		* the limit is clearly exceeded; rendered in the "main" color. Always true when alert is true.
+		*/
+		warning: boolean,
+		/**
+		* the limit is exceeded by a wide margin (10 km/h+); rendered in "alert" red, taking precedence over warning
+		*/
+		alert: boolean
 	}
 	interface IDistance {
 		horizontal: number,

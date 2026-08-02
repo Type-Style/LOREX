@@ -14,7 +14,6 @@ import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-markercluster/styles'
 import "../css/map.css";
 import { LayerChangeHandler } from "./LayoutChangeHandler";
-import { exceed } from "../scripts/maxSpeed";
 import { MapHideSmallCluster } from "./MapHideSmallCluster";
 import { MapZoomLimit } from "./MapZoomLimit";
 import { usePopup } from "../hooks/usePopup";
@@ -39,7 +38,8 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 		const iconSize = className != "none" ? 22 : 14;
 		className = (Date.now() - entry.time.recieved) <= 60000 ? "animate " + className : className; // when entry is recent append animate class
 
-		exceed(entry) ? className += " maxSpeed " : "";
+		if (entry.speed.maxSpeed?.alert) { className += " maxSpeed alert"; }
+		else if (entry.speed.maxSpeed?.warning) { className += " maxSpeed warning"; }
 
 		return { className, iconSize }
 	}, [cleanEntries, lastEntry]);

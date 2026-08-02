@@ -10,6 +10,7 @@ import { getIgnore, getIgnoreClose } from '@src/scripts/ignore';
 import logger from '@src/scripts/logger';
 import { getAddressData } from "@src/scripts/getAddressData";
 import { getPath, updateWithPathData } from "@src/scripts/getPath";
+import { getMaxSpeedSeverity } from "@src/scripts/maxSpeed";
 
 /*
   This variable is used for race conditions
@@ -17,6 +18,18 @@ import { getPath, updateWithPathData } from "@src/scripts/getPath";
   In case another request is faster than the previous one, the slower one will be ignored.
 */
 let lastWrittenToFile = 0;
+
+/*
+  getSpeed() returns a brand new ISpeed object with no maxSpeed field.
+  Whenever recalculate() reassigns e.speed via getSpeed(...), this restores
+  the severity (recomputed against the entry's possibly-changed speed/neighbor)
+  if the original entry had a maxSpeed limit set.
+*/
+function restoreMaxSpeedSeverity(e: Models.IEntry, originalEntry: Models.IEntry): void {
+  if (originalEntry.speed?.maxSpeed) {
+    e.speed.maxSpeed = getMaxSpeedSeverity(e, originalEntry.speed.maxSpeed.value);
+  }
+}
 
 export const entry = {
   recalculate: (entries: Models.IEntry[], index: number, direction?: "before" | "after"): Models.IEntry[] => {
@@ -65,6 +78,7 @@ export const entry = {
           ? newDistance
           : { ...newDistance, path: originalEntry.distance?.path };
         e.speed = getSpeed(e.speed.gps, e);
+        restoreMaxSpeedSeverity(e, originalEntry);
         if (!neighborChanged) { e.speed.path = originalEntry.speed?.path; }
 
         if (neighborChanged && e.path) {
@@ -88,10 +102,12 @@ export const entry = {
             // Preserve path-related properties, clear only relational ones
             e.distance = { horizontal: 0, vertical: 0, total: 0, path: originalEntry.distance?.path };
             const speed = getSpeed(e.speed.gps);
-            e.speed = { ...speed, path: originalEntry.speed?.path, maxSpeed: originalEntry.speed?.maxSpeed };
+            e.speed = { ...speed, path: originalEntry.speed?.path };
+            restoreMaxSpeedSeverity(e, originalEntry);
           } else {
             e.distance = { horizontal: 0, vertical: 0, total: 0 };
             e.speed = getSpeed(e.speed.gps);
+            restoreMaxSpeedSeverity(e, originalEntry);
             if (e.path) {
               e.path = { hasFetched: e.path.hasFetched, ignore: true, ignoreReason: "♻ Neighbor changed due to manual ignore" };
               e.time = { ...e.time, path: undefined };
@@ -184,7 +200,7 @@ export const entry = {
 
     entry.address = address;
     if (maxSpeed) {
-      entry.speed.maxSpeed = maxSpeed;
+      entry.speed.maxSpeed = getMaxSpeedSeverity(entry, maxSpeed);
     }
 
     if (pathData) {

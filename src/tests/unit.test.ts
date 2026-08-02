@@ -2,6 +2,7 @@ import { checkNumber, checkTime } from "../models/entry";
 import toFixedNumber from "../scripts/toFixedNumber";
 import { checkPreconditions, reorderCoordinates } from "../scripts/getPath";
 import { getIgnoreClose } from "../scripts/ignore";
+import { getMaxSpeedSeverity } from "../scripts/maxSpeed";
 
 
 describe("entry checkNumber", () => {
@@ -91,8 +92,7 @@ describe("getPath", () => {
         "gps": 0,
         "horizontal": 0,
         "vertical": 0,
-        "total": 1,
-        "maxSpeed": 0
+        "total": 1
       },
       "address": "nowhere"
     }
@@ -145,7 +145,7 @@ describe("getIgnoreClose", () => {
     time: { created: 0, recieved: 0, uploadDuration: 0, diff: 30, createdString: "00:00" },
     angle: 0,
     distance: { horizontal: 0, vertical: 0, total: 0 },
-    speed: { gps: 0, horizontal: 0, vertical: 0, total: 0, maxSpeed: 0 },
+    speed: { gps: 0, horizontal: 0, vertical: 0, total: 0 },
     address: ""
   };
 
@@ -181,5 +181,45 @@ describe("getIgnoreClose", () => {
   it("returns false when diagonal distance slightly exceeds threshold", () => {
     // dist1 ~22m, entry.hdop=2 gives a 22m threshold.
     expect(getIgnoreClose(at(0, 0), at(hdopOffset, hdopOffset), at(hdopOffset * 2, hdopOffset * 2, 2))).toBe(false);
+  });
+});
+
+describe("getMaxSpeedSeverity", () => {
+  const speedEntry = (gps: number, hdop: number, total?: number) => ({
+    speed: { gps, total },
+    hdop
+  });
+
+  it("returns warning=false, alert=false when comfortably under the limit", () => {
+    // 10 m/s -> 36 km/h, hdop=1, limit=100
+    const entry = speedEntry(10, 1);
+    expect(getMaxSpeedSeverity(entry, 100)).toEqual({ value: 100, warning: false, alert: false });
+  });
+
+  it("returns warning=true, alert=false when moderately exceeding the limit", () => {
+    // 29 m/s -> 104.4 km/h -> floor 104
+    // alert: floor(104 - 1*1) = 103, not > limit+10 (110) -> false
+    // warning: floor(104 - 1*1.5) = 102, > limit (100) -> true
+    const entry = speedEntry(29, 1);
+    expect(getMaxSpeedSeverity(entry, 100)).toEqual({ value: 100, warning: true, alert: false });
+  });
+
+  it("returns warning=true AND alert=true when the limit is exceeded by a wide margin, even with a large hdop", () => {
+    // 25.6 m/s -> 92.16 km/h -> floor 92, hdop=30, limit=50
+    // alert: floor(92 - 30*1) = 62, > limit+10 (60) -> true
+    // warning without the "alert ||" fallback: floor(92 - 30*1.5) = 47, NOT > 50 -> would be false
+    // this asserts warning is still forced true via the OR-with-alert construction
+    const entry = speedEntry(25.6, 30);
+    expect(getMaxSpeedSeverity(entry, 50)).toEqual({ value: 50, warning: true, alert: true });
+  });
+
+  it("uses the harmonic mean of gps and total speed when total is present", () => {
+    // gps 27 m/s -> 97.2 km/h, total 33 m/s -> 118.8 km/h
+    // harmonic mean = 2*(97.2*118.8)/(97.2+118.8) = 106.92 -> raw = floor(106.92) = 106
+    // (without the harmonic mean, raw would be floor(97.2) = 97, and warning would be false)
+    // warning: floor(106 - 1*1.5) = 104, > limit (100) -> true
+    // alert:   floor(106 - 1*1)   = 105, NOT > limit+10 (110) -> false
+    const entry = speedEntry(27, 1, 33);
+    expect(getMaxSpeedSeverity(entry, 100)).toEqual({ value: 100, warning: true, alert: false });
   });
 });
