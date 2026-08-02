@@ -250,9 +250,13 @@
 		filter: drop-shadow(0 0 5px var(--contrastBackground));
 	}
 
-	/* ignored entries revealed via the status table toggle: faded so they read as "not counted" */
-	& .icon.ignored {
-		opacity: 0.75;
+	& .icon.ignored,
+	& .icon.maxSpeed {
+		&.none svg {
+			--fillColor: inherit;
+			stroke: var(--strokeColor);
+			stroke-width: 15px;
+		}
 	}
 
 	& .icon.maxSpeed {
@@ -260,12 +264,19 @@
 			--fillColor: var(--alert);
 		}
 		&.none svg {
-			--fillColor: inherit;
-			stroke: var(--alert);
-    	stroke-width: 15px;
+			--strokeColor: var(--alert);
 		}
+	}
 
-
+	/* ignored entries revealed via the status table toggle */
+	& .icon.ignored {
+		opacity: 0.75;
+		svg {
+			--fillColor: var(--info);
+		}
+		&.none svg {
+			--strokeColor: var(--info);
+		}
 	}
 
 	&.geoLocation {
