@@ -26,7 +26,8 @@ function IgnoreActions({ entries }: { entries: Models.IEntry[] }) {
 
 function IgnoreHarness() {
 	const [entries, setEntries] = useState<Models.IEntry[]>([]);
-	const actionContext: client.ActionContext = { entries, setEntries };
+	const [showIgnored, setShowIgnored] = useState(false);
+	const actionContext: client.ActionContext = { entries, setEntries, showIgnored, setShowIgnored };
 
 	return (
 		<StatefulContext initialLoggedIn={true}>

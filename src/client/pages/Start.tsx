@@ -42,9 +42,10 @@ function Start() {
   const [contextObj] = useContext(Context);
   const [messageObj, setMessageObj] = useState<Omit<client.entryData, 'fetchTimeData'>>({ isError: false, status: 200, message: "" });
   const [entries, setEntries] = useState<Array<Models.IEntry>>([]);
+  const [showIgnored, setShowIgnored] = useState(false);
   const [fetchTimes, setFetchTimes] = useState<{ last: number | undefined, next: number | undefined }>({ last: undefined, next: undefined });
 
-  const actionContext: client.ActionContext = { entries, setEntries };
+  const actionContext: client.ActionContext = { entries, setEntries, showIgnored, setShowIgnored };
 
   const index = getIndex(entries);
 

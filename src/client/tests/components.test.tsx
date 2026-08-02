@@ -7,7 +7,7 @@ import ModeSwitcher from '../components/ModeSwitcher';
 import LinearBuffer from '../components/LinearBuffer';
 import { Icon } from '../components/Icon';
 import Status from '../components/Status';
-import { Context } from '../context';
+import { ActionContext, Context } from '../context';
 import { getModeButton, makeContext, makeEntry, renderWithContext } from './testUtils';
 
 describe('Message', () => {
@@ -226,5 +226,50 @@ describe('Status', () => {
 
 		act(() => ref.current?.collapseTable());
 		expect(container.querySelector('.wrapper')?.className).toContain('collapse');
+	});
+});
+
+/** Real showIgnored state behind the ActionContext so clicking the data row actually toggles it. */
+function StatusWithToggle({ entries }: { entries: Models.IEntry[] }) {
+	const [showIgnored, setShowIgnored] = useState(false);
+	const actionContext: client.ActionContext = { entries, setEntries: () => {}, showIgnored, setShowIgnored };
+
+	return (
+		<ActionContext value={[actionContext]}>
+			<Status entries={entries} ref={React.createRef()} />
+		</ActionContext>
+	);
+}
+
+describe('Status ignored toggle', () => {
+	it('marks the visible count by default and strikes the ignored count', () => {
+		const { container } = render(<StatusWithToggle entries={entriesWithPause()} />);
+
+		const dataRow = screen.getByText('data').closest('tr');
+		expect(dataRow).not.toHaveClass('showIgnored');
+		expect(container.querySelector('.visibleCount')?.textContent).toBe('2');
+		expect(container.querySelector('.ignoredCount')).toHaveClass('strike');
+		expect(dataRow?.textContent).toContain('2(1)');
+	});
+
+	it('toggles the showIgnored state when the data row is clicked', async () => {
+		const user = userEvent.setup();
+		render(<StatusWithToggle entries={entriesWithPause()} />);
+
+		const dataRow = screen.getByText('data').closest('tr')!;
+		await user.click(dataRow);
+		expect(dataRow).toHaveClass('showIgnored');
+
+		await user.click(dataRow);
+		expect(dataRow).not.toHaveClass('showIgnored');
+	});
+
+	it('does not crash when rendered without an action context', async () => {
+		const user = userEvent.setup();
+		render(<Status entries={entriesWithPause()} ref={React.createRef()} />);
+
+		const dataRow = screen.getByText('data').closest('tr')!;
+		await user.click(dataRow); // no provider: click is a safe no-op
+		expect(dataRow).not.toHaveClass('showIgnored');
 	});
 });
