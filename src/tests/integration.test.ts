@@ -642,6 +642,44 @@ describe('entry.recalculate: maxSpeed severity happy path', () => {
 
     expect(result[2].speed.maxSpeed).toEqual(expectedMaxSpeed);
   });
+
+  it('leaves legacy numeric maxSpeed alone instead of storing a false "not speeding" result', () => {
+    // Entries written before this feature persist speed.maxSpeed as a plain number.
+    // Simulate that on-disk shape surviving into a recalculate() pass (e.g. an entry
+    // whose neighbor gets ignored before it's ever rewritten by create()).
+    const legacyLimit = 50;
+
+    const first = makeEntry({ index: 0, lat: 52.00000, lon: 13.00000 });
+
+    const middle = makeEntry({
+      index: 1,
+      lat: 52.01000,
+      lon: 13.00000,
+      time: { created: 15000, recieved: 0, uploadDuration: 0, createdString: "" },
+      speed: { gps: 5, horizontal: 0, vertical: 0, total: 0 },
+    });
+
+    const last = makeEntry({
+      index: 2,
+      lat: 52.02246,
+      lon: 13.00000,
+      time: { created: 30000, recieved: 0, uploadDuration: 0, createdString: "" },
+      speed: {
+        gps: 20,
+        horizontal: 0,
+        vertical: 0,
+        total: 0,
+        maxSpeed: legacyLimit as unknown as Models.IMaxSpeed, // pre-migration on-disk shape
+      },
+    });
+
+    const result = entry.recalculate([first, middle, last], 1);
+
+    // Must not become `{ value: undefined, warning: false, alert: false }` - that would
+    // read as a confidently-computed "under the limit", which is wrong: severity was
+    // never actually evaluated for this legacy value.
+    expect(result[2].speed.maxSpeed).toBeUndefined();
+  });
 });
 
 describe('API calls', () => {

@@ -26,8 +26,12 @@ let lastWrittenToFile = 0;
   if the original entry had a maxSpeed limit set.
 */
 function restoreMaxSpeedSeverity(e: Models.IEntry, originalEntry: Models.IEntry): void {
-  if (originalEntry.speed?.maxSpeed) {
-    e.speed.maxSpeed = getMaxSpeedSeverity(e, originalEntry.speed.maxSpeed.value);
+  const maxSpeed = originalEntry.speed?.maxSpeed;
+  // Guard against pre-existing persisted entries where maxSpeed is still a plain number
+  // (from before this field became an object) - skip rather than recompute against `.value`
+  // being undefined, which would otherwise silently store a false "not speeding" result.
+  if (maxSpeed && typeof maxSpeed === "object") {
+    e.speed.maxSpeed = getMaxSpeedSeverity(e, maxSpeed.value);
   }
 }
 

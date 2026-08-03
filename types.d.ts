@@ -158,6 +158,7 @@ namespace Models {
 		*/
 		alert: boolean
 	}
+
 	interface IDistance {
 		horizontal: number,
 		vertical: number,
