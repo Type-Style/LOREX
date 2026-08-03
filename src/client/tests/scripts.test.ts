@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { timeAgo } from '../scripts/timeAgo';
 import { getDistance } from '../scripts/getDistance';
-import { exceed, getMaxSpeed } from '../scripts/maxSpeed';
+import { getMaxSpeed } from '../scripts/maxSpeed';
 import { convertJwt } from '../scripts/convertJwt';
 import { layers } from '../scripts/layers';
 import { makeEntry, makeFakeJwt } from './testUtils';
@@ -124,7 +124,7 @@ describe('getDistance', () => {
 
 describe('getMaxSpeed', () => {
 	const gpsEntry = (gps: number): Models.IEntry =>
-		makeEntry({ speed: { gps, horizontal: 0, vertical: 0, total: 0, maxSpeed: 100 } });
+		makeEntry({ speed: { gps, horizontal: 0, vertical: 0, total: 0, maxSpeed: { value: 100, warning: false, alert: false } } });
 
 	it('returns the highest gps speed converted to km/h', () => {
 		const entries = [gpsEntry(10), gpsEntry(25), gpsEntry(15)];
@@ -138,41 +138,6 @@ describe('getMaxSpeed', () => {
 		const expectedKmh = 36; // 10 m/s * 3.6
 
 		expect(getMaxSpeed(entries)).toBeCloseTo(expectedKmh, 9);
-	});
-});
-
-describe('exceed', () => {
-	const speedEntry = (gps: number, maxSpeed: number, total = 0, hdop = 1): Models.IEntry =>
-		makeEntry({ speed: { gps, horizontal: 0, vertical: 0, total, maxSpeed }, hdop });
-
-	it('returns false when no maxSpeed limit is known', () => {
-		const noLimit = speedEntry(30, 0);
-
-		expect(exceed(noLimit)).toBe(false);
-	});
-
-	it('returns true when the floored, hdop-reduced speed exceeds the limit', () => {
-		// 28.5 m/s -> 102.6 km/h -> floor 102 -> minus hdop 1 -> 101 > 100
-		const justAboveLimit = speedEntry(28.5, 100);
-
-		expect(exceed(justAboveLimit)).toBe(true);
-	});
-
-	it('returns false when the reduced speed only reaches the limit', () => {
-		// 28.2 m/s -> 101.52 km/h -> floor 101 -> minus hdop 1 -> 100, not above 100
-		const exactlyAtLimit = speedEntry(28.2, 100);
-
-		expect(exceed(exactlyAtLimit)).toBe(false);
-	});
-
-	it('uses the harmonic mean of gps and total speed when total is present', () => {
-		// gps alone: 97.2 km/h -> floor 97 -> minus hdop 1 -> 96, below the limit
-		const gpsOnly = speedEntry(27, 100);
-		// harmonic mean of 97.2 and 108 km/h is ~102.3 -> floor 102 -> minus hdop 1 -> 101 > 100
-		const withTotal = speedEntry(27, 100, 30);
-
-		expect(exceed(gpsOnly)).toBe(false);
-		expect(exceed(withTotal)).toBe(true);
 	});
 });
 

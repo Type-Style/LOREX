@@ -58,25 +58,28 @@ describe('PopupInfo', () => {
 
 describe('PopupSpeed', () => {
 	it('converts gps speed to km/h and shows the calculated row only with a total', () => {
-		render(<PopupSpeed entry={makeEntry({ speed: { gps: 10, horizontal: 0, vertical: 0, total: 20, maxSpeed: 100 } })} />);
+		render(<PopupSpeed entry={makeEntry({ speed: { gps: 10, horizontal: 0, vertical: 0, total: 20, maxSpeed: { value: 100, warning: false, alert: false } } })} />);
 
 		expect(screen.getByText('Calculated').nextElementSibling).toHaveTextContent('72.0 km/h'); // 20 * 3.6
 		expect(screen.getByText('GPS').nextElementSibling).toHaveTextContent('36.0 km/h'); // 10 * 3.6
 	});
 
 	it('omits the calculated row when there is no total speed', () => {
-		render(<PopupSpeed entry={makeEntry({ speed: { gps: 10, horizontal: 0, vertical: 0, total: 0, maxSpeed: 100 } })} />);
+		render(<PopupSpeed entry={makeEntry({ speed: { gps: 10, horizontal: 0, vertical: 0, total: 0, maxSpeed: { value: 100, warning: false, alert: false } } })} />);
 
 		expect(screen.queryByText('Calculated')).not.toBeInTheDocument();
 	});
 
-	it('alerts the max-speed row only when the entry exceeds the limit', () => {
-		// 28.5 m/s -> 102.6 km/h -> floor 102 - hdop 1 -> 101 > 100 (mirrors exceed() in scripts.test)
-		const speeding = render(<PopupSpeed entry={makeEntry({ hdop: 1, speed: { gps: 28.5, horizontal: 0, vertical: 0, total: 0, maxSpeed: 100 } })} />);
-		expect(within(speeding.container).getByText('100.0 km/h')).toHaveClass('alert');
+	it('classes the max-speed row by the precomputed severity, alert taking precedence over warning', () => {
+		const alerting = render(<PopupSpeed entry={makeEntry({ speed: { gps: 28.5, horizontal: 0, vertical: 0, total: 0, maxSpeed: { value: 100, warning: true, alert: true } } })} />);
+		expect(within(alerting.container).getByText('100.0 km/h')).toHaveClass('alert');
 
-		const cruising = render(<PopupSpeed entry={makeEntry({ hdop: 1, speed: { gps: 10, horizontal: 0, vertical: 0, total: 0, maxSpeed: 100 } })} />);
+		const warning = render(<PopupSpeed entry={makeEntry({ speed: { gps: 28.5, horizontal: 0, vertical: 0, total: 0, maxSpeed: { value: 100, warning: true, alert: false } } })} />);
+		expect(within(warning.container).getByText('100.0 km/h')).toHaveClass('main');
+
+		const cruising = render(<PopupSpeed entry={makeEntry({ speed: { gps: 10, horizontal: 0, vertical: 0, total: 0, maxSpeed: { value: 100, warning: false, alert: false } } })} />);
 		expect(within(cruising.container).getByText('100.0 km/h')).not.toHaveClass('alert');
+		expect(within(cruising.container).getByText('100.0 km/h')).not.toHaveClass('main');
 	});
 });
 

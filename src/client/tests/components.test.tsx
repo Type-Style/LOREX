@@ -145,7 +145,7 @@ function statusEntry(index: number, values: {
 		ignore: values.ignore ?? false,
 		eta: values.eta,
 		eda: values.eda,
-		speed: { gps: values.gps, horizontal: values.horizontal, vertical: 0, total: values.horizontal, maxSpeed: 100 },
+		speed: { gps: values.gps, horizontal: values.horizontal, vertical: 0, total: values.horizontal, maxSpeed: { value: 100, warning: false, alert: false } },
 		distance: { horizontal: values.horizontalDist, vertical: values.verticalDist, total: values.horizontalDist },
 		time: { created: Date.now(), recieved: Date.now(), uploadDuration: values.upload, diff: values.diff, createdString: '12:00' },
 	});
