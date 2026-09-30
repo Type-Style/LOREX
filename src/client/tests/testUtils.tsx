@@ -9,7 +9,8 @@ import { Context } from '../context';
 export const TEST_USER = 'TEST';
 export const TEST_PASSWORD = 'test';
 
-const noop = () => {};
+// Read-only component fixtures need context setters but do not update shared state.
+const ignoreStateUpdate = () => {};
 
 /** Mirrors the effective theme of the real app entry (src/client/index.tsx) - keep in sync. */
 export const testTheme = extendTheme({
@@ -21,11 +22,11 @@ export const testTheme = extendTheme({
 
 export const makeContext = (overrides: Partial<client.AppContext> = {}): client.AppContext => ({
 	isLoggedIn: false,
-	setLogin: noop,
+	setLogin: ignoreStateUpdate,
 	userInfo: false,
-	setUserInfo: noop,
+	setUserInfo: ignoreStateUpdate,
 	mode: 'light',
-	setMode: noop,
+	setMode: ignoreStateUpdate,
 	prefersDarkMode: false,
 	mapToken: null,
 	trafficToken: null,
@@ -93,12 +94,8 @@ export function StatefulContext({ initialLoggedIn = false, initialUserInfo = fal
 	);
 }
 
-/**
- * The ModeSwitcher button is visibility:hidden at mobile widths (icon-only css
- * module; only its inner span is visible) and jsdom matches no media queries,
- * so role queries with an accessible name cannot find it - query the visible
- * mode label and walk up to the button instead.
- */
+// Find the button containing the mode label; jsdom cannot resolve its responsive visibility.
+// Playwright checks the visible control and resulting theme on desktop and mobile.
 export function getModeButton(mode: string): HTMLButtonElement {
 	const button = screen.getByText(mode).closest('button');
 	if (!button) { throw new Error(`no button wraps the mode label "${mode}"`); }

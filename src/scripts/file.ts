@@ -4,6 +4,7 @@ import { promisify } from 'util';
 import { create as createError } from '@src/middleware/error';
 import { NextFunction, Response } from 'express';
 import logger from '@src/scripts/logger';
+import { getMaxSpeedSeverity } from '@src/scripts/maxSpeed';
 
 export const getFile = (res: Response, next: NextFunction, method: File.method): File.Obj => {
 	const date = new Date();
@@ -45,7 +46,16 @@ export async function readAsJson(res: Response, filePath: string, next: NextFunc
 	const data = await readFileAsync(filePath, 'utf-8');
 
 	try {
-		return JSON.parse(data);
+		const content: Models.IEntries = JSON.parse(data);
+		// Upgrade pre-severity files in memory for reads, recalculation and subsequent writes.
+		if (Array.isArray(content?.entries)) {
+			for (const entry of content.entries) {
+				if (typeof entry.speed?.maxSpeed === 'number') {
+					entry.speed.maxSpeed = getMaxSpeedSeverity(entry, entry.speed.maxSpeed);
+				}
+			}
+		}
+		return content;
 	} catch (err) {
 		createError(res, 500, "File contains wrong content: " + path.basename(filePath), next);
 	}

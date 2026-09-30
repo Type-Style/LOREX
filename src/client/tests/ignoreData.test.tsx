@@ -1,78 +1,67 @@
 import React, { useState } from 'react';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import axios from 'axios';
 import { ActionContext } from '../context';
 import { useIgnoreData } from '../hooks/useData';
-import { realLogin, StatefulContext } from './testUtils';
+import { makeEntry, StatefulContext } from './testUtils';
 
-// Real requests against /read and /read/ignore. The ignore recalculation is
-// view-only on the server (never written to the data file), so this suite is
-// safe to run on any day, in any order.
 
-function IgnoreActions({ entries }: { entries: Models.IEntry[] }) {
+function IgnoreActions() {
 	const { ignoreData, resetData } = useIgnoreData();
+	const [result, setResult] = useState<Omit<client.entryData, 'fetchTimeData'> | null>(null);
+
+	const runFetch = async (action: 'reset' | 'ignore') => {
+		setResult(null);
+		setResult(await (action === 'reset' ? resetData() : ignoreData(0)));
+	};
 
 	return (
 		<>
-			<button onClick={() => void resetData()}>reset</button>
-			<button onClick={() => void ignoreData(0)}>ignore-first</button>
-			<span data-testid="count">{String(entries.length)}</span>
-			<span data-testid="firstIgnore">{String(entries[0]?.ignore)}</span>
+			<button onClick={() => void runFetch('reset')}>reset</button>
+			<button onClick={() => void runFetch('ignore')}>ignore</button>
+			<span data-testid="result">{result ? JSON.stringify(result) : 'pending'}</span>
 		</>
 	);
 }
 
-function IgnoreHarness() {
-	const [entries, setEntries] = useState<Models.IEntry[]>([]);
+function Ignore({ initialEntries }: { initialEntries: Models.IEntry[] }) {
+	const [entries, setEntries] = useState(initialEntries);
 	const [showIgnored, setShowIgnored] = useState(false);
 	const actionContext: client.ActionContext = { entries, setEntries, showIgnored, setShowIgnored };
 
 	return (
-		<StatefulContext initialLoggedIn={true}>
+		<StatefulContext initialLoggedIn={true} probe={true}>
 			<ActionContext value={[actionContext]}>
-				<IgnoreActions entries={entries} />
+				<IgnoreActions />
+				<span data-testid="entries">{JSON.stringify(entries)}</span>
 			</ActionContext>
 		</StatefulContext>
 	);
 }
 
-describe('useIgnoreData (E2E against the real dev server)', () => {
-	let serverEntries: Models.IEntry[];
-
-	beforeAll(async () => {
-		const token = await realLogin();
-		localStorage.setItem('jwt', token);
-
-		const response = await axios.get<Models.IEntries>('/read?index=0', {
-			headers: { Authorization: `Bearer ${token}` },
-		});
-		serverEntries = response.data.entries;
-	});
-
-	afterAll(() => {
+// These requests reach the real server, but have no token and cannot change its data.
+describe('useIgnoreData without a login (real server)', () => {
+	beforeEach(() => {
 		localStorage.removeItem('jwt');
 	});
 
-	it('resetData loads the full entry list into the action context', async () => {
+	it.each(['reset', 'ignore'])('%s reports rejection, logs out and preserves entries', async (action) => {
+		const entries = [makeEntry(), makeEntry({ index: 1, ignore: true })];
 		const user = userEvent.setup();
-		const expectedCount = String(serverEntries.length);
-		render(<IgnoreHarness />);
+		render(<Ignore initialEntries={entries} />);
 
-		await user.click(screen.getByText('reset'));
+		expect(screen.getByTestId('isLoggedIn')).toHaveTextContent(/^true$/);
+		expect(screen.getByTestId('result')).toHaveTextContent(/^pending$/);
 
-		await waitFor(() => expect(screen.getByTestId('count')).toHaveTextContent(new RegExp(`^${expectedCount}$`)));
-	});
+		await user.click(screen.getByRole('button', { name: action }));
 
-	it('ignoreData delivers a set where the requested entry is marked ignored', async () => {
-		const user = userEvent.setup();
-		// with data the first entry comes back ignore:true, without data the probe stays undefined
-		const expectedFirstIgnore = serverEntries.length ? 'true' : 'undefined';
-		render(<IgnoreHarness />);
-
-		await user.click(screen.getByText('ignore-first'));
-
-		await waitFor(() => expect(screen.getByTestId('firstIgnore')).toHaveTextContent(expectedFirstIgnore));
+		await waitFor(() => expect(screen.getByTestId('result').textContent).toBe(JSON.stringify({
+			isError: true,
+			status: 401,
+			message: 'Please reLogin',
+		})));
+		expect(screen.getByTestId('isLoggedIn')).toHaveTextContent(/^false$/);
+		expect(JSON.parse(screen.getByTestId('entries').textContent!)).toEqual(entries);
 	});
 });

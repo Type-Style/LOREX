@@ -595,7 +595,7 @@ describe('entry.recalculate: maxSpeed severity happy path', () => {
 
     const middle = makeEntry({
       index: 1,
-      lat: 52.01000,
+      lat: 52.02200,
       lon: 13.00000,
       time: { created: 15000, recieved: 0, uploadDuration: 0, createdString: "" },
       speed: { gps: 5, horizontal: 0, vertical: 0, total: 0 },
@@ -611,16 +611,20 @@ describe('entry.recalculate: maxSpeed severity happy path', () => {
         horizontal: 0,
         vertical: 0,
         total: 0,
-        // preset as already stored (e.g. computed at write-time against the short middle->last leg):
-        // comfortably under the limit, to prove the recompute below actually changes it
-        maxSpeed: { value: limit, warning: false, alert: false },
       },
     });
 
+    last.time = getTime(last.time.created, middle, last.time);
+    last.distance = getDistance(last, middle);
+    last.speed = getSpeed(last.speed.gps, last);
+    last.speed.maxSpeed = getMaxSpeedSeverity(last, limit);
+    expect(last.speed.maxSpeed).toEqual({ value: limit, warning: false, alert: false });
+
     const entries = [first, middle, last];
+    const original = structuredClone(entries);
 
     // Ignore the middle entry -> `last`'s neighbor changes from `middle` to `first`,
-    // a much longer hop covered in the same time, driving its derived total speed up.
+    // a much longer hop over twice the elapsed time, driving its derived total speed up.
     const result = entry.recalculate(entries, 1);
 
     expect(result[1].ignore).toBe(true);
@@ -636,14 +640,15 @@ describe('entry.recalculate: maxSpeed severity happy path', () => {
     const expectedMaxSpeed = getMaxSpeedSeverity({ speed: expectedSpeed, hdop: last.hdop }, limit);
 
     // Sanity check that this scenario is meaningful: the recomputed severity should indeed
-    // have flipped from the preset "false/false" to "true/true", proving recalculation happened.
+    // have flipped from the derived "false/false" to "true/true", proving recalculation happened.
     expect(expectedMaxSpeed.warning).toBe(true);
     expect(expectedMaxSpeed.alert).toBe(true);
 
     expect(result[2].speed.maxSpeed).toEqual(expectedMaxSpeed);
+    expect(entries).toEqual(original);
   });
 
-  it('leaves legacy numeric maxSpeed alone instead of storing a false "not speeding" result', () => {
+  it('preserves and recomputes legacy numeric maxSpeed when a neighbor is ignored', () => {
     // Entries written before this feature persist speed.maxSpeed as a plain number.
     // Simulate that on-disk shape surviving into a recalculate() pass (e.g. an entry
     // whose neighbor gets ignored before it's ever rewritten by create()).
@@ -675,10 +680,8 @@ describe('entry.recalculate: maxSpeed severity happy path', () => {
 
     const result = entry.recalculate([first, middle, last], 1);
 
-    // Must not become `{ value: undefined, warning: false, alert: false }` - that would
-    // read as a confidently-computed "under the limit", which is wrong: severity was
-    // never actually evaluated for this legacy value.
-    expect(result[2].speed.maxSpeed).toBeUndefined();
+    expect(result[2].speed.maxSpeed).toEqual({ value: legacyLimit, warning: true, alert: true });
+    expect(last.speed.maxSpeed).toBe(legacyLimit);
   });
 });
 
