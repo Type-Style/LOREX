@@ -7,9 +7,6 @@ import App, { loginDefault } from '../components/App';
 import { getModeButton, testTheme } from './testUtils';
 
 // Mirrors src/client/index.tsx: App inside a css-variables ThemeProvider.
-// With an empty localStorage the app is deterministically logged out and the
-// router (created against jsdom's http://localhost/) renders Start at "/".
-
 function renderApp() {
 	return render(
 		<ThemeProvider theme={testTheme}>
@@ -24,7 +21,7 @@ describe('loginDefault', () => {
 
 		expect(loginDefault(false)).toBe(false); // no jwt in storage
 		expect(loginDefault({ user: 'TEST', exp: nowInSeconds + 3600 })).toBe(true);
-		expect(loginDefault({ user: 'TEST', exp: nowInSeconds - 3600 })).toBe(false);
+		expect(loginDefault({ user: 'TEST', exp: nowInSeconds - 3600 })).toBe(false); // invalid timedout token
 	});
 });
 

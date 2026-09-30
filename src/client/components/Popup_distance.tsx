@@ -2,19 +2,21 @@ import React from 'react'
 import { getDistance } from "../scripts/getDistance";
 
 export default function PopupDistance({ entry, cleanEntries }: { entry: Models.IEntry, cleanEntries: Models.IEntry[] }) {
+  // Entry indices retain trip order even when the selected point is ignored.
+  const entriesThroughCurrent = cleanEntries.filter(point => point.index <= entry.index);
   return (
     <>
       {entry.distance ? (
         <>
           <dt>Separation</dt>
           <dd>{`${(entry.distance.total / 1000).toFixed(2)} km`}</dd>
-          {entry.distance.horizontal && (
+          {typeof entry.distance.horizontal === "number" && (
             <>
               <dt className="small">Horizontal</dt>
               <dd className="small">{`${(entry.distance.horizontal / 1000).toFixed(2)} km`}</dd>
             </>
           )}
-          {typeof entry.distance.vertical === "number" &&  entry.distance.vertical && (
+          {typeof entry.distance.vertical === "number" && (
             <>
               <dt className="small">Vertical</dt>
               <dd className="small">{`${(entry.distance.vertical / 1000).toFixed(1)} km`}</dd>
@@ -29,8 +31,8 @@ export default function PopupDistance({ entry, cleanEntries }: { entry: Models.I
           
           <dt>Ongoing</dt>
           <dd>
-            {`${getDistance(cleanEntries, cleanEntries.indexOf(entry)).toFixed(2)} km`}
-            <div className="small">w/o Pause: {`${getDistance(cleanEntries, cleanEntries.indexOf(entry), true).toFixed(2)} km`}</div>
+            {`${getDistance(entriesThroughCurrent).toFixed(2)} km`}
+            <div className="small">w/o Pause: {`${getDistance(entriesThroughCurrent, undefined, true).toFixed(2)} km`}</div>
           </dd>
 
           {typeof entry.eda === "number" && Math.round(entry.eda) > 0 && (

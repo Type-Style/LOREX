@@ -1,45 +1,90 @@
-import { expect, test } from '@playwright/test';
-import { readEntries, uiLogin, writeEntry } from './helpers';
+import { expect, test, Page } from '@playwright/test';
+import { ageEntries, closePopups, entryMarker, expectPopupEntry, openEntries, readEntries, seedKnownEntries, uiLogin } from './helpers';
 
-// Frontend counterpart to the server-side ignore checks: a freshly written entry
-// is always visible (the latest entry is never ignored), but once the NEXT entry
-// arrives, the server re-evaluates the previous one - with a high hdop it becomes
-// ignored and its marker disappears from the map.
-//
-// Repeat-safe: each run writes ~550m away from the previous one (time-based
-// offset), so leftover markers from earlier runs neither cluster with the new
-// ones nor break the count. The assertion is a net-zero delta: entry B replaces
-// entry A on the map instead of joining it. Appends to today's data file:
-// run after the Jest integration suite, like map.spec.ts.
-test('a high-hdop entry loses its marker once the next entry arrives', async ({ page, request }) => {
+async function ignoreAction(page: Page, entry: Models.IEntry, action: 'Self' | 'Before' | 'After' | 'Reset') {
+	await entryMarker(page, entry).click();
+	await expectPopupEntry(page, entry);
+	const responsePromise = page.waitForResponse(response => {
+		const url = new URL(response.url());
+		return action === 'Reset' ? url.pathname === '/read' && url.search === '?index=0'
+			: url.pathname === '/read/ignore' && url.searchParams.get('index') === String(entry.index)
+				&& url.searchParams.get('direction') === (action === 'Self' ? null : action.toLowerCase());
+	});
+	// Mobile hides the text labels; select the real button by its label's DOM text.
+	await page.locator('.leaflet-popup button').filter({ hasText: new RegExp(`^${action}$`) }).click();
+	const response = await responsePromise;
+	expect(response.ok()).toBeTruthy();
+	expect(await response.finished()).toBeNull();
+	const data = await response.json() as Models.IEntries;
+	const visible = data.entries.filter(entry => !entry.ignore).length;
+	await expect(page.locator('.statusTable > tbody > tr').first().locator('td').last())
+		.toHaveText(`${visible}(${data.entries.length - visible})`);
+	await closePopups(page);
+	return data.entries;
+}
+
+async function expectView(page: Page, all: Models.IEntry[], fixtures: Models.IEntry[], expected: Models.IEntry[]) {
+	await closePopups(page);
+	const visible = all.filter(entry => !entry.ignore);
+	await expect(page.locator('.statusTable > tbody > tr').first().locator('td').last())
+		.toHaveText(`${visible.length}(${all.length - visible.length})`);
+	expect(visible.filter(entry => fixtures.some(fixture => fixture.index === entry.index)).map(entry => entry.index))
+		.toEqual(expected.map(entry => entry.index));
+	for (const entry of fixtures) {
+		if (expected.some(item => item.index === entry.index)) {
+			await expect(entryMarker(page, entry)).toBeVisible();
+			await entryMarker(page, entry).click();
+			await expectPopupEntry(page, entry);
+			await closePopups(page);
+		} else {
+			await expect(entryMarker(page, entry)).toHaveCount(0);
+		}
+	}
+}
+
+test('high-hdop A is removed when the verified entry B arrives', async ({ page, request }) => {
 	await uiLogin(page);
+	const [a] = await seedKnownEntries(page, request, [{ hdop: 30 }]);
+	expect(a.ignore).toBe(false);
+	await ageEntries(page, [a]);
+	await expectView(page, await openEntries(page), [a], [a]);
 
-	// this test appends two entries, but at the 1000-entry cap /write stops appending
-	// (src/controller/write.ts): A would be dropped and B would replace the last
-	// entry. The Jest integration suite fills the day file to exactly that cap, so
-	// failing here means the convention was skipped: npm run test:postClear before e2e.
-	const entries = await readEntries(page, request);
-	expect(entries.length, 'day file too close to the 1000-entry cap for /write to append - run npm run test:postClear').toBeLessThan(999);
-
-	const mainMapMarkers = page.locator('.mapContainer .customMarker');
-	const runOffset = (Math.floor(Date.now() / 60000) % 100) * 0.005;
-	const latA = 50 + runOffset;
-	// B sits ~55m from A: same viewport for both counts (like-for-like), outside
-	// the ~22m ignore-close radius, and A's hidden marker cannot cluster with it
-	const latB = latA + 0.0005;
-
-	// entry A: bad accuracy (hdop 30), but as the latest entry it must be shown
-	await writeEntry(request, { lat: latA, hdop: 30 }, 'A');
-	await page.reload();
-	await expect(mainMapMarkers.first()).toBeVisible();
-	await page.waitForTimeout(2500); // let the fly-to animation and marker culling settle
-	const markersWithA = await mainMapMarkers.count();
-
-	// entry B: good accuracy - the server now marks A as ignored, so B replaces
-	// A on the map instead of joining it (net marker count stays constant)
-	await writeEntry(request, { lat: latB, hdop: 2 }, 'B');
-	await page.reload();
-	await expect(mainMapMarkers.first()).toBeVisible();
-	await page.waitForTimeout(2500); // symmetric settle before the like-for-like count
-	await expect(mainMapMarkers).toHaveCount(markersWithA);
+	const [b] = await seedKnownEntries(page, request, [{ lat: a.lat, lon: a.lon + 0.012, timestamp: a.time.created + 60000 }]);
+	expect(b.index).toBe(a.index + 1);
+	expect(b.ignore).toBe(false);
+	const persistedA = (await readEntries(page, request)).find(entry => entry.index === a.index);
+	expect(persistedA).toMatchObject({ ignore: true, lat: a.lat, lon: a.lon, hdop: 30 });
+	await ageEntries(page, [a, b]);
+	await expectView(page, await openEntries(page), [a, b], [b]);
 });
+
+for (const action of ['Self', 'Before', 'After', 'Reset'] as const) {
+	test(`UI Ignore ${action} keeps the correct subset of three real fixtures in the full dataset`, async ({ page, request }) => {
+		await uiLogin(page);
+		const entries = await seedKnownEntries(page, request, [{}, {}, {}]);
+		expect(entries.every(entry => !entry.ignore)).toBe(true);
+		await ageEntries(page, entries);
+		const baseline = await openEntries(page);
+		await expectView(page, baseline, entries, entries);
+		const target = entries[1];
+		const operation = action === 'Reset' ? 'Self' : action;
+		const expected = entries.filter(entry => operation === 'Self' ? entry.index !== target.index
+			: operation === 'Before' ? entry.index >= target.index : entry.index <= target.index);
+		const result = await ignoreAction(page, target, operation);
+		expect(result.map(entry => entry.index)).toEqual(baseline.map(entry => entry.index));
+		for (const entry of result) {
+			const removed = operation === 'Self' ? entry.index === target.index
+				: operation === 'Before' ? entry.index < target.index : entry.index > target.index;
+			expect(entry.ignore, `ignore flag for real entry ${entry.index}`).toBe(removed || baseline.find(item => item.index === entry.index)!.ignore);
+		}
+		expect(result.filter(entry => !entry.ignore && entries.some(fixture => fixture.index === entry.index))).toHaveLength(2);
+		await expectView(page, result, entries, expected);
+		if (action === 'Reset') {
+			const reset = await ignoreAction(page, expected[0], 'Reset');
+			expect(reset).toEqual(baseline);
+			await expectView(page, reset, entries, entries);
+		}
+		const persisted = await readEntries(page, request);
+		expect(persisted.filter(entry => entries.some(known => known.index === entry.index))).toEqual(entries);
+	});
+}

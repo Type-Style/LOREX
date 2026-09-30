@@ -9,7 +9,7 @@ import { makeFakeJwt, realLogin, StatefulContext, TEST_USER } from './testUtils'
 
 // The Start page fetches from the real dev server (jsdom base url http://localhost/). No mocking.
 
-/** convertJwt() narrowed for the harness prop; fails loudly when the jwt is missing. */
+/** Require a parsed JWT before rendering the authenticated page. */
 function currentUserInfo(): { user: string, exp: number } {
 	const userInfo = convertJwt();
 	if (!userInfo) { throw new Error('expected a parsable jwt in localStorage'); }

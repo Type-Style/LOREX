@@ -86,6 +86,16 @@ export default [
         },
     },
 
+    {
+        files: ['e2e/**/*.ts', 'playwright.config.ts'],
+        languageOptions: { parser: tsParser },
+        plugins: { '@typescript-eslint': ts },
+        rules: {
+            '@typescript-eslint/no-unused-vars': 'error',
+            curly: ['error', 'all'],
+        },
+    },
+
     // Configuration for everything outside `src/client/**/*`
     {
         files: ['/**/*.{js,jsx,ts,tsx}'],

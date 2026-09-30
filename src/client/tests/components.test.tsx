@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { describe, expect, it } from 'vitest';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Message } from '../components/Message';
 import ModeSwitcher from '../components/ModeSwitcher';
 import LinearBuffer from '../components/LinearBuffer';
-import { Icon } from '../components/Icon';
+import { defaultArrow, Icon, triangleArrow } from '../components/Icon';
 import Status from '../components/Status';
 import { ActionContext, Context } from '../context';
 import { getModeButton, makeContext, makeEntry, renderWithContext } from './testUtils';
@@ -50,7 +50,7 @@ describe('Message', () => {
 	});
 });
 
-function ModeSwitcherHarness({ initialMode }: { initialMode: string }) {
+function ModeSwitcherExample({ initialMode }: { initialMode: string }) {
 	const [mode, setMode] = useState<string | undefined>(initialMode);
 	const contextObj = makeContext({ mode, setMode: (newMode) => setMode(newMode ?? undefined) });
 
@@ -63,14 +63,14 @@ function ModeSwitcherHarness({ initialMode }: { initialMode: string }) {
 
 describe('ModeSwitcher', () => {
 	it('shows the current mode and its css-module class', () => {
-		render(<ModeSwitcherHarness initialMode="light" />);
+		render(<ModeSwitcherExample initialMode="light" />);
 
 		expect(getModeButton('light').className).toMatch(/modeSwitcher/);
 	});
 
 	it('toggles from light to dark and back', async () => {
 		const user = userEvent.setup();
-		render(<ModeSwitcherHarness initialMode="light" />);
+		render(<ModeSwitcherExample initialMode="light" />);
 
 		await user.click(getModeButton('light'));
 		expect(getModeButton('dark')).toBeInTheDocument();
@@ -100,34 +100,46 @@ describe('LinearBuffer', () => {
 
 		expect(Number(bar.getAttribute('aria-valuenow'))).toBeLessThan(50);
 	});
+
+	// TODO: Rerender the login buffer from the 9s authentication window into its second,
+	// 1s redirect phase; verify progress resets and completes while retaining the buffer variant.
 });
 
 describe('Icon', () => {
 	it('rotates by angle when present', () => {
-		const icon = Icon({ className: 'dark', iconSize: 40 }, makeEntry({ angle: 45, heading: 90 }));
+		const icon = Icon({ className: 'x-addition', iconSize: 40 }, makeEntry({ angle: 45, heading: 90 }));
 
 		expect(String(icon.options.html)).toContain('--angle: 45');
-		expect(String(icon.options.html)).toContain('class="icon dark"');
+		expect(String(icon.options.html)).toContain('class="icon x-addition"');
 	});
 
-	it('falls back to heading when angle is missing or zero', () => {
-		const zeroAngle = Icon({ className: 'dark', iconSize: 40 }, makeEntry({ angle: 0, heading: 90 }));
-		expect(String(zeroAngle.options.html)).toContain('--angle: 90');
+	it('preserves a zero-degree angle instead of falling back to heading', () => {
+		const zeroAngle = Icon({ iconSize: 40 }, makeEntry({ angle: 0, heading: 90 }));
+		expect(String(zeroAngle.options.html)).toContain('--angle: 0');
+	});
 
-		const noAngle = Icon({ className: 'dark', iconSize: 40 }, makeEntry({ angle: undefined, heading: 33 }));
+	it('falls back to heading only when angle is missing', () => {
+		const noAngle = Icon({ iconSize: 40 }, makeEntry({ angle: undefined, heading: 33 }));
 		expect(String(noAngle.options.html)).toContain('--angle: 33');
 	});
 
-	it('uses the triangle arrow unless the className contains "none"', () => {
-		const triangle = Icon({ className: 'light', iconSize: 40 }, makeEntry());
-		expect(String(triangle.options.html)).toContain('<polygon');
+	it.each([
+		{ className: undefined, expectedArrow: triangleArrow },
+		{ className: '', expectedArrow: triangleArrow },
+		{ className: 'moving', expectedArrow: triangleArrow },
+		{ className: 'none', expectedArrow: defaultArrow },
+		{ className: 'marker none', expectedArrow: defaultArrow },
+	])('renders the expected arrow for className=$className', ({ className, expectedArrow }) => {
+		const marker = Icon({ className, iconSize: 40 }, makeEntry()).createIcon();
 
-		const arrow = Icon({ className: 'none', iconSize: 40 }, makeEntry());
-		expect(String(arrow.options.html)).toContain('<path');
+		expect(marker.querySelector('.icon')).toHaveAttribute('class', `icon ${className ?? ''}`);
+		expect(marker.querySelector('.icon')).toHaveAttribute('data-entry-index', '0');
+		expect(marker.querySelector('svg')).toContainHTML(expectedArrow);
+		expect(marker.querySelector('svg')?.children).toHaveLength(2);
 	});
 
 	it('sizes and anchors the icon around its center', () => {
-		const icon = Icon({ className: 'dark', iconSize: 40 }, makeEntry());
+		const icon = Icon({ iconSize: 40 }, makeEntry());
 
 		expect(icon.options.iconSize).toEqual([40, 40]);
 		expect(icon.options.iconAnchor).toEqual([20, 20]);
@@ -135,7 +147,6 @@ describe('Icon', () => {
 	});
 });
 
-/** Deterministic Status fixture; every value read by getStatusData is set explicitly. */
 function statusEntry(index: number, values: {
 	gps: number, horizontal: number, verticalDist: number, horizontalDist: number,
 	upload: number, diff: number, ignore?: boolean, eta?: number, eda?: number
@@ -151,21 +162,41 @@ function statusEntry(index: number, values: {
 	});
 }
 
-// GPS mean 15m/s*3.6=54.0; calc mean 10m/s*3.6=36.0 (no pause); max 20m/s*3.6=72.0;
-// distance 6000m=6.00km; vertical +150m/-200m; upload mean 1.000s
-const entriesNoPause = () => [
-	statusEntry(0, { gps: 10, horizontal: 10, verticalDist: 100, horizontalDist: 1000, upload: 0.5, diff: 30 }),
-	statusEntry(1, { gps: 20, horizontal: 10, verticalDist: -200, horizontalDist: 2000, upload: 1.0, diff: 30 }),
-	statusEntry(2, { gps: 15, horizontal: 10, verticalDist: 50, horizontalDist: 3000, upload: 1.5, diff: 30 }),
-];
+const statusWithoutPauses = {
+	entries: [
+		statusEntry(0, { gps: 10, horizontal: 10, verticalDist: 100, horizontalDist: 1000, upload: 0.5, diff: 30 }),
+		statusEntry(1, { gps: 20, horizontal: 10, verticalDist: -200, horizontalDist: 2000, upload: 1.0, diff: 30 }),
+		statusEntry(2, { gps: 15, horizontal: 10, verticalDist: 50, horizontalDist: 3000, upload: 1.5, diff: 30 }),
+	],
+	expected: {
+		data: '3(0)',
+		uploadMean: '1.000s',
+		gpsMean: 'GPS: 54.0km/h',
+		calculatedMean: 'Calc: 36.0km/h',
+		maxSpeed: '72.0km/h',
+		ascent: '0.15km up',
+		descent: '-0.20km down',
+		distance: '6.00km',
+	},
+};
 
-// One ignored entry, one pause (diff 700 >= 600): calc mean 20m/s*3.6=72.0 vs 10m/s*3.6=36.0 without pause;
-// distance 6.00km vs 1.00km without pause; GPS mean 7.5m/s*3.6=27.0; max 10m/s*3.6=36.0; upload hidden (0)
-const entriesWithPause = () => [
-	statusEntry(0, { gps: 5, horizontal: 10, verticalDist: 0, horizontalDist: 1000, upload: 0, diff: 30 }),
-	statusEntry(1, { gps: 10, horizontal: 30, verticalDist: 0, horizontalDist: 5000, upload: 0, diff: 700, eta: Date.now() + 600000, eda: 2500 }),
-	statusEntry(2, { gps: 99, horizontal: 99, verticalDist: 0, horizontalDist: 99999, upload: 0, diff: 30, ignore: true }),
-];
+const statusWithPauseAndIgnoredEntry = {
+	entries: [
+		statusEntry(0, { gps: 5, horizontal: 10, verticalDist: 0, horizontalDist: 1000, upload: 0, diff: 30 }),
+		statusEntry(1, { gps: 10, horizontal: 30, verticalDist: 0, horizontalDist: 5000, upload: 0, diff: 700,
+			eta: Date.UTC(2020, 0, 1, 12, 10), eda: 2500 }),
+		statusEntry(2, { gps: 99, horizontal: 99, verticalDist: 0, horizontalDist: 99999, upload: 0, diff: 30, ignore: true }),
+	].map(entry => ({ ...entry, time: { ...entry.time, created: Date.UTC(2020, 0, 1, 12) } })),
+	expected: {
+		data: '2(1)',
+		gpsMean: 'GPS: 27.0km/h',
+		maxSpeed: '36.0km/h',
+		calculatedMean: { total: '72.0', withoutPause: '36.0' },
+		distance: { total: '6.00', withoutPause: '1.00' },
+		eda: '2.50km',
+		eta: '10.0 minutes',
+	},
+};
 
 describe('Status', () => {
 	it('renders nothing without entries', () => {
@@ -177,18 +208,19 @@ describe('Status', () => {
 	});
 
 	it('computes means, max speed, vertical and distance without pauses', () => {
-		render(<Status entries={entriesNoPause()} ref={React.createRef()} />);
+		const { entries, expected } = statusWithoutPauses;
+		render(<Status entries={entries} ref={React.createRef()} />);
 
 		const dataRow = screen.getByText('data').closest('tr');
-		expect(dataRow?.textContent).toContain('3(0)');
+		expect(dataRow?.textContent).toContain(expected.data);
 
-		expect(screen.getByText('Ø upload').closest('tr')?.textContent).toContain('1.000s');
-		expect(screen.getByText('GPS: 54.0km/h')).toBeInTheDocument();
-		expect(screen.getByText('Calc: 36.0km/h')).toBeInTheDocument();
-		expect(screen.getByText('72.0km/h')).toBeInTheDocument();
-		expect(screen.getByText('0.15km up')).toBeInTheDocument();
-		expect(screen.getByText('-0.20km down')).toBeInTheDocument();
-		expect(screen.getByText('6.00km')).toBeInTheDocument();
+		expect(screen.getByText('Ø upload').nextElementSibling).toHaveTextContent(expected.uploadMean);
+		expect(screen.getByText(expected.gpsMean)).toBeInTheDocument();
+		expect(screen.getByText(expected.calculatedMean)).toBeInTheDocument();
+		expect(screen.getByText('maxSpeed').nextElementSibling).toHaveTextContent(expected.maxSpeed);
+		expect(screen.getByText(expected.ascent)).toBeInTheDocument();
+		expect(screen.getByText(expected.descent)).toBeInTheDocument();
+		expect(screen.getByText('Distance').nextElementSibling).toHaveTextContent(expected.distance);
 
 		// no pause and no eta/eda: no subtables, no extra rows
 		expect(screen.queryAllByText('w/o Pause')).toHaveLength(0);
@@ -197,29 +229,31 @@ describe('Status', () => {
 	});
 
 	it('splits speed and distance into with/without pause and counts ignored entries', () => {
-		render(<Status entries={entriesWithPause()} ref={React.createRef()} />);
+		const { entries, expected } = statusWithPauseAndIgnoredEntry;
+		render(<Status entries={entries} ref={React.createRef()} />);
 
 		const dataRow = screen.getByText('data').closest('tr');
-		expect(dataRow?.textContent).toContain('2(1)');
+		expect(dataRow?.textContent).toContain(expected.data);
 
 		expect(screen.queryByText('Ø upload')).not.toBeInTheDocument();
-		expect(screen.getByText('GPS: 27.0km/h')).toBeInTheDocument();
-		expect(screen.getByText('36.0km/h')).toBeInTheDocument();
+		expect(screen.getByText(expected.gpsMean)).toBeInTheDocument();
+		expect(screen.getByText('maxSpeed').nextElementSibling).toHaveTextContent(expected.maxSpeed);
 
-		// both the speed and the distance subtable show a "w/o Pause" column
-		expect(screen.getAllByText('w/o Pause')).toHaveLength(2);
-		expect(screen.getByText('72.0')).toBeInTheDocument();
-		expect(screen.getByText('36.0')).toBeInTheDocument();
-		expect(screen.getByText('6.00')).toBeInTheDocument();
-		expect(screen.getByText('1.00')).toBeInTheDocument();
+		for (const [label, values] of [['Ø speed', expected.calculatedMean], ['Distance', expected.distance]] as const) {
+			const row = screen.getByText(label).closest('tr')!;
+			expect(within(row).getByText('Total')).toBeInTheDocument();
+			expect(within(row).getByText('w/o Pause')).toBeInTheDocument();
+			const cells = within(row).getByRole('table').querySelectorAll('td');
+			expect(Array.from(cells, cell => cell.textContent)).toEqual([values.total, values.withoutPause]);
+		}
 
-		expect(screen.getByText('EDA').closest('tr')?.textContent).toContain('2.50km');
-		expect(screen.getByText('ETA').closest('tr')?.textContent).toMatch(/minutes/);
+		expect(screen.getByText('EDA').nextElementSibling).toHaveTextContent(expected.eda);
+		expect(screen.getByText('ETA').nextElementSibling).toHaveTextContent(expected.eta);
 	});
 
 	it('collapses via the imperative ref handle', () => {
 		const ref = React.createRef<{ collapseTable: () => void }>();
-		const { container } = render(<Status entries={entriesNoPause()} ref={ref} />);
+		const { container } = render(<Status entries={statusWithoutPauses.entries} ref={ref} />);
 
 		const wrapper = container.querySelector('.wrapper');
 		expect(wrapper?.className).not.toContain('collapse');
@@ -229,7 +263,7 @@ describe('Status', () => {
 	});
 });
 
-/** Real showIgnored state behind the ActionContext so clicking the data row actually toggles it. */
+/** Real showIgnored state behind the ActionContext for the status toggle. */
 function StatusWithToggle({ entries }: { entries: Models.IEntry[] }) {
 	const [showIgnored, setShowIgnored] = useState(false);
 	const actionContext: client.ActionContext = { entries, setEntries: () => {}, showIgnored, setShowIgnored };
@@ -243,7 +277,7 @@ function StatusWithToggle({ entries }: { entries: Models.IEntry[] }) {
 
 describe('Status ignored toggle', () => {
 	it('marks the visible count by default and strikes the ignored count', () => {
-		const { container } = render(<StatusWithToggle entries={entriesWithPause()} />);
+		const { container } = render(<StatusWithToggle entries={statusWithPauseAndIgnoredEntry.entries} />);
 
 		const dataRow = screen.getByText('data').closest('tr');
 		expect(dataRow).not.toHaveClass('showIgnored');
@@ -252,24 +286,41 @@ describe('Status ignored toggle', () => {
 		expect(dataRow?.textContent).toContain('2(1)');
 	});
 
-	it('toggles the showIgnored state when the data row is clicked', async () => {
+	it('toggles the showIgnored state when the data button is clicked', async () => {
 		const user = userEvent.setup();
-		render(<StatusWithToggle entries={entriesWithPause()} />);
+		render(<StatusWithToggle entries={statusWithPauseAndIgnoredEntry.entries} />);
 
 		const dataRow = screen.getByText('data').closest('tr')!;
-		await user.click(dataRow);
+		const toggle = screen.getByRole('button', { name: 'Show ignored entries on the map' });
+		expect(toggle).toHaveAttribute('aria-pressed', 'false');
+		await user.click(toggle);
 		expect(dataRow).toHaveClass('showIgnored');
+		expect(toggle).toHaveAttribute('aria-pressed', 'true');
 
-		await user.click(dataRow);
+		await user.click(toggle);
 		expect(dataRow).not.toHaveClass('showIgnored');
+		expect(toggle).toHaveAttribute('aria-pressed', 'false');
+	});
+
+	it('can be reached with Tab and toggled with Enter and Space', async () => {
+		const user = userEvent.setup();
+		render(<StatusWithToggle entries={statusWithPauseAndIgnoredEntry.entries} />);
+		const toggle = screen.getByRole('button', { name: 'Show ignored entries on the map' });
+
+		await user.tab();
+		expect(toggle).toHaveFocus();
+		await user.keyboard('{Enter}');
+		expect(toggle).toHaveAttribute('aria-pressed', 'true');
+		await user.keyboard(' ');
+		expect(toggle).toHaveAttribute('aria-pressed', 'false');
 	});
 
 	it('does not crash when rendered without an action context', async () => {
 		const user = userEvent.setup();
-		render(<Status entries={entriesWithPause()} ref={React.createRef()} />);
+		render(<Status entries={statusWithPauseAndIgnoredEntry.entries} ref={React.createRef()} />);
 
 		const dataRow = screen.getByText('data').closest('tr')!;
-		await user.click(dataRow); // no provider: click is a safe no-op
+		await user.click(screen.getByRole('button', { name: 'Show ignored entries on the map' }));
 		expect(dataRow).not.toHaveClass('showIgnored');
 	});
 });

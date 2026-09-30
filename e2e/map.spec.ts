@@ -1,18 +1,23 @@
 import { expect, test } from '@playwright/test';
-import { seedIfEmpty, uiLogin } from './helpers';
+import { ageEntries, openEntries, seedIfEmpty, uiLogin } from './helpers';
 
-// Slightly advanced smoke: real login through the UI, then the Leaflet map
-// appears with at least one marker. Seeds a single entry via /write only when
-// today's data file is empty (decided via the server state, not the UI - the
-// "No Data" span is briefly visible while the first fetch is in flight).
 test('login shows the map with at least one marker', async ({ page, request }) => {
 	await uiLogin(page);
 
-	// domain invariant: the write path never ignores the incoming (latest) entry,
-	// so any non-empty day has at least one non-ignored entry for the map to render
-	await seedIfEmpty(page, request);
+	// avoid empty data state
+	const entries = await seedIfEmpty(page, request);
+	await ageEntries(page, entries);
+	const entry = (await openEntries(page)).at(-1)!;
 
-	// .mapContainer is the main map; the minimaps are separate .leaflet-container elements
 	await expect(page.locator('.mapContainer')).toBeVisible();
 	await expect(page.locator('.customMarker').first()).toBeVisible();
+	const link = page.locator('.subinfo a.info');
+	await expect(link).toHaveText(`${entry.lat} / ${entry.lon}`);
+	const url = new URL((await link.getAttribute('href'))!);
+	expect(url.protocol).toBe('https:');
+	expect(url.hostname).toBe('www.openstreetmap.org');
+	expect(Number(url.searchParams.get('mlat'))).toBe(entry.lat);
+	expect(Number(url.searchParams.get('mlon'))).toBe(entry.lon);
+	expect(url.searchParams.get('marker')).toBe(`${entry.lat}/${entry.lon}`);
+	expect(url.hash).toBe(`#map=13/${entry.lat}/${entry.lon}`);
 });
