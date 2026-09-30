@@ -1,13 +1,14 @@
+// Register DOM assertions (for example toBeVisible) for every Vitest file.
 import '@testing-library/jest-dom/vitest';
 import { afterEach } from 'vitest';
 import { cleanup, configure } from '@testing-library/react';
 
-// Real requests against the dev server (/read fetches, failed logins) can take
-// seconds; give every findBy*/waitFor a generous window once. The two real
-// bcrypt logins in login.page.test.tsx override this locally with 20s.
+// Retrying DOM assertions must allow real HTTP/bcrypt work to finish.
+// This changes the wait limit, not the requests; login tests allow 20s where needed.
 configure({ asyncUtilTimeout: 10000 });
 
-// jsdom does not implement window.matchMedia, which MUI's useMediaQuery/useColorScheme rely on.
+// MUI requires matchMedia, but jsdom has no viewport layout engine.
+// Supply its interface without claiming responsive coverage; Playwright tests real breakpoints.
 if (typeof window.matchMedia !== 'function') {
   const matchMediaStub = (query: string): MediaQueryList => ({
     matches: false,
@@ -22,10 +23,8 @@ if (typeof window.matchMedia !== 'function') {
   window.matchMedia = matchMediaStub;
 }
 
-// useData/Login log axios errors with %o; Node's util.inspect can crash on the
-// jsdom internals those error objects reference, which would abort the app's
-// catch block mid-flight (e.g. before setLogin(false)). Guard logging only and
-// fall back to a plain-string line so diagnostics are never silently lost.
+// Formatting Axios errors can throw while inspecting jsdom objects, interrupting logout.
+// Keep diagnostics, but fall back to strings if inspection fails; requests/errors remain real.
 const originalConsoleLog = console.log;
 console.log = (...args: unknown[]) => {
   try {
@@ -36,5 +35,6 @@ console.log = (...args: unknown[]) => {
 };
 
 afterEach(() => {
+  // Unmount components and dispose their effects so DOM and timers cannot leak between tests.
   cleanup();
 });

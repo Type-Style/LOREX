@@ -20,7 +20,7 @@ describe('dev server connectivity (real HTTP from jsdom)', () => {
  * The login page inside the shared stateful context
  * "/" route to observe the post-login redirect.
  */
-function LoginHarness({ initialUserInfo = false }: { initialUserInfo?: false | { user: string; exp: number } }) {
+function LoginPage({ initialUserInfo = false }: { initialUserInfo?: false | { user: string; exp: number } }) {
 	return (
 		<StatefulContext initialUserInfo={initialUserInfo} probe={true}>
 			<MemoryRouter initialEntries={['/login']}>
@@ -40,7 +40,7 @@ describe('Login page (E2E against the real dev server)', () => {
 
 	it('validates fields on blur and only enables submit once the form is valid', async () => {
 		const user = userEvent.setup();
-		render(<LoginHarness />);
+		render(<LoginPage />);
 
 		const username = screen.getByLabelText(/Username/);
 		const password = screen.getByLabelText(/Password/);
@@ -66,7 +66,7 @@ describe('Login page (E2E against the real dev server)', () => {
 	});
 
 	it('pre-fills the username from prior session info and focuses the password field', () => {
-		render(<LoginHarness initialUserInfo={{ user: TEST_USER, exp: 0 }} />);
+		render(<LoginPage initialUserInfo={{ user: TEST_USER, exp: 0 }} />);
 
 		expect(screen.getByLabelText(/Username/)).toHaveValue(TEST_USER);
 		expect(screen.getByLabelText(/Password/)).toHaveFocus();
@@ -74,7 +74,7 @@ describe('Login page (E2E against the real dev server)', () => {
 
 	it('shows the real server error for invalid credentials and resets loading', async () => {
 		const user = userEvent.setup();
-		render(<LoginHarness />);
+		render(<LoginPage />);
 
 		await user.type(screen.getByLabelText(/Username/), 'user');
 		await user.type(screen.getByLabelText(/Password/), 'pass');
@@ -94,7 +94,7 @@ describe('Login page (E2E against the real dev server)', () => {
 
 	it('logs in with the dev TEST user, stores the JWT and redirects to /', async () => {
 		const user = userEvent.setup();
-		render(<LoginHarness />);
+		render(<LoginPage />);
 
 		await user.type(screen.getByLabelText(/Username/), TEST_USER);
 		await user.type(screen.getByLabelText(/Password/), TEST_PASSWORD);

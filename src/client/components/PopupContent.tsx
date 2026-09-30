@@ -29,7 +29,7 @@ export const PopupContent = ({ entry, cleanEntries }: { entry: Models.IEntry, cl
   };
 
   useEffect(() => { // initial value
-    let tabValue = getUrlParameterValue("popup", (value) => tabs.some(tab => tab.name === value) ? value : null);
+    let tabValue = getUrlParameterValue("tab", (value) => tabs.some(tab => tab.name === value) ? value : null);
     if (!tabValue) { tabValue = "info" };
     const newValue = tabs.findIndex(tab => tab.name === tabValue);
     setValue(newValue);
