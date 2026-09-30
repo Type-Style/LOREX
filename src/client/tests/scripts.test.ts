@@ -123,6 +123,10 @@ describe('getDistance', () => {
 });
 
 describe('getMaxSpeed', () => {
+	it('returns zero when every trip entry is ignored', () => {
+		expect(getMaxSpeed([])).toBe(0);
+	});
+
 	const gpsEntry = (gps: number): Models.IEntry =>
 		makeEntry({ speed: { gps, horizontal: 0, vertical: 0, total: 0, maxSpeed: 100 } });
 

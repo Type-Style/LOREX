@@ -7,7 +7,7 @@ import ModeSwitcher from '../components/ModeSwitcher';
 import LinearBuffer from '../components/LinearBuffer';
 import { defaultArrow, Icon, triangleArrow } from '../components/Icon';
 import Status from '../components/Status';
-import { Context } from '../context';
+import { ActionContext, Context } from '../context';
 import { getModeButton, makeContext, makeEntry, renderWithContext } from './testUtils';
 
 describe('Message', () => {
@@ -260,5 +260,67 @@ describe('Status', () => {
 
 		act(() => ref.current?.collapseTable());
 		expect(container.querySelector('.wrapper')?.className).toContain('collapse');
+	});
+});
+
+/** Real showIgnored state behind the ActionContext for the status toggle. */
+function StatusWithToggle({ entries }: { entries: Models.IEntry[] }) {
+	const [showIgnored, setShowIgnored] = useState(false);
+	const actionContext: client.ActionContext = { entries, setEntries: () => {}, showIgnored, setShowIgnored };
+
+	return (
+		<ActionContext value={[actionContext]}>
+			<Status entries={entries} ref={React.createRef()} />
+		</ActionContext>
+	);
+}
+
+describe('Status ignored toggle', () => {
+	it('marks the visible count by default and strikes the ignored count', () => {
+		const { container } = render(<StatusWithToggle entries={statusWithPauseAndIgnoredEntry.entries} />);
+
+		const dataRow = screen.getByText('data').closest('tr');
+		expect(dataRow).not.toHaveClass('showIgnored');
+		expect(container.querySelector('.visibleCount')?.textContent).toBe('2');
+		expect(container.querySelector('.ignoredCount')).toHaveClass('strike');
+		expect(dataRow?.textContent).toContain('2(1)');
+	});
+
+	it('toggles the showIgnored state when the data button is clicked', async () => {
+		const user = userEvent.setup();
+		render(<StatusWithToggle entries={statusWithPauseAndIgnoredEntry.entries} />);
+
+		const dataRow = screen.getByText('data').closest('tr')!;
+		const toggle = screen.getByRole('button', { name: 'Show ignored entries on the map' });
+		expect(toggle).toHaveAttribute('aria-pressed', 'false');
+		await user.click(toggle);
+		expect(dataRow).toHaveClass('showIgnored');
+		expect(toggle).toHaveAttribute('aria-pressed', 'true');
+
+		await user.click(toggle);
+		expect(dataRow).not.toHaveClass('showIgnored');
+		expect(toggle).toHaveAttribute('aria-pressed', 'false');
+	});
+
+	it('can be reached with Tab and toggled with Enter and Space', async () => {
+		const user = userEvent.setup();
+		render(<StatusWithToggle entries={statusWithPauseAndIgnoredEntry.entries} />);
+		const toggle = screen.getByRole('button', { name: 'Show ignored entries on the map' });
+
+		await user.tab();
+		expect(toggle).toHaveFocus();
+		await user.keyboard('{Enter}');
+		expect(toggle).toHaveAttribute('aria-pressed', 'true');
+		await user.keyboard(' ');
+		expect(toggle).toHaveAttribute('aria-pressed', 'false');
+	});
+
+	it('does not crash when rendered without an action context', async () => {
+		const user = userEvent.setup();
+		render(<Status entries={statusWithPauseAndIgnoredEntry.entries} ref={React.createRef()} />);
+
+		const dataRow = screen.getByText('data').closest('tr')!;
+		await user.click(screen.getByRole('button', { name: 'Show ignored entries on the map' }));
+		expect(dataRow).not.toHaveClass('showIgnored');
 	});
 });

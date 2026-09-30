@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { Context } from "../context";
+import { Context, ActionContext } from "../context";
 import { LayersControl, MapContainer, TileLayer } from 'react-leaflet'
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import { MapRecenter } from "./MapCenter";
@@ -23,6 +23,10 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 	const cleanEntries = entries.filter((entry) => !entry.ignore);
 	const lastEntry = cleanEntries.at(-1);
 	const [contextObj] = useContext(Context);
+	const [actionObj] = useContext(ActionContext);
+	const showIgnored = actionObj?.showIgnored ?? false;
+	const ignoredEntries = showIgnored ? entries.filter((entry) => entry.ignore) : [];
+	const centerEntry = lastEntry ?? ignoredEntries.at(-1);
 	const [mapStyle, setMapStyle] = useState(contextObj.mode);
 	const [activeLayer, setActiveLayer] = useState<client.Layer>();
 	const { getUrlParameterValue } = usePopup();
@@ -79,7 +83,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 	if (!entries?.length && contextObj.userInfo && !contextObj.isLoggedIn) {  // check for entries prevents hiding map when logged out due expired token
 		return ""; // empty here, since map is still there when entries, and expired message is shown in top row
 	}
-	if (!entries?.length || !cleanEntries.length || !lastEntry) {
+	if (!centerEntry) {
 		return <span className="noData cut">No Data to be displayed</span>
 	}
 
@@ -90,11 +94,11 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 
 	return (
 		<div className="mapStyle" data-mui-color-scheme={mapStyle}>
-			<MapContainer className="mapContainer" center={[lastEntry.lat, lastEntry.lon]} zoom={13} maxZoom={19}>
+			<MapContainer className="mapContainer" center={[centerEntry.lat, centerEntry.lon]} zoom={13} maxZoom={19}>
 				<MapZoomLimit minZoom={activeLayer?.minZoom} maxZoom={activeLayer?.maxZoom} />
-				<MapRecenter lat={lastEntry.lat} lon={lastEntry.lon} fly={true} />
+				<MapRecenter lat={centerEntry.lat} lon={centerEntry.lon} fly={true} />
 				<MapHideSmallCluster />
-				<LocationButton lat={lastEntry.lat} lon={lastEntry.lon} />
+				<LocationButton lat={centerEntry.lat} lon={centerEntry.lon} />
 				<LayerChangeHandler mapStyle={mapStyle} setMapStyle={setMapStyle} setActiveLayer={setActiveLayer} />
 
 				{contextObj.isLoggedIn && <LayersControl position="bottomright">
@@ -163,7 +167,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 				</LayersControl>}
 
 				{/* markers in group for clustering */}
-				<MarkerClusterGroup key={lastEntry.index} disableClusteringAtZoom={14} animateAddingMarkers={true} maxClusterRadius={20}>
+				{lastEntry && <MarkerClusterGroup key={lastEntry.index} disableClusteringAtZoom={14} animateAddingMarkers={true} maxClusterRadius={20}>
 					{cleanEntries.map((entry) => {
 						const iconObj = getClassName(entry);
 						if (iconObj.className.includes("end")) { return } // exclude end from being in cluster group
@@ -174,19 +178,29 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 							markerRef={(marker) => handleMarkerRef(entry.index, marker)}
 						/>
 					})}
-				</MarkerClusterGroup>
+				</MarkerClusterGroup>}
 
 
 				{/* end marker or last / current marker */}
-				<Marker
+				{lastEntry && <Marker
 					key={lastEntry.time.created + 0.25}
 					entry={lastEntry}
 					cleanEntries={cleanEntries}
 					iconObj={getClassName(lastEntry)}
 					markerRef={(marker) => handleMarkerRef(lastEntry.index, marker)}
-				/>
+				/>}
 
-				<MultiColorPolyline key={lastEntry.index + 0.75} cleanEntries={cleanEntries} />
+				{/* ignored entries: hidden by default, shown with a distinct style when toggled in the status table */}
+				{ignoredEntries.map((entry) => (
+					<Marker
+						key={`ignored-${entry.index}`}
+						entry={entry}
+						cleanEntries={cleanEntries}
+						iconObj={{ className: "ignored none", iconSize: 14 }}
+					/>
+				))}
+
+				{lastEntry && <MultiColorPolyline key={lastEntry.index + 0.75} cleanEntries={cleanEntries} />}
 			</MapContainer>
 		</div >
 	)
