@@ -27,7 +27,7 @@ export default function PopupTime({ entry }: { entry: Models.IEntry }) {
       <dt>Upload</dt>
       <dd>{entry.time.uploadDuration.toFixed(1)}s</dd>
 
-      {entry.time.diff && entry.time.diff > 0 && (
+      {entry.time.diff != null && entry.time.diff > 0 && (
 
         <>
           <dt>Diff</dt>

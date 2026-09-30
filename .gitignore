@@ -2,6 +2,10 @@ data/
 httpdocs/tiles
 temp/
 
+# Playwright output
+test-results/
+playwright-report/
+
 # Logs
 logs
 *.log
