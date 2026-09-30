@@ -7,9 +7,6 @@ import { ActionContext } from '../context';
 import { useIgnoreData } from '../hooks/useData';
 import { realLogin, StatefulContext } from './testUtils';
 
-// Real requests against /read and /read/ignore. The ignore recalculation is
-// view-only on the server (never written to the data file), so this suite is
-// safe to run on any day, in any order.
 
 function IgnoreActions({ entries }: { entries: Models.IEntry[] }) {
 	const { ignoreData, resetData } = useIgnoreData();

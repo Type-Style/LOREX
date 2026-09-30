@@ -1,9 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { uiLogin } from './helpers';
 
-// Logout wiring (Start.tsx:104): the logged-in button clears the JWT from
-// localStorage and flips the UI back to the logged-out link. Read-only - it
-// never writes an entry, so it is safe in any position/order.
+// the logged-in button clears the JWT from localStorage and flips the UI back to the logged-out page
 test('logging out clears the stored jwt and shows the logged-out state', async ({ page }) => {
 	await uiLogin(page);
 

@@ -100,14 +100,16 @@ describe('LinearBuffer', () => {
 
 		expect(Number(bar.getAttribute('aria-valuenow'))).toBeLessThan(50);
 	});
+
+	// todo add test for login second phase and buffer variant
 });
 
 describe('Icon', () => {
 	it('rotates by angle when present', () => {
-		const icon = Icon({ className: 'dark', iconSize: 40 }, makeEntry({ angle: 45, heading: 90 }));
+		const icon = Icon({ className: 'x-addition', iconSize: 40 }, makeEntry({ angle: 45, heading: 90 }));
 
 		expect(String(icon.options.html)).toContain('--angle: 45');
-		expect(String(icon.options.html)).toContain('class="icon dark"');
+		expect(String(icon.options.html)).toContain('class="icon x-addition"');
 	});
 
 	it('falls back to heading when angle is missing or zero', () => {
@@ -119,6 +121,10 @@ describe('Icon', () => {
 	});
 
 	it('uses the triangle arrow unless the className contains "none"', () => {
+
+		// todo good test in theory but polygon vs path is not the right assertion.
+		// better to mock the arrow variables and assert the correct option is picked instead of asserting the string itself.
+
 		const triangle = Icon({ className: 'light', iconSize: 40 }, makeEntry());
 		expect(String(triangle.options.html)).toContain('<polygon');
 
@@ -135,7 +141,7 @@ describe('Icon', () => {
 	});
 });
 
-/** Deterministic Status fixture; every value read by getStatusData is set explicitly. */
+/** 	 */
 function statusEntry(index: number, values: {
 	gps: number, horizontal: number, verticalDist: number, horizontalDist: number,
 	upload: number, diff: number, ignore?: boolean, eta?: number, eda?: number

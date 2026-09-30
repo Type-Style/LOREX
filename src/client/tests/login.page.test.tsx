@@ -7,7 +7,7 @@ import Login from '../pages/Login';
 import { convertJwt } from '../scripts/convertJwt';
 import { fetchCsrfToken, StatefulContext, TEST_PASSWORD, TEST_USER } from './testUtils';
 
-// Real requests: jsdom resolves relative URLs against http://localhost/ (the running dev server).
+// Real requests: jsdom resolves relative URLs the running dev server.
 describe('dev server connectivity (real HTTP from jsdom)', () => {
 	it('provides a csrf token', async () => {
 		const csrfToken = await fetchCsrfToken();
@@ -17,8 +17,8 @@ describe('dev server connectivity (real HTTP from jsdom)', () => {
 });
 
 /**
- * The login page inside the shared stateful context plus a "/" sentinel
- * route to observe the post-login redirect.
+ * The login page inside the shared stateful context
+ * "/" route to observe the post-login redirect.
  */
 function LoginHarness({ initialUserInfo = false }: { initialUserInfo?: false | { user: string; exp: number } }) {
 	return (
@@ -26,7 +26,7 @@ function LoginHarness({ initialUserInfo = false }: { initialUserInfo?: false | {
 			<MemoryRouter initialEntries={['/login']}>
 				<Routes>
 					<Route path="/login" element={<Login />} />
-					<Route path="/" element={<div>start-sentinel</div>} />
+					<Route path="/" element={<div>start</div>} />
 				</Routes>
 			</MemoryRouter>
 		</StatefulContext>
@@ -82,9 +82,9 @@ describe('Login page (E2E against the real dev server)', () => {
 		const submit = screen.getByRole('button', { name: /login/i });
 		await user.click(submit);
 
-		expect(submit).toBeDisabled(); // isLoading until the server answers (bcrypt takes a moment)
+		expect(submit).toBeDisabled(); // avoid resubmit
 
-		expect(await screen.findByText(/Invalid credentials/, {}, { timeout: 20000 })).toBeInTheDocument();
+		expect(await screen.findByText(/Invalid credentials/, {}, { timeout: 20000 })).toBeInTheDocument(); // waiting for encryption
 		expect(screen.getByText('403')).toBeInTheDocument();
 		expect(localStorage.getItem('jwt')).toBeNull();
 		expect(screen.getByTestId('isLoggedIn')).toHaveTextContent('false');
@@ -111,6 +111,6 @@ describe('Login page (E2E against the real dev server)', () => {
 		expect(screen.getByTestId('isLoggedIn')).toHaveTextContent('true');
 
 		// redirect() navigates after a 1s delay
-		expect(await screen.findByText('start-sentinel')).toBeInTheDocument();
+		expect(await screen.findByText('start')).toBeInTheDocument();
 	});
 });

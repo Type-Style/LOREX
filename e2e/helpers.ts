@@ -1,12 +1,10 @@
 import { APIRequestContext, APIResponse, Page, expect } from '@playwright/test';
 
-// The dev server accepts the literal write key "test" while NODE_ENV=development
-// (same convention as src/tests/integration.test.ts). The KEY env var holds the
-// base64-encoded key and must NOT be sent raw - see checkKey in src/models/entry.ts.
+// The dev server accepts the literal write key "test" while NODE_ENV=development (same convention as src/tests/integration.test.ts). 
 const writeKey = 'test';
 
 // Every param /write validates (src/models/entry.ts). checkExact() rejects
-// unknown query params, so this list must stay in sync with the server.
+// unknown query params, so this list must stay in sync with the server
 export interface WriteParams {
 	user?: string;
 	lat?: number | string;
@@ -19,8 +17,7 @@ export interface WriteParams {
 	key?: string;
 }
 
-// checkNumber caps values at 12 characters, so computed floats (50 + n * 0.005
-// accumulates binary noise like 50.245000000000005) must be rounded
+// checkNumber caps values at 12 characters
 const format = (value: number | string) => (typeof value === 'number' ? value.toFixed(4) : value);
 
 export function buildWriteUrl(params: WriteParams = {}): string {
@@ -47,21 +44,20 @@ export function buildWriteUrl(params: WriteParams = {}): string {
 		heading: format(heading),
 		key,
 	});
+
 	return `/write?${query}`;
 }
 
-// Sends the entry and asserts the server accepted it; label distinguishes
-// multiple writes in one test ("A", "B") in the failure message.
+// Sends the entry and asserts the server accepted it; 
+// label distinguishes multiple writes in one test ("A", "B") in the failure message.
 export async function writeEntry(request: APIRequestContext, params: WriteParams = {}, label = ''): Promise<APIResponse> {
 	const response = await request.get(buildWriteUrl(params));
 	expect(response.ok(), `/write${label && ` ${label}`} answered ${response.status()}`).toBeTruthy();
 	return response;
 }
 
-// Full UI login through the /login form with the dev-only TEST account, waited
-// out to the logged-in Start page ("Logged In" appears after real bcrypt + the
-// 1s redirect). Every logged-in spec starts here; keep the credentials in sync
-// with the dev-only TEST user (src/controller/login.ts, blocked in production).
+
+// Full UI login with the dev-only TEST
 export async function uiLogin(page: Page): Promise<void> {
 	await page.goto('/login');
 	await page.getByLabel('Username').fill('TEST');
@@ -70,8 +66,7 @@ export async function uiLogin(page: Page): Promise<void> {
 	await expect(page.getByText('Logged In')).toBeVisible();
 }
 
-// Reads today's entries through the API with the jwt the UI login stored -
-// the server state, not the UI, decides seeding/skipping in the specs.
+// Reads today's entries through the API with the jwt the UI login stored
 export async function readEntries(page: Page, request: APIRequestContext): Promise<Models.IEntry[]> {
 	const jwt = await page.evaluate(() => localStorage.getItem('jwt'));
 	expect(jwt, 'login must have stored a jwt').toBeTruthy();
@@ -81,7 +76,7 @@ export async function readEntries(page: Page, request: APIRequestContext): Promi
 	return entries;
 }
 
-// E2e runs against a clean server (npm run test:postClear) and owns its data:
+// e2e runs against a clean server (npm run test:postClear) and owns its data:
 // writes one default entry when the day is still empty, so specs that only read
 // find something to assert on. Reloads so the already-open page picks it up.
 // ONLY for specs whose assertions need data to exist. Never call it (or writeEntry)

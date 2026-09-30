@@ -1,9 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { seedIfEmpty, uiLogin } from './helpers';
 
-// The logged-in, data-rich UI in a real browser: statistics panel and the
-// bottom gps info. Seeds one entry when the day is still empty, so the spec
-// also runs standalone against a clean server.
 test('the status panel and gps info render for the logged-in user', async ({ page, request }) => {
 	await uiLogin(page);
 

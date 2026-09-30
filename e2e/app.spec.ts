@@ -17,8 +17,7 @@ test('login page renders a usable form', async ({ page }) => {
 	await expect(page.getByRole('button', { name: 'Login' })).toBeDisabled();
 });
 
-// In a real browser the viewport is wide enough that the mode button is visible
-// (unlike jsdom, see src/client/tests/testUtils.tsx getModeButton).
+
 test('the mode switcher flips the color scheme', async ({ page }) => {
 	await page.goto('/');
 	const html = page.locator('html');

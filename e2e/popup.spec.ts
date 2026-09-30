@@ -1,9 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { seedIfEmpty, uiLogin } from './helpers';
 
-// Deep link: /?popup=<index> auto-opens that marker's popup once the map is
-// ready. Seeds one entry when the day is still empty, so the spec also runs
-// standalone against a clean server.
+// Deep link: /?popup=<index> auto-opens that marker's popup
 test('a popup deep link opens the marker popup with its tabs', async ({ page, request }) => {
 	await uiLogin(page);
 
