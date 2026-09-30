@@ -129,13 +129,14 @@ function Status({ entries, ref }: { entries: Models.IEntry[] | undefined, ref: R
 				<tbody>
 					<tr
 						className={`dataRow ${showIgnored ? 'showIgnored' : ''}`}
-						onClick={toggleIgnored}
 						title="Toggle ignored entries on the map"
 					>
 						<td className="icon"><StorageIcon /></td>
 						<th>data</th>
 						<td>
-							<span className="visibleCount">{entries.length - statusData.ignoredEntries}</span><i className="strike ignoredCount" title="ignored">({statusData.ignoredEntries})</i>
+							<button type="button" className="ignoredToggle" onClick={toggleIgnored} aria-pressed={showIgnored} aria-label="Show ignored entries on the map">
+								<span className="visibleCount">{entries.length - statusData.ignoredEntries}</span><i className="strike ignoredCount" title="ignored">({statusData.ignoredEntries})</i>
+							</button>
 						</td>
 					</tr>
 					{statusData.uploadMean &&

@@ -198,6 +198,24 @@ describe('PopupTime', () => {
 });
 
 describe('PopupDistance', () => {
+	it.each([
+		{ index: 0, ongoing: '0.00', withoutPause: '0.00' },
+		{ index: 3, ongoing: '2.46', withoutPause: '0.36' },
+		{ index: 7, ongoing: '11.46', withoutPause: '9.36' },
+	])('accumulates only clean travel through ignored trip index $index', ({ index, ongoing, withoutPause }) => {
+		const cleanEntries = [
+			{ ...popupEntries[0], index: 1 },
+			{ ...popupEntries[1], index: 2 },
+			makeEntry({ index: 5, distance: { horizontal: 9000, vertical: 0, total: 9000 } }),
+		];
+		const ignored = makeEntry({ index, ignore: true, distance: { horizontal: 99000, vertical: 0, total: 99000 } });
+		renderPopup(<PopupDistance entry={ignored} cleanEntries={cleanEntries} />);
+
+		expect(screen.getByText('Ongoing').nextElementSibling).toHaveTextContent(
+			`${ongoing} kmw/o Pause: ${withoutPause} km`
+		);
+	});
+
 	it.each(popupEntries)('shows all distances through entry $index, excluding later points', (entry) => {
 		const entriesThroughCurrent = popupEntries.slice(0, entry.index + 1);
 		const ongoing = entriesThroughCurrent.reduce((sum, point) => sum + point.distance.horizontal, 0);

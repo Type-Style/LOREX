@@ -57,8 +57,31 @@
 
 	/* the data row toggles ignored entries on the map */
 	.dataRow {
-		cursor: pointer;
+		position: relative;
 		user-select: none;
+	}
+
+	.ignoredToggle {
+		appearance: none;
+		border: 0;
+		padding: 0;
+		background: none;
+		color: inherit;
+		font: inherit;
+		letter-spacing: inherit;
+		cursor: pointer;
+
+		/* Keep the whole row clickable, including when labels are hidden on mobile. */
+		&::before {
+			content: "";
+			position: absolute;
+			inset: 0;
+		}
+
+		&:focus-visible::before {
+			outline: 2px solid currentColor;
+			outline-offset: 2px;
+		}
 	}
 
 	/* very subtle underline marks which number is the "active" one */
