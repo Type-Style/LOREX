@@ -65,10 +65,33 @@ export default [
                 },
             ],
             'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+            // the browser bundle must only import declared dependencies (undeclared transitive
+            // deps like the former qs import break vite's browser build), tests may use devDeps
+            'import/no-extraneous-dependencies': ['error', {
+                devDependencies: ['src/client/tests/**', 'src/client/vitest.config.ts'],
+            }],
             'import/first': 'error',
             'import/newline-after-import': 'warn',
             'import/no-duplicates': 'error',
             '@typescript-eslint/no-empty-function': 'off',
+            curly: ['error', 'all'],
+        },
+    },
+
+    // Test helpers mix component and non-component exports; fast refresh does not apply to tests
+    {
+        files: ['src/client/tests/**/*.{ts,tsx}'],
+        rules: {
+            'react-refresh/only-export-components': 'off',
+        },
+    },
+
+    {
+        files: ['e2e/**/*.ts', 'playwright.config.ts'],
+        languageOptions: { parser: tsParser },
+        plugins: { '@typescript-eslint': ts },
+        rules: {
+            '@typescript-eslint/no-unused-vars': 'error',
             curly: ['error', 'all'],
         },
     },

@@ -8,13 +8,13 @@ export default function PopupDistance({ entry, cleanEntries }: { entry: Models.I
         <>
           <dt>Separation</dt>
           <dd>{`${(entry.distance.total / 1000).toFixed(2)} km`}</dd>
-          {entry.distance.horizontal && (
+          {typeof entry.distance.horizontal === "number" && (
             <>
               <dt className="small">Horizontal</dt>
               <dd className="small">{`${(entry.distance.horizontal / 1000).toFixed(2)} km`}</dd>
             </>
           )}
-          {typeof entry.distance.vertical === "number" &&  entry.distance.vertical && (
+          {typeof entry.distance.vertical === "number" && (
             <>
               <dt className="small">Vertical</dt>
               <dd className="small">{`${(entry.distance.vertical / 1000).toFixed(1)} km`}</dd>
