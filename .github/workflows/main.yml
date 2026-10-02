@@ -7,69 +7,140 @@ on:
   pull_request:
     branches: [ "dev", "main" ]
 
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci --legacy-peer-deps
+      - name: Lint (fail, don't auto-fix, in CI)
+        run: npm run lint -- --no-fix
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci --legacy-peer-deps
+      - name: Typecheck backend
+        run: npm run typecheck:backend
+      - name: Typecheck frontend
+        run: npm run typecheck:frontend
+      - name: Typecheck e2e
+        run: npm run typecheck:e2e
+      - name: Typecheck tests
+        run: npm run typecheck:tests
+
+  backend-unit:
+    name: backend unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci --legacy-peer-deps
+      # No server needed: pure unit tests and the in-process production guard.
+      - name: Run unit tests
+        run: npm run test:unit
+      - name: Run production guard tests (local, NODE_ENV=production in-process)
+        run: npm run test:production
+
+  backend-integration:
+    name: backend integration
     runs-on: ubuntu-latest
     env:
-      NODE_ENV: ${{ vars.NODE_ENV }}
-      ROOT: ${{ secrets.ROOT }}
-      KEY: ${{ secrets.KEY }}
-      USER_TEST: ${{ secrets.USER_TEST }}
-      MAPBOX: ${{ secrets.MAPBOX }}
-      TOMTOM: ${{ secrets.TOMTOM }}
-
+      ROOT: ${{ secrets.ROOT }} # only test:production:prod reads this directly
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: '22'
-        cache: 'npm'
-    - run: echo "NODE_ENV = $NODE_ENV"
-    - run: npm ci --legacy-peer-deps
-    - run: npm run build --if-present
-    - name: Start server
-      run: |
-        sudo NODE_ENV=$NODE_ENV KEY=$KEY USER_TEST=$USER_TEST MAPBOX=$MAPBOX TOMTOM=$TOMTOM npm start &
-        sleep 16 # Give server some time to start
-    - name: Check if server is running
-      run: |
-        curl --fail http://localhost:80 || exit 1
-    - name: Run app tests
-      run: npm run test:app
-    - name: Run login tests
-      run: npm run test:login
-    - name: Run unit tests
-      run: npm run test:unit
-    - name: Run react client tests
-      run: npm run test:react
-    - run: echo "--- base tests complete ---"
-    - name: Run integration tests
-      run: npm run test:integration
-    # Browser E2E (playwright). Convention: clean data before e2e
-    - name: Reset test data for e2e
-      run: sudo rm -rf dist/data # sudo: the server runs as root, so its data files are root-owned
-    - name: Cache playwright browser
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/ms-playwright
-        key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-    - name: Install playwright browser
-      run: npx playwright install --with-deps chromium
-    - name: Run e2e tests
-      run: npm run test:e2e
-    - name: Upload playwright traces
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: playwright-results
-        path: test-results/
-        retention-days: 7
-        if-no-files-found: ignore
-    - name: Run production guard tests (local, NODE_ENV=production in-process)
-      run: npm run test:production
-    - name: Run production live tests (against ROOT)
-      run: npm run test:production:prod
-      
-   
-    
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci --legacy-peer-deps
+      - uses: ./.github/actions/start-server
+        with:
+          node-env: ${{ vars.NODE_ENV }}
+          key: ${{ secrets.KEY }}
+          user-test: ${{ secrets.USER_TEST }}
+          mapbox: ${{ secrets.MAPBOX }}
+          tomtom: ${{ secrets.TOMTOM }}
+      - name: Run app tests
+        run: npm run test:app
+      - name: Run login tests
+        run: npm run test:login
+      - name: Run integration tests
+        run: npm run test:integration
+      - name: Run production live tests (against ROOT)
+        run: npm run test:production:prod
+
+  frontend-unit:
+    name: frontend unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci --legacy-peer-deps
+      # test:react also covers a handful of specs that talk to the real dev
+      # server (real login/HTTP from jsdom), so it still needs one running.
+      - uses: ./.github/actions/start-server
+        with:
+          node-env: ${{ vars.NODE_ENV }}
+          key: ${{ secrets.KEY }}
+          user-test: ${{ secrets.USER_TEST }}
+          mapbox: ${{ secrets.MAPBOX }}
+          tomtom: ${{ secrets.TOMTOM }}
+      - name: Run react client tests
+        run: npm run test:react
+
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci --legacy-peer-deps
+      - uses: ./.github/actions/start-server
+        with:
+          node-env: ${{ vars.NODE_ENV }}
+          key: ${{ secrets.KEY }}
+          user-test: ${{ secrets.USER_TEST }}
+          mapbox: ${{ secrets.MAPBOX }}
+          tomtom: ${{ secrets.TOMTOM }}
+      # Runs in its own fresh job/runner with its own freshly-started server,
+      # so there's no leftover data from another job to reset first.
+      - name: Cache playwright browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: Run e2e tests
+        run: npm run test:e2e
+      - name: Upload playwright traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: test-results/
+          retention-days: 7
+          if-no-files-found: ignore
