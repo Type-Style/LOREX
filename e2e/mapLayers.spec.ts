@@ -53,6 +53,8 @@ test('switching same-style basemaps updates tiles and applies then releases loca
 	await zoomOut.press('Enter');
 	await expectTiles('tile.openstreetmap.de/7/');
 	await expect(map.locator('img.leaflet-tile[src*="/tiles/"]')).toHaveCount(0);
+	// Retained z8 tiles would satisfy the first zoom-in check before the zoom starts.
+	await expect(map.locator('img.leaflet-tile[src*="tile.openstreetmap.de/8/"]')).toHaveCount(0);
 	for (let zoom = 8; zoom <= 14; zoom++) {
 		await zoomIn.press('Enter');
 		await expectTiles(`tile.openstreetmap.de/${zoom}/`);
