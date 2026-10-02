@@ -34,8 +34,7 @@ runs:
         MAPBOX: ${{ inputs.mapbox }}
         TOMTOM: ${{ inputs.tomtom }}
       run: |
-        sudo NODE_ENV=$NODE_ENV KEY=$KEY USER_TEST=$USER_TEST MAPBOX=$MAPBOX TOMTOM=$TOMTOM npm start &
-        sleep 16 # Give server some time to start
-    - name: Check if server is running
+        sudo NODE_ENV="$NODE_ENV" KEY="$KEY" USER_TEST="$USER_TEST" MAPBOX="$MAPBOX" TOMTOM="$TOMTOM" npm start &
+    - name: Wait for server to respond
       shell: bash
-      run: curl --fail http://localhost:80 || exit 1
+      run: curl --fail --silent --show-error --retry 30 --retry-delay 1 --retry-connrefused http://localhost:80
