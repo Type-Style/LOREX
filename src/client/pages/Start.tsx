@@ -143,7 +143,9 @@ function Start() {
           </div>
         }
 
-        <Subinfo entries={entries} isLoggedIn={contextObj.isLoggedIn} fetchTimes={fetchTimes} />
+        <div className="grid-item subinfo">
+          <Subinfo entries={entries} isLoggedIn={contextObj.isLoggedIn} fetchTimes={fetchTimes} />
+        </div>
       </div>
       <svg className="bg-pattern" xmlns="http://www.w3.org/2000/svg">
         <rect width="100%" height="100%" fill="url(#repeatingGradient)" />
