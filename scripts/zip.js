@@ -75,5 +75,7 @@ export const unzipFile = async (zipPath, extractPath) => {
     console.log(`Zip file extracted to: ${extractPath}`);
   } catch (err) {
     console.error('Extraction error:', err);
+    // rethrow so callers keep the source zip and fail instead of reporting success
+    throw err;
   }
 };
