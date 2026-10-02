@@ -1,5 +1,5 @@
 import React from 'react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { act, cleanup, fireEvent, renderHook, screen } from '@testing-library/react';
 import { PopupContent } from '../components/PopupContent';
 import { ActionContext } from '../context';
@@ -17,7 +17,6 @@ function renderPopup(entry: Models.IEntry) {
 
 afterEach(() => {
 	cleanup();
-	vi.useRealTimers();
 	window.history.replaceState({}, '', '/');
 });
 
@@ -27,18 +26,14 @@ describe('popup URL close lifecycle', () => {
 	const markerRef = { current: {} };
 
 	beforeEach(() => {
-		vi.useFakeTimers();
 		window.history.replaceState({}, '', '/?tab=speed&keep=value#map');
 	});
 
-	it('retains the current popup for 500 ms, then removes only its parameter', () => {
+	it('removes only its popup parameter on close', () => {
 		const { result } = renderHook(usePopup);
 		act(() => result.current.opened(entryA, markerRef));
-		act(() => vi.advanceTimersByTime(150));
-		act(() => result.current.closed(entryA, markerRef));
-		act(() => vi.advanceTimersByTime(499));
 		expect(new URL(window.location.href).searchParams.get('popup')).toBe('0');
-		act(() => vi.advanceTimersByTime(1));
+		act(() => result.current.closed(entryA, markerRef));
 		expect(window.location.search).toBe('?tab=speed&keep=value');
 		expect(window.location.hash).toBe('#map');
 	});
@@ -47,58 +42,17 @@ describe('popup URL close lifecycle', () => {
 		const markerA = renderHook(usePopup);
 		const markerB = renderHook(usePopup);
 		act(() => markerA.result.current.opened(entryA, markerRef));
-		act(() => vi.advanceTimersByTime(150));
-		act(() => markerA.result.current.closed(entryA, markerRef));
 		act(() => markerB.result.current.opened(entryB, markerRef));
-		act(() => vi.advanceTimersByTime(501));
+		act(() => markerA.result.current.closed(entryA, markerRef));
 		expect(new URL(window.location.href).searchParams.get('popup')).toBe('1');
-		expect(new URL(window.location.href).searchParams.get('tab')).toBe('speed');
 		act(() => markerB.result.current.closed(entryB, markerRef));
-		act(() => vi.advanceTimersByTime(500));
 		expect(new URL(window.location.href).searchParams.has('popup')).toBe(false);
 	});
 
-	it('cancels its pending close immediately when the same marker reopens near the deadline', () => {
+	it('keeps the parameter when an unmounting marker (detached ref) closes', () => {
 		const { result } = renderHook(usePopup);
 		act(() => result.current.opened(entryA, markerRef));
-		act(() => vi.advanceTimersByTime(150));
-		act(() => result.current.closed(entryA, markerRef));
-		act(() => vi.advanceTimersByTime(499));
-		act(() => result.current.opened(entryA, markerRef));
-		act(() => vi.advanceTimersByTime(1));
-		expect(new URL(window.location.href).searchParams.get('popup')).toBe('0');
-		act(() => vi.advanceTimersByTime(500));
-		expect(new URL(window.location.href).searchParams.get('popup')).toBe('0');
-	});
-
-	it('still closes a marker that closes immediately after opening', () => {
-		const { result } = renderHook(usePopup);
-		act(() => result.current.opened(entryA, markerRef));
-		act(() => result.current.closed(entryA, markerRef));
-		act(() => vi.advanceTimersByTime(500));
-		expect(new URL(window.location.href).searchParams.has('popup')).toBe(false);
-	});
-
-	it('replaces its previous close timer instead of leaving an earlier deletion pending', () => {
-		const { result } = renderHook(usePopup);
-		act(() => result.current.opened(entryA, markerRef));
-		act(() => vi.advanceTimersByTime(150));
-		act(() => result.current.closed(entryA, markerRef));
-		act(() => vi.advanceTimersByTime(250));
-		act(() => result.current.closed(entryA, markerRef));
-		act(() => vi.advanceTimersByTime(250));
-		expect(new URL(window.location.href).searchParams.get('popup')).toBe('0');
-		act(() => vi.advanceTimersByTime(250));
-		expect(new URL(window.location.href).searchParams.has('popup')).toBe(false);
-	});
-
-	it('cancels its close timer on unmount', () => {
-		const { result, unmount } = renderHook(usePopup);
-		act(() => result.current.opened(entryA, markerRef));
-		act(() => vi.advanceTimersByTime(150));
-		act(() => result.current.closed(entryA, markerRef));
-		unmount();
-		act(() => vi.advanceTimersByTime(500));
+		act(() => result.current.closed(entryA, { current: null }));
 		expect(new URL(window.location.href).searchParams.get('popup')).toBe('0');
 	});
 });
