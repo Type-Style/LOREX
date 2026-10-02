@@ -48,7 +48,7 @@ jobs:
       run: npm run test:integration
     # Browser E2E (playwright). Convention: clean data before e2e
     - name: Reset test data for e2e
-      run: sudo rm -rf dist/data
+      run: sudo rm -rf dist/data # sudo: the server runs as root, so its data files are root-owned
     - name: Cache playwright browser
       uses: actions/cache@v4
       with:
