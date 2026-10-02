@@ -20,7 +20,7 @@ Keep hook logic tests separate from browser integration checks. A test component
 
 Use an intentionally disposable development/test environment. The running dev server is a prerequisite: starting it automatically or skipping tests is forbidden. If it is unavailable, report that prerequisite.
 
-Real writes use the literal key `test` only with `NODE_ENV=development`. A configured `KEY` is still required. As an Agent, never read, print, or edit `.env` files to diagnose prerequisites. Ask the environment owner to configure them; environment documentation changes belong in `.env.example` only. See `src/controller/login.ts` and `src/models/entry.ts` for the guards.
+Real writes use the literal key `test` only with `NODE_ENV=development`. A configured `KEY` is still required. As an Agent, never read, print, or edit `.env` files to diagnose prerequisites. Ask the environment owner to configure them; environment documentation changes belong in `.env_example` only. See `src/controller/login.ts` and `src/models/entry.ts` for the guards.
 
 ## Preflight
 

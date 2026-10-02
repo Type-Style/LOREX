@@ -137,7 +137,7 @@ export async function closePopups(page: Page): Promise<void> {
 	// Keyboard activation reaches the close control even beneath mobile overlay controls.
 	await expect(async () => {
 		for (const close of await page.getByRole('button', { name: 'Close popup', exact: true }).all()) {
-			await close.press('Enter', { timeout: 500 }); // a popup can close itself (e.g. its marker got ignored); throw so toPass retries
+			await close.press('Enter', { timeout: 500 }); // popup may close itself; let toPass retry
 		}
 		await expect(page.locator('.mapContainer .leaflet-popup')).toHaveCount(0, { timeout: 500 });
 	}).toPass({ timeout: 5000 });
