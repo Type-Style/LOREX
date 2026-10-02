@@ -35,6 +35,13 @@ runs:
         TOMTOM: ${{ inputs.tomtom }}
       run: |
         sudo NODE_ENV="$NODE_ENV" KEY="$KEY" USER_TEST="$USER_TEST" MAPBOX="$MAPBOX" TOMTOM="$TOMTOM" npm start &
+        sleep 16 # Give the app a warm-up window, not just time for the port to open:
+                 # a bare "port is accepting connections" check can succeed within a
+                 # fraction of a second of boot, well before the process has finished
+                 # initializing (e.g. the busy/rate-limit guards' own baseline isn't
+                 # stable yet), which made an early heavy test see a false 503.
     - name: Wait for server to respond
       shell: bash
+      # Safety net on top of the warm-up sleep, for a slow runner where 16s wasn't
+      # enough: retries on connection-refused instead of failing after one attempt.
       run: curl --fail --silent --show-error --retry 30 --retry-delay 1 --retry-connrefused http://localhost:80
