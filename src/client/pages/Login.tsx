@@ -10,7 +10,6 @@ import LoginIcon from '@mui/icons-material/Login';
 import CheckIcon from '@mui/icons-material/Check';
 import ModeSwitcher from '../components/ModeSwitcher';
 import axios from 'axios';
-import qs from 'qs';
 import { Context } from '../context';
 import { convertJwt } from "../scripts/convertJwt";
 import { useNavigate } from 'react-router-dom';
@@ -97,7 +96,7 @@ function Login() {
       const response = await axios({
         method: "post",
         url: "/login",
-        data: qs.stringify(bodyFormData),
+        data: new URLSearchParams(bodyFormData).toString(),
         headers: { "content-type": "application/x-www-form-urlencoded" }
       })
       const token = response.data.token;

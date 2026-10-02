@@ -1,5 +1,3 @@
-import { useRef } from "react";
-
 const updateUrlParams = (key: string, value?: string | null) => {
   const url = new URL(window.location.href);
   const params = new URLSearchParams(url.search);
@@ -22,28 +20,19 @@ const getUrlParameterValue = <T>(key: string, validation: (value: string) => T |
 };
 
 export const usePopup = () => {
-  const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
-
   const opened = (entry: Models.IEntry, ref: React.RefObject<any>) => {
-    setTimeout(() => {
-      if (timeoutIdRef.current) {
-        clearTimeout(timeoutIdRef.current);
-      }
-    }, 150);
     if (ref.current) {
       updateUrlParams("popup", entry.index.toString());
     }
   };
 
+  // A remounting marker has a detached ref, so its close keeps the parameter for the remounted popup.
   const closed = (entry: Models.IEntry, ref: React.RefObject<any>) => {
-    if (ref.current) {
-        timeoutIdRef.current = setTimeout(() => { // delay removal to avoid flickering upon fetching new data
-          updateUrlParams("popup");
-      }, 500);
+    // Another marker may have opened already; only remove this marker's own parameter.
+    if (ref.current && getUrlParameterValue("popup", value => value) === entry.index.toString()) {
+      updateUrlParams("popup");
     }
   };
 
-
   return { opened, closed, getUrlParameterValue, updateUrlParams };
 };
-
