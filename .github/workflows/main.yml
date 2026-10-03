@@ -9,10 +9,7 @@ on:
 
 concurrency:
   group: tests-${{ github.workflow }}-${{ github.ref }}
-  # Only cancel superseded PR runs. For push (main/dev), github.ref is the
-  # branch itself, so cancelling there would drop the completed-run record
-  # for a commit when a second push lands shortly after the first.
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }} # don't cancel push runs on main/dev
 
 permissions:
   contents: read
@@ -131,8 +128,6 @@ jobs:
           user-test: ${{ secrets.USER_TEST }}
           mapbox: ${{ secrets.MAPBOX }}
           tomtom: ${{ secrets.TOMTOM }}
-      # Runs in its own fresh job/runner with its own freshly-started server,
-      # so there's no leftover data from another job to reset first.
       - name: Cache playwright browser
         uses: actions/cache@v4
         with:

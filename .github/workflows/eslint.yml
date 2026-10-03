@@ -1,9 +1,5 @@
 name: Lint (scheduled)
 
-# PR/push linting now runs as the "lint" job in the Tests workflow
-# (.github/workflows/main.yml), alongside the other split-out test jobs.
-# This workflow keeps only the standing weekly check, so lint isn't run
-# twice on every PR to dev.
 on:
   schedule:
     - cron: '34 10 * * 1'
