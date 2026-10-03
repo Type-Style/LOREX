@@ -1,8 +1,8 @@
 name: E2E (monthly)
 
 # Canary run, independent of push/PR activity: catches drift a pinned
-# lockfile wouldn't (e.g. a GitHub runner image update, a new Playwright
-# browser build, apt package changes under --with-deps).
+# lockfile wouldn't (e.g. a GitHub runner image update, apt package
+# changes under --with-deps).
 on:
   workflow_dispatch:
   schedule:

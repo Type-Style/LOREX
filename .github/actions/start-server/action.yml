@@ -38,4 +38,4 @@ runs:
         sleep 10 # Give server some time to start
     - name: Wait for server to respond
       shell: bash
-      run: curl --fail --silent --show-error --retry 5 --retry-delay 6 --retry-connrefused http://localhost:80 # safety net
+      run: curl --fail --silent --show-error --max-time 5 --retry 5 --retry-delay 6 --retry-connrefused http://localhost:80 # safety net
