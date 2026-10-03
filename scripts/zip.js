@@ -36,7 +36,8 @@ export const unzipFile = async (zipPath, extractPath) => {
       }
     }
 
-    zip.extractAllTo(targetDir, true);
+    // keepOriginalPermission: otherwise adm-zip chmods every file to 0o666
+    zip.extractAllTo(targetDir, true, true);
     console.log(`Zip file extracted to: ${extractPath}`);
   } catch (err) {
     console.error('Extraction error:', err);
