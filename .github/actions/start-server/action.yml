@@ -35,7 +35,7 @@ runs:
         TOMTOM: ${{ inputs.tomtom }}
       run: |
         sudo NODE_ENV="$NODE_ENV" KEY="$KEY" USER_TEST="$USER_TEST" MAPBOX="$MAPBOX" TOMTOM="$TOMTOM" npm start &
-        sleep 16 # app warm-up, not just port-open (see PR discussion)
+        sleep 16 # Give server some time to start
     - name: Wait for server to respond
       shell: bash
       run: curl --fail --silent --show-error --retry 30 --retry-delay 1 --retry-connrefused http://localhost:80
