@@ -1,0 +1,48 @@
+name: E2E (monthly)
+
+# Canary run, independent of push/PR activity: catches drift a pinned
+# lockfile wouldn't (e.g. a GitHub runner image update, a new Playwright
+# browser build, apt package changes under --with-deps).
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 1 * *' # 06:00 UTC, first of each month
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24.21.0'
+          cache: 'npm'
+      - run: npm ci --legacy-peer-deps
+      - uses: ./.github/actions/start-server
+        with:
+          node-env: ${{ vars.NODE_ENV }}
+          key: ${{ secrets.KEY }}
+          user-test: ${{ secrets.USER_TEST }}
+          mapbox: ${{ secrets.MAPBOX }}
+          tomtom: ${{ secrets.TOMTOM }}
+      - name: Cache playwright browser
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: Run e2e tests
+        run: npm run test:e2e
+      - name: Upload playwright traces
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-results
+          path: test-results/
+          retention-days: 7
+          if-no-files-found: ignore
