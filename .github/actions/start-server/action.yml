@@ -1,0 +1,41 @@
+name: 'Build and start dev server'
+description: >
+  Builds the app and starts it on port 80 under sudo (binding to a privileged
+  port requires root), then waits for it to respond. Shared by every CI job
+  that needs a live server instead of duplicating these steps per job.
+inputs:
+  node-env:
+    description: 'NODE_ENV to run the server with'
+    required: true
+  key:
+    description: 'KEY secret (dev write-key)'
+    required: true
+  user-test:
+    description: 'USER_TEST secret (bcrypt hash for the TEST login)'
+    required: true
+  mapbox:
+    description: 'MAPBOX secret'
+    required: true
+  tomtom:
+    description: 'TOMTOM secret'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Build
+      shell: bash
+      run: npm run build --if-present
+    - name: Start server
+      shell: bash
+      env:
+        NODE_ENV: ${{ inputs.node-env }}
+        KEY: ${{ inputs.key }}
+        USER_TEST: ${{ inputs.user-test }}
+        MAPBOX: ${{ inputs.mapbox }}
+        TOMTOM: ${{ inputs.tomtom }}
+      run: |
+        sudo NODE_ENV="$NODE_ENV" KEY="$KEY" USER_TEST="$USER_TEST" MAPBOX="$MAPBOX" TOMTOM="$TOMTOM" npm start &
+        sleep 10 # Give server some time to start
+    - name: Wait for server to respond
+      shell: bash
+      run: curl --fail --silent --show-error --max-time 5 --retry 5 --retry-delay 6 --retry-connrefused http://localhost:80 # safety net
