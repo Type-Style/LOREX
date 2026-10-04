@@ -32,7 +32,7 @@
     "test:data:prod": "cross-env MODE=PROD jest --config jest.testData.config.js",
     "test:app": "jest src/tests/app.test.ts",
     "test:login": "jest src/tests/login.test.ts",
-    "test:unit": "jest src/tests/unit.test.ts",
+    "test:unit": "jest src/tests/unit.test.ts src/tests/persistedSpeed.test.ts",
     "test:integration": "jest src/tests/integration.test.ts",
     "test:production": "jest src/tests/productionGuard.test.ts",
     "test:production:prod": "jest --config jest.production.config.js",

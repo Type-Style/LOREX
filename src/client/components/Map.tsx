@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
-import { Context } from "../context";
+import { Context, ActionContext } from "../context";
 import { LayersControl, MapContainer, TileLayer } from 'react-leaflet'
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import { MapRecenter } from "./MapCenter";
@@ -14,7 +14,6 @@ import 'leaflet/dist/leaflet.css';
 import 'react-leaflet-markercluster/styles'
 import "../css/map.css";
 import { LayerChangeHandler } from "./LayoutChangeHandler";
-import { exceed } from "../scripts/maxSpeed";
 import { MapHideSmallCluster } from "./MapHideSmallCluster";
 import { MapZoomLimit } from "./MapZoomLimit";
 import { usePopup } from "../hooks/usePopup";
@@ -23,6 +22,9 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 	const cleanEntries = entries.filter((entry) => !entry.ignore);
 	const lastEntry = cleanEntries.at(-1);
 	const [contextObj] = useContext(Context);
+	const [actionObj] = useContext(ActionContext);
+	const showIgnored = actionObj?.showIgnored ?? false;
+	const ignoredEntries = showIgnored ? entries.filter((entry) => entry.ignore) : [];
 	const [mapStyle, setMapStyle] = useState(contextObj.mode);
 	const [activeLayer, setActiveLayer] = useState<client.Layer>();
 	const { getUrlParameterValue } = usePopup();
@@ -36,7 +38,8 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 		const iconSize = className != "none" ? 22 : 14;
 		className = (Date.now() - entry.time.recieved) <= 60000 ? "animate " + className : className; // when entry is recent append animate class
 
-		exceed(entry) ? className += " maxSpeed " : "";
+		if (entry.speed.maxSpeed?.alert) { className += " maxSpeed alert"; }
+		else if (entry.speed.maxSpeed?.warning) { className += " maxSpeed warning"; }
 
 		return { className, iconSize }
 	}, [cleanEntries, lastEntry]);
@@ -79,7 +82,7 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 	if (!entries?.length && contextObj.userInfo && !contextObj.isLoggedIn) {  // check for entries prevents hiding map when logged out due expired token
 		return ""; // empty here, since map is still there when entries, and expired message is shown in top row
 	}
-	if (!entries?.length || !cleanEntries.length || !lastEntry) {
+	if (!lastEntry) {
 		return <span className="noData cut">No Data to be displayed</span>
 	}
 
@@ -185,6 +188,16 @@ function Map({ entries }: { entries: Array<Models.IEntry> }) {
 					iconObj={getClassName(lastEntry)}
 					markerRef={(marker) => handleMarkerRef(lastEntry.index, marker)}
 				/>
+
+				{/* ignored entries: hidden by default, shown with a distinct style when toggled in the status table */}
+				{ignoredEntries.map((entry) => (
+					<Marker
+						key={`ignored-${entry.index}`}
+						entry={entry}
+						cleanEntries={cleanEntries}
+						iconObj={{ className: "ignored none", iconSize: 14 }}
+					/>
+				))}
 
 				<MultiColorPolyline key={lastEntry.index + 0.75} cleanEntries={cleanEntries} />
 			</MapContainer>

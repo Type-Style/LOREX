@@ -45,6 +45,8 @@ declare namespace client {
 	interface ActionContext  {
 		entries: Models.IEntry[];
 		setEntries: React.Dispatch<React.SetStateAction<Models.IEntry[]>>;
+		showIgnored: boolean; // client-side toggle: reveal ignored entries on the map
+		setShowIgnored: React.Dispatch<React.SetStateAction<boolean>>;
 	}
 
 	

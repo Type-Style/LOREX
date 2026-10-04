@@ -58,6 +58,30 @@ test('high-hdop A is removed when the verified entry B arrives', async ({ page, 
 	await expectView(page, await openEntries(page), [a, b], [b]);
 });
 
+test('status toggle shows and hides the auto-ignored entry A on the map', async ({ page, request }) => {
+	await uiLogin(page);
+	const [a] = await seedKnownEntries(page, request, [{ hdop: 30 }]);
+	const [b] = await seedKnownEntries(page, request, [{ lat: a.lat, lon: a.lon + 0.012, timestamp: a.time.created + 60000 }]);
+	expect(b.index).toBe(a.index + 1);
+	expect((await readEntries(page, request)).find(entry => entry.index === a.index)).toMatchObject({ ignore: true });
+	await ageEntries(page, [a, b]);
+	await openEntries(page);
+
+	const ignoredA = page.locator(`.mapContainer .icon.ignored[data-entry-index="${a.index}"]`);
+	const toggle = page.getByRole('button', { name: 'Show ignored entries on the map' });
+	await expect(entryMarker(page, b)).toBeVisible();
+	await expect(ignoredA).toHaveCount(0);
+	await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+
+	await toggle.click();
+	await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+	await expect(ignoredA).toBeVisible();
+
+	await toggle.click();
+	await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+	await expect(ignoredA).toHaveCount(0);
+});
+
 for (const action of ['Self', 'Before', 'After', 'Reset'] as const) {
 	test(`UI Ignore ${action} keeps the correct subset of three real fixtures in the full dataset`, async ({ page, request }) => {
 		await uiLogin(page);
