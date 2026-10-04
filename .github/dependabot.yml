@@ -17,6 +17,10 @@ updates:
       default-days: 5
       semver-major-days: 14
     open-pull-requests-limit: 5
+    ignore:
+      # types must match the runtime: CI, prod and .nvmrc are on Node 24
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
     labels: [dependencies, javascript]
     commit-message:
       # trailing space stops Dependabot from appending a colon
