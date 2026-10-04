@@ -1,0 +1,5 @@
+{
+  // Editor-only pointer: tsserver uses the nearest tsconfig.json, and the root one excludes src/tests.
+  // The real settings (jsx, jest types, include) live in tsconfig.tests.json, which `npm run typecheck:tests` and ts-jest use.
+  "extends": "../../tsconfig.tests.json"
+}

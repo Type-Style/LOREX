@@ -2,8 +2,8 @@ import React from 'react'
 import { getDistance } from "../scripts/getDistance";
 
 export default function PopupDistance({ entry, cleanEntries }: { entry: Models.IEntry, cleanEntries: Models.IEntry[] }) {
-  // Entry indices retain trip order even when the selected point is ignored.
-  const entriesThroughCurrent = cleanEntries.filter(point => point.index <= entry.index);
+  // Entry indices retain chronological order even when the selected point is ignored.
+  const countedEntriesUpToSelected = cleanEntries.filter(point => point.index <= entry.index);
   return (
     <>
       {entry.distance ? (
@@ -31,8 +31,8 @@ export default function PopupDistance({ entry, cleanEntries }: { entry: Models.I
           
           <dt>Ongoing</dt>
           <dd>
-            {`${getDistance(entriesThroughCurrent).toFixed(2)} km`}
-            <div className="small">w/o Pause: {`${getDistance(entriesThroughCurrent, undefined, true).toFixed(2)} km`}</div>
+            {`${getDistance(countedEntriesUpToSelected).toFixed(2)} km`}
+            <div className="small">w/o Pause: {`${getDistance(countedEntriesUpToSelected, undefined, true).toFixed(2)} km`}</div>
           </dd>
 
           {typeof entry.eda === "number" && Math.round(entry.eda) > 0 && (

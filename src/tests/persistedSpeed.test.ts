@@ -1,4 +1,5 @@
-import { readFile } from 'fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'fs/promises';
+import os from 'os';
 import path from 'path';
 import { response } from 'express';
 import { createElement } from 'react';
@@ -8,16 +9,48 @@ import { readAsJson } from '../scripts/file';
 import { getMaxSpeedSeverity } from '../scripts/maxSpeed';
 import { entry } from '../models/entry';
 
-const fixturePath = path.join(__dirname, 'fixtures/persistedSpeed.json');
-const loadEntries = () => readAsJson(response, fixturePath, error => { throw error; });
+// Persisted entries as stored on disk: older files hold `maxSpeed` as a plain number (km/h limit).
+type PersistedEntry = Omit<Models.IEntry, 'speed'> & {
+  speed: Omit<Models.ISpeed, 'maxSpeed'> & { maxSpeed?: number | Models.IMaxSpeed },
+};
+
+const persistedEntry = (index: number, speed: PersistedEntry['speed'], ignore = false): PersistedEntry => ({
+  index, user: 'TE', lat: 52 + index / 1000, lon: 13, altitude: 0, heading: 0, hdop: 2, ignore, address: '',
+  time: { created: index * 15000, recieved: index * 15000, uploadDuration: 0, createdString: '' },
+  distance: { horizontal: 0, vertical: 0, total: 0 },
+  speed,
+});
+
+// Limit 100, hdop 2: warning above 104 km/h, alert above 112 km/h.
+const persisted: { entries: PersistedEntry[] } = {
+  entries: [
+    persistedEntry(0, { gps: 10, total: 0, maxSpeed: 100 }), // legacy number, 36 km/h -> no flag
+    persistedEntry(1, { gps: 29.5, maxSpeed: 100 }), // legacy number, 106 km/h -> warning
+    persistedEntry(2, { gps: 20, total: 80, maxSpeed: 80 }, true), // legacy number, ignored, harmonic mean 115 km/h -> alert
+    persistedEntry(3, { gps: 0, total: 0, maxSpeed: { value: 90, warning: false, alert: false } }), // already modern, untouched
+    persistedEntry(4, { gps: 0, total: 0 }), // no limit known
+    persistedEntry(5, { gps: 0, total: 0, maxSpeed: 0 }), // legacy limit of 0
+  ],
+};
+
+let directory: string;
+let filePath: string;
+const loadEntries = () => readAsJson(response, filePath, error => { throw error; });
+
+beforeAll(async () => {
+  directory = await mkdtemp(path.join(os.tmpdir(), 'persisted-speed-'));
+  filePath = path.join(directory, 'entries.json');
+  await writeFile(filePath, JSON.stringify(persisted, null, 2));
+});
+
+afterAll(() => rm(directory, { recursive: true, force: true }));
 
 describe('persisted speed limits', () => {
   it('normalizes mixed legacy limits without changing modern records, other fields or the file', async () => {
-    const before = await readFile(fixturePath, 'utf8');
-    const persisted = JSON.parse(before);
+    const before = await readFile(filePath, 'utf8');
     const loaded = await loadEntries();
     expect(loaded).toEqual({
-      entries: persisted.entries.map((record: Models.IEntry) => ({
+      entries: persisted.entries.map(record => ({
         ...record,
         speed: {
           ...record.speed,
@@ -36,7 +69,7 @@ describe('persisted speed limits', () => {
       { value: 0, warning: false, alert: false },
     ]);
     expect(loaded!.entries[3]).toEqual(persisted.entries[3]);
-    expect(await readFile(fixturePath, 'utf8')).toBe(before);
+    expect(await readFile(filePath, 'utf8')).toBe(before);
   });
 
   it('renders legacy and modern limits and their severity after read-response serialization', async () => {
@@ -45,7 +78,7 @@ describe('persisted speed limits', () => {
     const body: Models.IEntries = JSON.parse(JSON.stringify({ entries: loaded!.entries }));
     const expected = [
       '<span class="">100.0 km/h</span>',
-      '<span class="main">100.0 km/h</span>',
+      '<span class="warning">100.0 km/h</span>',
       '<span class="alert">80.0 km/h</span>',
       '<span class="">90.0 km/h</span>',
       undefined,

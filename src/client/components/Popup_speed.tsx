@@ -24,10 +24,11 @@ export default function PopupSpeed({ entry }: { entry: Models.IEntry }) {
         </>
       )}
       
+      {/* typeof, not truthiness: a limit of 0 is valid, and `0 &&` would render a stray "0" */}
       {typeof entry.speed.maxSpeed?.value === "number" && (
         <>
           <dt>MaxSpeed</dt>
-          <dd><span className={entry.speed.maxSpeed.alert ? "alert" : entry.speed.maxSpeed.warning ? "main" : ""}>{`${entry.speed.maxSpeed.value.toFixed(1)} km/h`}</span></dd>
+          <dd><span className={entry.speed.maxSpeed.alert ? "alert" : entry.speed.maxSpeed.warning ? "warning" : ""}>{`${entry.speed.maxSpeed.value.toFixed(1)} km/h`}</span></dd>
         </>
       )}
     </>

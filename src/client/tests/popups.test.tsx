@@ -62,7 +62,7 @@ describe('PopupInfo', () => {
 			user: entry.user,
 			index: String(entry.index),
 		};
-		const { container } = renderPopup(<PopupInfo entry={entry} />);
+		const { container } = renderPopup(<PopupInfo entry={entry} cleanEntries={popupEntries} />);
 
 		const link = screen.getByRole('link', { name: expected.coordinates });
 		expect(link).toHaveAttribute('href', expected.url);
@@ -80,6 +80,15 @@ describe('PopupInfo', () => {
 		});
 	});
 
+	it('disables Self when only one entry is counted and enables it with two', () => {
+		const { unmount } = renderPopup(<PopupInfo entry={popupEntries[0]} cleanEntries={[popupEntries[0]]} />);
+		expect(screen.getByRole('button', { name: 'Self' })).toBeDisabled();
+		unmount();
+
+		renderPopup(<PopupInfo entry={popupEntries[0]} cleanEntries={popupEntries} />);
+		expect(screen.getByRole('button', { name: 'Self' })).toBeEnabled();
+	});
+
 	it.each([{ lat: 0, lon: 8 }, { lat: 50, lon: 0 }, { lat: 0, lon: 0 }])(
 		'keeps zero coordinates ($lat, $lon), height, precision and index inside their rows', ({ lat, lon }) => {
 			const entry = makeEntry({ lat, lon, altitude: 0, hdop: 0, index: 0, address: '' });
@@ -87,7 +96,7 @@ describe('PopupInfo', () => {
 				coordinates: `${entry.lat.toFixed(4)} / ${entry.lon.toFixed(4)}`,
 				url: `https://www.openstreetmap.org/?mlat=${entry.lat}&mlon=${entry.lon}&zoom=12&marker=${entry.lat}/${entry.lon}#map=13/${entry.lat}/${entry.lon}`,
 			};
-			const { container } = renderPopup(<PopupInfo entry={entry} />);
+			const { container } = renderPopup(<PopupInfo entry={entry} cleanEntries={popupEntries} />);
 
 			expect(screen.getByRole('link', { name: expected.coordinates })).toHaveAttribute('href', expected.url);
 			expectRows(container, {
@@ -106,7 +115,7 @@ describe('PopupInfo', () => {
 		{ hdop: 3.25, status: 'ok', alert: false },
 		{ hdop: 6, status: 'bad', alert: true },
 	])('labels precision $hdop as $status', ({ hdop, status, alert }) => {
-		const { container } = renderPopup(<PopupInfo entry={makeEntry({ hdop })} />);
+		const { container } = renderPopup(<PopupInfo entry={makeEntry({ hdop })} cleanEntries={popupEntries} />);
 		const precision = container.querySelector('.hdop-status');
 		expect(precision).toHaveTextContent(`${hdop} ${status}`);
 		expect(precision?.classList.contains('alert')).toBe(alert);
@@ -147,11 +156,11 @@ describe('PopupSpeed', () => {
 		expect(within(alerting.container).getByText('100.0 km/h')).toHaveClass('alert');
 
 		const warning = render(<PopupSpeed entry={makeEntry({ speed: { gps: 28.5, horizontal: 0, vertical: 0, total: 0, maxSpeed: { value: 100, warning: true, alert: false } } })} />);
-		expect(within(warning.container).getByText('100.0 km/h')).toHaveClass('main');
+		expect(within(warning.container).getByText('100.0 km/h')).toHaveClass('warning');
 
 		const cruising = render(<PopupSpeed entry={makeEntry({ speed: { gps: 10, horizontal: 0, vertical: 0, total: 0, maxSpeed: { value: 100, warning: false, alert: false } } })} />);
 		expect(within(cruising.container).getByText('100.0 km/h')).not.toHaveClass('alert');
-		expect(within(cruising.container).getByText('100.0 km/h')).not.toHaveClass('main');
+		expect(within(cruising.container).getByText('100.0 km/h')).not.toHaveClass('warning');
 	});
 
 	it('shows zero calculated speed for a stationary second entry without leaking a hidden speed limit', () => {
@@ -217,9 +226,9 @@ describe('PopupDistance', () => {
 	});
 
 	it.each(popupEntries)('shows all distances through entry $index, excluding later points', (entry) => {
-		const entriesThroughCurrent = popupEntries.slice(0, entry.index + 1);
-		const ongoing = entriesThroughCurrent.reduce((sum, point) => sum + point.distance.horizontal, 0);
-		const withoutPause = entriesThroughCurrent.filter(point => point.time.diff! < 600)
+		const countedEntriesUpToSelected = popupEntries.slice(0, entry.index + 1);
+		const ongoing = countedEntriesUpToSelected.reduce((sum, point) => sum + point.distance.horizontal, 0);
+		const withoutPause = countedEntriesUpToSelected.filter(point => point.time.diff! < 600)
 			.reduce((sum, point) => sum + point.distance.horizontal, 0);
 		const expected = {
 			Separation: `${(entry.distance.total / 1000).toFixed(2)} km`,

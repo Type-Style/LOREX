@@ -1,15 +1,10 @@
 /**
- * Ported from the former client-side `exceed()` in src/client/scripts/maxSpeed.ts.
- * Computes the severity (warning/alert) of exceeding a location's legal speed limit,
- * using an hdop-based margin to account for GPS inaccuracy.
+ * Flags an entry whose speed exceeds the legal limit of its location (warning/alert).
+ * The hdop (GPS inaccuracy) and a fixed buffer are added to the limit before it counts as exceeded.
  */
 
-// hdop margin multiplier for the lower/"main" (warning) threshold
-const HDOP_MULTIPLIER_WARNING = 1.5;
-// hdop margin multiplier for the higher/"alert" threshold
-const HDOP_MULTIPLIER_ALERT = 1;
-// additional buffer (km/h) added on top of the limit for the alert threshold
-const ALERT_SPEED_BUFFER_KMH = 10;
+const warningBuffer = 2; // km/h above limit + hdop
+const alertBuffer = 10; // km/h above limit + hdop
 
 export function getMaxSpeedSeverity(entry: { speed: { gps: number, total?: number }, hdop: number }, limit: number): Models.IMaxSpeed {
   const currentSpeed = entry.speed.gps * 3.6;
@@ -17,8 +12,7 @@ export function getMaxSpeedSeverity(entry: { speed: { gps: number, total?: numbe
   const harmonicMean = calcSpeed ? 2 * (currentSpeed * calcSpeed) / (currentSpeed + calcSpeed) : 0; // Harmonic Mean
   const raw = Math.floor(Math.max(currentSpeed, harmonicMean));
 
-  const alert = Math.floor(raw - entry.hdop * HDOP_MULTIPLIER_ALERT) > limit + ALERT_SPEED_BUFFER_KMH;
-  const warning = alert || Math.floor(raw - entry.hdop * HDOP_MULTIPLIER_WARNING) > limit;
+  const exceeds = (buffer: number) => raw > limit + entry.hdop + buffer;
 
-  return { value: limit, warning, alert };
+  return { value: limit, warning: exceeds(warningBuffer), alert: exceeds(alertBuffer) };
 }
