@@ -3,6 +3,9 @@
   "version": "2.2.0",
   "description": "Leaflet Osmand React ExpressJS Coordinates (X)\r > Remember an \"X\" marks the spot.",
   "main": "index.js",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "prebuild": "rm -rf dist/*",
     "build": "tsc && cross-env NODE_ENV=development vite build --config src/client/vite.config.js",
@@ -44,6 +47,7 @@
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.3.6",
     "@mui/material": "^7.1.1",
+    "adm-zip": "^0.6.1",
     "archiver": "^8.0.0",
     "axios": "^1.20.0",
     "bcrypt": "^6.0.0",
@@ -51,7 +55,6 @@
     "compression": "^1.8.1",
     "cross-spawn": "^7.0.6",
     "culori": "^4.0.1",
-    "decompress": "^4.2.1",
     "dotenv": "^16.6.1",
     "ejs": "^5.0.1",
     "express": "^5.1.0",
@@ -73,7 +76,7 @@
     "react-leaflet-markercluster": "^5.0.0-rc.0",
     "react-router-dom": "^7.18.2",
     "toobusy-js": "^0.5.1",
-    "ts-loader": "^9.5.2"
+    "ts-loader": "^9.6.2"
   },
   "_moduleAliases": {
     "@src": "dist"
@@ -82,25 +85,25 @@
   "devDependencies": {
     "@babel/core": "^7.29.7",
     "@eslint/js": "^9.27.0",
-    "@jest/globals": "^29.7.0",
+    "@jest/globals": "^30.5.2",
     "@playwright/test": "^1.61.1",
     "@rolldown/plugin-babel": "^0.1.7",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
-    "@tsconfig/node20": "^20.1.5",
+    "@tsconfig/node24": "^24.0.5",
     "@types/bcrypt": "^5.0.2",
     "@types/compression": "^1.7.5",
     "@types/culori": "^4.0.0",
     "@types/express": "^5.0.2",
     "@types/hpp": "^0.2.6",
-    "@types/jest": "^29.5.14",
+    "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/leaflet": "^1.9.18",
     "@types/leaflet-rotatedmarker": "^0.2.5",
     "@types/material-ui": "^0.21.18",
-    "@types/node": "^22.15.19",
+    "@types/node": "^24.19.1",
     "@types/react": "^19.1.4",
     "@types/react-dom": "^19.1.5",
     "@types/react-leaflet": "^2.8.3",
@@ -127,12 +130,12 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "install": "^0.13.0",
-    "jest": "^29.7.0",
+    "jest": "^30.5.2",
     "jsdom": "^29.1.1",
     "nodemon": "^3.1.10",
     "postcss": "^8.5.23",
     "postcss-nesting": "^13.0.1",
-    "ts-jest": "^29.3.4",
+    "ts-jest": "^29.4.14",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.32.1",
@@ -142,13 +145,13 @@
   },
   "overrides": {
     "@eslint/eslintrc": {
-      "js-yaml": "4.2.0"
+      "js-yaml": "4.3.2"
     },
     "@istanbuljs/load-nyc-config": {
-      "js-yaml": "4.2.0"
+      "js-yaml": "4.3.2"
     },
-    "minimatch@9.0.7": {
-      "brace-expansion": "5.0.6"
+    "eslint-plugin-functional": {
+      "deepmerge-ts": "^8.0.2"
     }
   }
 }

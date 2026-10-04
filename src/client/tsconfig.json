@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["dom","ES6"],
+    "lib": ["dom","ES2022"],
     "outDir": "../../dist/httpdocs",
     "rootDir": "./",
     "jsx": "react",
