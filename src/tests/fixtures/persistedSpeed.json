@@ -1,0 +1,40 @@
+{
+  "entries": [
+    {
+      "index": 0, "user": "TE", "lat": 52, "lon": 13, "altitude": 0, "heading": 0, "hdop": 2, "ignore": false, "address": "",
+      "time": { "created": 0, "recieved": 0, "uploadDuration": 0, "createdString": "" },
+      "distance": { "horizontal": 0, "vertical": 0, "total": 0 },
+      "speed": { "gps": 10, "total": 0, "maxSpeed": 100 }
+    },
+    {
+      "index": 1, "user": "TE", "lat": 52.001, "lon": 13, "altitude": 0, "heading": 0, "hdop": 2, "ignore": false, "address": "",
+      "time": { "created": 15000, "recieved": 15000, "uploadDuration": 0, "createdString": "" },
+      "distance": { "horizontal": 0, "vertical": 0, "total": 0 },
+      "speed": { "gps": 29.5, "maxSpeed": 100 }
+    },
+    {
+      "index": 2, "user": "TE", "lat": 52.002, "lon": 13, "altitude": 0, "heading": 0, "hdop": 2, "ignore": true, "address": "",
+      "time": { "created": 30000, "recieved": 30000, "uploadDuration": 0, "createdString": "" },
+      "distance": { "horizontal": 0, "vertical": 0, "total": 0 },
+      "speed": { "gps": 20, "total": 80, "maxSpeed": 80 }
+    },
+    {
+      "index": 3, "user": "TE", "lat": 52.003, "lon": 13, "altitude": 0, "heading": 0, "hdop": 2, "ignore": false, "address": "",
+      "time": { "created": 45000, "recieved": 45000, "uploadDuration": 0, "createdString": "" },
+      "distance": { "horizontal": 0, "vertical": 0, "total": 0 },
+      "speed": { "gps": 0, "total": 0, "maxSpeed": { "value": 90, "warning": false, "alert": false } }
+    },
+    {
+      "index": 4, "user": "TE", "lat": 52.004, "lon": 13, "altitude": 0, "heading": 0, "hdop": 2, "ignore": false, "address": "",
+      "time": { "created": 60000, "recieved": 60000, "uploadDuration": 0, "createdString": "" },
+      "distance": { "horizontal": 0, "vertical": 0, "total": 0 },
+      "speed": { "gps": 0, "total": 0 }
+    },
+    {
+      "index": 5, "user": "TE", "lat": 52.005, "lon": 13, "altitude": 0, "heading": 0, "hdop": 2, "ignore": false, "address": "",
+      "time": { "created": 75000, "recieved": 75000, "uploadDuration": 0, "createdString": "" },
+      "distance": { "horizontal": 0, "vertical": 0, "total": 0 },
+      "speed": { "gps": 0, "total": 0, "maxSpeed": 0 }
+    }
+  ]
+}

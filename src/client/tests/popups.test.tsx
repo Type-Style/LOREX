@@ -36,7 +36,7 @@ const popupEntries = [
 	makeEntry({
 		index: 0, user: 'FIRST', lat: 50.123456, lon: 8.987654, altitude: 123.45,
 		address: 'First Street, North Town', hdop: 1,
-		speed: { gps: 10.123, horizontal: 12, vertical: 1.25, total: 12.065, path: 13.456, maxSpeed: 100 },
+		speed: { gps: 10.123, horizontal: 12, vertical: 1.25, total: 12.065, path: 13.456, maxSpeed: { value: 100, warning: false, alert: false } },
 		distance: { horizontal: 360, vertical: 37.5, total: 361.948, path: 403.68 },
 		time: { created, recieved: created + 550, uploadDuration: 0.55, diff: 30, path: 30450, createdString: '10:20:30' },
 		eta: created + 600000, eda: 2543.21,
@@ -44,7 +44,7 @@ const popupEntries = [
 	makeEntry({
 		index: 1, user: 'SECOND', lat: -33.865143, lon: 151.2099, altitude: -12.36,
 		address: 'Second Street, South Town', hdop: 4,
-		speed: { gps: 6.789, horizontal: 3, vertical: -0.5, total: 3.041, path: 3.579, maxSpeed: 50 },
+		speed: { gps: 6.789, horizontal: 3, vertical: -0.5, total: 3.041, path: 3.579, maxSpeed: { value: 50, warning: false, alert: false } },
 		distance: { horizontal: 2100, vertical: -350, total: 2128.966, path: 2505.3 },
 		time: { created: created + 700000, recieved: created + 701250, uploadDuration: 1.25, diff: 700, path: 700125, createdString: '10:32:10' },
 		eta: created + 1200000, eda: 1234.56,
@@ -120,7 +120,7 @@ describe('PopupSpeed', () => {
 			Calculated: `${(entry.speed.total! * 3.6).toFixed(1)} km/h`,
 			Path: `${(entry.speed.path! * 3.6).toFixed(1)} km/h`,
 			Vertical: `${(entry.speed.vertical! * 3.6).toFixed(1)} km/h`,
-			MaxSpeed: `${entry.speed.maxSpeed!.toFixed(1)} km/h`,
+			MaxSpeed: `${entry.speed.maxSpeed!.value.toFixed(1)} km/h`,
 		};
 		const { container } = renderPopup(<PopupSpeed entry={entry} />);
 		expectRows(container, expected);
@@ -130,7 +130,7 @@ describe('PopupSpeed', () => {
 		const entry = makeEntry({
 			distance: { horizontal: 0, vertical: 0, total: 0 },
 			time: { ...popupEntries[0].time, diff: undefined },
-			speed: { gps: 10, horizontal: 0, vertical: 0, total: undefined, maxSpeed: 100 },
+			speed: { gps: 10, horizontal: 0, vertical: 0, total: undefined, maxSpeed: { value: 100, warning: false, alert: false } },
 		});
 		const { container } = renderPopup(<PopupSpeed entry={entry} />);
 
@@ -138,25 +138,26 @@ describe('PopupSpeed', () => {
 		expectRows(container, {
 			GPS: `${(entry.speed.gps * 3.6).toFixed(1)} km/h`,
 			Vertical: `${(entry.speed.vertical! * 3.6).toFixed(1)} km/h`,
-			MaxSpeed: `${entry.speed.maxSpeed!.toFixed(1)} km/h`,
+			MaxSpeed: `${entry.speed.maxSpeed!.value.toFixed(1)} km/h`,
 		});
 	});
 
-	it('shows zero calculated speed for a stationary second entry without leaking a hidden speed limit', () => {
-		const entry = makeEntry({ index: 1, speed: { gps: 0, horizontal: 0, vertical: 0, total: 0, path: 0, maxSpeed: 0 } });
-		const { container } = renderPopup(<PopupSpeed entry={entry} />);
-		expectRows(container, { GPS: '0.0 km/h', Calculated: '0.0 km/h', Path: '0.0 km/h', Vertical: '0.0 km/h' });
+	it('classes the max-speed row by the precomputed severity, alert taking precedence over warning', () => {
+		const alerting = render(<PopupSpeed entry={makeEntry({ speed: { gps: 28.5, horizontal: 0, vertical: 0, total: 0, maxSpeed: { value: 100, warning: true, alert: true } } })} />);
+		expect(within(alerting.container).getByText('100.0 km/h')).toHaveClass('alert');
+
+		const warning = render(<PopupSpeed entry={makeEntry({ speed: { gps: 28.5, horizontal: 0, vertical: 0, total: 0, maxSpeed: { value: 100, warning: true, alert: false } } })} />);
+		expect(within(warning.container).getByText('100.0 km/h')).toHaveClass('main');
+
+		const cruising = render(<PopupSpeed entry={makeEntry({ speed: { gps: 10, horizontal: 0, vertical: 0, total: 0, maxSpeed: { value: 100, warning: false, alert: false } } })} />);
+		expect(within(cruising.container).getByText('100.0 km/h')).not.toHaveClass('alert');
+		expect(within(cruising.container).getByText('100.0 km/h')).not.toHaveClass('main');
 	});
 
-	it.each([
-		{ gps: 28.5, shouldAlert: true },
-		{ gps: 10, shouldAlert: false },
-	])('alerts the speed limit only when exceeded (GPS $gps m/s)', ({ gps, shouldAlert }) => {
-		const entry = makeEntry({ hdop: 1, speed: { gps, horizontal: 0, vertical: 0, total: 0, maxSpeed: 100 } });
-		renderPopup(<PopupSpeed entry={entry} />);
-		const limit = within(screen.getByText('MaxSpeed').nextElementSibling as HTMLElement)
-			.getByText(`${entry.speed.maxSpeed!.toFixed(1)} km/h`);
-		expect(limit.classList.contains('alert')).toBe(shouldAlert);
+	it('shows zero calculated speed for a stationary second entry without leaking a hidden speed limit', () => {
+		const entry = makeEntry({ index: 1, speed: { gps: 0, horizontal: 0, vertical: 0, total: 0, path: 0 } });
+		const { container } = renderPopup(<PopupSpeed entry={entry} />);
+		expectRows(container, { GPS: '0.0 km/h', Calculated: '0.0 km/h', Path: '0.0 km/h', Vertical: '0.0 km/h' });
 	});
 });
 
