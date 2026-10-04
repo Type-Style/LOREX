@@ -105,8 +105,8 @@ describe('/write', () => {
   })
 
   // eslint-disable-next-line jest/expect-expect
-  it('with hdop not between 0 and 100 it sends 422', async () => {
-    await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=101.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 422);
+  it('with hdop not between 0 and 300 it sends 422', async () => {
+    await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=301.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 422);
   });
 
   // eslint-disable-next-line jest/expect-expect
