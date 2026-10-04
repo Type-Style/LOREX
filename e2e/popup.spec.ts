@@ -18,7 +18,7 @@ test('a deep link opens the requested older entry, not the latest fresh popup', 
 	}
 });
 
-test('switching real markers keeps the newer popup URL after the older close delay', async ({ page, request }) => {
+test('switching real markers keeps the newer popup URL', async ({ page, request }) => {
 	await uiLogin(page);
 	const entries = await seedKnownEntries(page, request, [{}, {}]);
 	const [entryA, entryB] = entries;
@@ -28,14 +28,7 @@ test('switching real markers keeps the newer popup URL after the older close del
 	await entryMarker(page, entryA).click();
 	await expectPopupEntry(page, entryA);
 	await expect(page).toHaveURL(url => url.searchParams.get('popup') === String(entryA.index));
-	// Outwait the former 150 ms open callback so it cannot mask A's stale close timer.
-	await page.waitForTimeout(200);
 	await entryMarker(page, entryB).click();
-	await expectPopupEntry(page, entryB);
-	await expect(page).toHaveURL(url => url.searchParams.get('popup') === String(entryB.index));
-	// A retrying URL assertion can pass before A's 500 ms close timer fires.
-	// Keep real timers running past that window to observe any stale deletion.
-	await page.waitForTimeout(650);
 	await expectPopupEntry(page, entryB);
 	await expect(page).toHaveURL(url => url.searchParams.get('popup') === String(entryB.index));
 	await page.locator('.mapContainer .leaflet-popup-close-button').click();

@@ -1,6 +1,7 @@
 import { ZipArchive } from 'archiver';
 import fs from 'fs';
-import decompress from 'decompress';
+import path from 'path';
+import AdmZip from 'adm-zip';
 
 // Zip a folder
 export const zipFolder = async (folderPath, zipPath) => {
@@ -24,9 +25,23 @@ export const zipFolder = async (folderPath, zipPath) => {
 // Unzip a file
 export const unzipFile = async (zipPath, extractPath) => {
   try {
-    await decompress(zipPath, extractPath);
+    const zip = new AdmZip(zipPath);
+    const targetDir = path.resolve(extractPath);
+
+    // refuse archives with entries resolving outside the target dir (zip slip)
+    for (const entry of zip.getEntries()) {
+      const destination = path.resolve(targetDir, entry.entryName);
+      if (destination !== targetDir && !destination.startsWith(targetDir + path.sep)) {
+        throw new Error(`Refusing to extract outside target dir: ${entry.entryName}`);
+      }
+    }
+
+    // keepOriginalPermission: otherwise adm-zip chmods every file to 0o666
+    zip.extractAllTo(targetDir, true, true);
     console.log(`Zip file extracted to: ${extractPath}`);
   } catch (err) {
     console.error('Extraction error:', err);
+    // rethrow so callers keep the source zip and fail instead of reporting success
+    throw err;
   }
 };

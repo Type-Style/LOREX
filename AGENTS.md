@@ -9,7 +9,7 @@
 
 ## Safety
 - Never automatically start the dev server; expect it to be running externally and report if unavailable.
-- Never read or write `.env` files. Environment documentation changes belong in `.env.example` only.
+- Never read or write `.env` files. Environment documentation changes belong in `.env_example` only.
 - `npm run build`, `npm run dev`, and `npm run test:postClear` invoke cleanup that DELETES runtime `dist/` data. Reset only intentionally disposable test data, never production data.
 - `NODE_ENV=development` disables Helmet and permits write key `test` (requires configured `KEY`); `TEST`/`test` login still requires a configured bcrypt hash in `USER_TEST`. Production blocks `TEST` login and has no dev write-key bypass.
 

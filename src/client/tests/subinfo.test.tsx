@@ -19,18 +19,17 @@ describe('Subinfo', () => {
     vi.useRealTimers();
   });
 
-  it.each([false, true])('keeps an empty grid item without entries or fetch times (logged in: %s)', (isLoggedIn) => {
+  it.each([false, true])('renders nothing without entries or fetch times (logged in: %s)', (isLoggedIn) => {
     const { container } = render(<Subinfo entries={[]} isLoggedIn={isLoggedIn} fetchTimes={noFetchTimes} />);
 
-    expect(container.firstElementChild).toHaveAttribute('class', 'grid-item subinfo');
-    expect(container.firstElementChild).toBeEmptyDOMElement();
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('renders only the latest entry, preserving element order and info classes', () => {
     const entries = [makeEntry({ address: 'Previous address' }), makeEntry({ lat: 51.25, lon: -0.5 })];
     const { container } = render(<Subinfo entries={entries} isLoggedIn fetchTimes={noFetchTimes} />);
 
-    expect(Array.from(container.querySelectorAll('.subinfo > *'), element => [element.tagName, element.className, element.textContent])).toEqual([
+    expect(Array.from(container.children, element => [element.tagName, element.className, element.textContent])).toEqual([
       ['STRONG', 'info noDivider', 'GPS:'],
       ['A', 'info', '51.25 / -0.5'],
       ['SPAN', 'info', 'Test Street, Test Town'],
@@ -45,7 +44,7 @@ describe('Subinfo', () => {
     const entries = [makeEntry(), makeEntry({ address })];
     const { container } = render(<Subinfo entries={entries} isLoggedIn fetchTimes={noFetchTimes} />);
 
-    expect(Array.from(container.querySelectorAll('.subinfo > *'), element => element.textContent)).toEqual([
+    expect(Array.from(container.children, element => element.textContent)).toEqual([
       'GPS:', '50 / 8', 'Instant',
     ]);
     expect(container.querySelectorAll('span.info')).toHaveLength(1);

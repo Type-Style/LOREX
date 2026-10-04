@@ -11,7 +11,7 @@ export default function Subinfo({ entries, isLoggedIn, fetchTimes }: {
   const lastEntry = entries.at(-1);
 
   return (
-    <div className="grid-item subinfo">
+    <>
       {isLoggedIn && fetchTimes.last && fetchTimes.next &&
         <Suspense fallback={<div className="loading line"></div>}>
           <LinearBuffer msStart={fetchTimes.last} msFinish={fetchTimes.next} variant="determinate" />
@@ -28,6 +28,6 @@ export default function Subinfo({ entries, isLoggedIn, fetchTimes }: {
           <span className="info">{isLoggedIn ? timeAgo(lastEntry.time.created) : lastEntry.time.createdString}</span>
         </>
       }
-    </div>
+    </>
   );
 }
