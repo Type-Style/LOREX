@@ -23,7 +23,8 @@ test('switching same-style basemaps updates tiles and applies then releases loca
 		await expect(option).toBeChecked();
 	};
 	const expectTiles = async (source: string) => {
-		await expect(map.locator(`img.leaflet-tile[src*="${source}"]`).first()).toBeAttached();
+		// Leaflet gives the current zoom level's container z-index maxZoom (19); retained levels sit lower.
+		await expect(map.locator(`.leaflet-tile-container[style*="z-index: 19"] img.leaflet-tile[src*="${source}"]`).first()).toBeAttached();
 		// Leaflet ignores zoom presses until its animation class leaves the map pane.
 		await expect(map.locator('.leaflet-map-pane')).not.toHaveClass(/leaflet-zoom-anim/);
 	};
@@ -48,8 +49,6 @@ test('switching same-style basemaps updates tiles and applies then releases loca
 		await zoomOut.press('Enter');
 		await expectTiles(`tile.openstreetmap.de/${zoom}/`);
 	}
-	// Retained z8 tiles would satisfy the first zoom-in check before the zoom starts.
-	await expect(map.locator('img.leaflet-tile[src*="tile.openstreetmap.de/8/"]')).toHaveCount(0);
 	for (let zoom = 8; zoom <= 14; zoom++) {
 		await zoomIn.press('Enter');
 		await expectTiles(`tile.openstreetmap.de/${zoom}/`);
