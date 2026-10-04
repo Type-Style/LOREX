@@ -30,8 +30,8 @@ const entries = [
 	time: { ...entry.time, created: created + entry.index * 1000, recieved: created, diff: entry.index === 1 ? 700 : 30 },
 }));
 
-function renderMap() {
-	const { container } = renderWithContext(<MapWithStatus initialEntries={entries} />, makeContext({ userInfo: { user: 'TEST', exp: 9999999999 } }));
+function renderMap(initialEntries = entries) {
+	const { container } = renderWithContext(<MapWithStatus initialEntries={initialEntries} />, makeContext({ userInfo: { user: 'TEST', exp: 9999999999 } }));
 	return {
 		map: container.querySelector('.mapContainer')!,
 		toggle: screen.getByRole('button', { name: 'Show ignored entries on the map' }),
@@ -90,5 +90,25 @@ describe('Ignored entries on the map', () => {
 		const popup = map.querySelector<HTMLElement>('.leaflet-popup-content')!;
 		expect(within(popup).getByText('Ongoing').nextElementSibling).toHaveTextContent('2.46 kmw/o Pause: 0.36 km');
 		expect(new URL(window.location.href).searchParams.get('popup')).toBe('2');
+	});
+});
+
+// The end marker is rendered outside the cluster group, so it is always in the DOM (jsdom has no layout to uncluster others).
+describe('maxSpeed severity on the map marker', () => {
+	beforeEach(() => {
+		window.history.replaceState({}, '', '/');
+	});
+
+	it.each([
+		{ name: 'no class below the limit', maxSpeed: { value: 100, warning: false, alert: false }, present: [], absent: ['maxSpeed', 'warning', 'alert'] },
+		{ name: 'warning class on warning', maxSpeed: { value: 100, warning: true, alert: false }, present: ['maxSpeed', 'warning'], absent: ['alert'] },
+		{ name: 'alert class on alert', maxSpeed: { value: 100, warning: true, alert: true }, present: ['maxSpeed', 'alert'], absent: ['warning'] },
+	])('$name', ({ maxSpeed, present, absent }) => {
+		const entry = { ...entries[0], index: 0, speed: { ...entries[0].speed, maxSpeed } };
+		const { map } = renderMap([entry]);
+		const icon = map.querySelector<HTMLElement>('.icon.end[data-entry-index="0"]')!;
+		expect(icon).toBeInTheDocument();
+		for (const name of present) { expect(icon).toHaveClass(name); }
+		for (const name of absent) { expect(icon).not.toHaveClass(name); }
 	});
 });

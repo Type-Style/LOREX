@@ -110,6 +110,11 @@ describe('/write', () => {
   });
 
   // eslint-disable-next-line jest/expect-expect
+  it('with hdop 300 it sends 200', async () => {
+    await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=300.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 200);
+  });
+
+  // eslint-disable-next-line jest/expect-expect
   it('with altitude higher 10000 it sends 422', async () => {
     await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=50.0&altitude=10001.000&speed=150.000&heading=180.0&key=test", 422);
   });
