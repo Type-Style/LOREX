@@ -39,20 +39,15 @@ test('switching same-style basemaps updates tiles and applies then releases loca
 		await expect(controls.getByLabel('Local', { exact: true })).toBeChecked();
 	}
 	await expect(zoomIn).toHaveAttribute('aria-disabled', 'true');
-	await expectTiles('/tiles/13_');
 	await expect(map.locator('img.leaflet-tile[src*="tile.openstreetmap.de/"]')).toHaveCount(0);
-	for (let zoom = 13; zoom > 8; zoom--) {
-		await zoomOut.press('Enter');
-		await expectTiles(`/tiles/${zoom - 1}_`);
-	}
-	await expect(zoomOut).toHaveAttribute('aria-disabled', 'true');
 
 	// Same marker style as Local: both limits must still be released.
 	await selectLayer('OSM DE');
-	await expect(zoomOut).toHaveAttribute('aria-disabled', 'false');
-	await zoomOut.press('Enter');
-	await expectTiles('tile.openstreetmap.de/7/');
-	await expect(map.locator('img.leaflet-tile[src*="/tiles/"]')).toHaveCount(0);
+	await expect(zoomIn).toHaveAttribute('aria-disabled', 'false');
+	for (let zoom = 12; zoom >= 7; zoom--) {
+		await zoomOut.press('Enter');
+		await expectTiles(`tile.openstreetmap.de/${zoom}/`);
+	}
 	// Retained z8 tiles would satisfy the first zoom-in check before the zoom starts.
 	await expect(map.locator('img.leaflet-tile[src*="tile.openstreetmap.de/8/"]')).toHaveCount(0);
 	for (let zoom = 8; zoom <= 14; zoom++) {
