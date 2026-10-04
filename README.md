@@ -21,7 +21,7 @@ ESLint, Vite to compile frontend.<br />
 
 ## Installation
 ### Prerequisites
-Download [node](https://nodejs.org/en/download) for your system and install it.  
+Download [node](https://nodejs.org/en/download) (version 24 or newer, see `.nvmrc`) for your system and install it.  
 Download the repository code
 
 Open up a terminal or gitbash etc.  
