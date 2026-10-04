@@ -1,0 +1,65 @@
+# .github/dependabot.yml
+version: 2
+updates:
+  # ---- npm (single package.json at repo root) ----
+  - package-ecosystem: npm
+    directory: "/"
+    # no target-branch: dev is the default branch, and setting it would make
+    # security updates ignore the options below (groups, labels, prefixes)
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Berlin
+    # don't propose versions younger than this (supply-chain safety);
+    # security updates ignore cooldown
+    cooldown:
+      default-days: 5
+      semver-major-days: 14
+    open-pull-requests-limit: 5
+    ignore:
+      # types must match the runtime: CI, prod and .nvmrc are on Node 24
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+    labels: [dependencies, javascript]
+    commit-message:
+      # trailing space stops Dependabot from appending a colon
+      prefix: "[deps] "
+      prefix-development: "[deps-dev] "
+    groups:
+      # packages that must move together
+      react:
+        patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
+      mui:
+        patterns: ["@mui/*", "@emotion/*"]
+      eslint:
+        patterns: ["eslint", "eslint-*", "@eslint/*", "typescript-eslint", "@typescript-eslint/*"]
+        # majors get their own PR so one lagging plugin doesn't block the group
+        update-types: [minor, patch]
+      jest:
+        patterns: ["jest", "@jest/*", "@types/jest", "ts-jest"]
+      vite-vitest:
+        patterns: ["vite", "vitest", "@vitest/*", "@vitejs/*", "vite-*"]
+      # everything else: one PR for minor/patch per scope
+      prod-minor-patch:
+        dependency-type: production
+        update-types: [minor, patch]
+      dev-minor-patch:
+        dependency-type: development
+        update-types: [minor, patch]
+      # security fixes bundled into one PR instead of one per advisory
+      security:
+        applies-to: security-updates
+        patterns: ["*"]
+
+  # ---- GitHub Actions (workflows + local composite action) ----
+  - package-ecosystem: github-actions
+    directories: ["/", "/.github/actions/*"]
+    schedule:
+      interval: monthly
+    labels: [dependencies]
+    commit-message:
+      prefix: "[ci] "
+    groups:
+      actions:
+        patterns: ["*"]
