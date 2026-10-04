@@ -4,7 +4,8 @@ updates:
   # ---- npm (single package.json at repo root) ----
   - package-ecosystem: npm
     directory: "/"
-    target-branch: dev
+    # no target-branch: dev is the default branch, and setting it would make
+    # security updates ignore the options below (groups, labels, prefixes)
     schedule:
       interval: weekly
       day: monday
@@ -18,9 +19,9 @@ updates:
     open-pull-requests-limit: 5
     labels: [dependencies, javascript]
     commit-message:
-      prefix: "[deps]"
-      prefix-development: "[deps-dev]"
-      include: scope
+      # trailing space stops Dependabot from appending a colon
+      prefix: "[deps] "
+      prefix-development: "[deps-dev] "
     groups:
       # packages that must move together
       react:
@@ -29,6 +30,8 @@ updates:
         patterns: ["@mui/*", "@emotion/*"]
       eslint:
         patterns: ["eslint", "eslint-*", "@eslint/*", "typescript-eslint", "@typescript-eslint/*"]
+        # majors get their own PR so one lagging plugin doesn't block the group
+        update-types: [minor, patch]
       jest:
         patterns: ["jest", "@jest/*", "@types/jest", "ts-jest"]
       vite-vitest:
@@ -48,12 +51,11 @@ updates:
   # ---- GitHub Actions (workflows + local composite action) ----
   - package-ecosystem: github-actions
     directories: ["/", "/.github/actions/*"]
-    target-branch: dev
     schedule:
       interval: monthly
     labels: [dependencies]
     commit-message:
-      prefix: "[ci]"
+      prefix: "[ci] "
     groups:
       actions:
         patterns: ["*"]
