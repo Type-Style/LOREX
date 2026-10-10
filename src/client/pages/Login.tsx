@@ -141,21 +141,23 @@ function Login() {
             helperText={formInfo.user.isError ? formInfo.user.message : false}
             required
             autoFocus={!contextObj.userInfo}
-            InputProps={{
-              classes: {
-                root: "cut",
-              },
-              name: "user",
-              startAdornment: (
-                <InputAdornment position="start">
-                  <AccountCircleIcon />
-                </InputAdornment>
-              ),
-              endAdornment: formInfo.user.isError ? (
-                <InputAdornment position="end">
-                  <HighlightOffIcon color="error" />
-                </InputAdornment>
-              ) : null
+            slotProps={{
+              input: {
+                classes: {
+                  root: "cut",
+                },
+                name: "user",
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <AccountCircleIcon />
+                  </InputAdornment>
+                ),
+                endAdornment: formInfo.user.isError ? (
+                  <InputAdornment position="end">
+                    <HighlightOffIcon color="error" />
+                  </InputAdornment>
+                ) : null
+              }
             }}
           />
 
@@ -170,21 +172,23 @@ function Login() {
             error={formInfo.password.isError}
             helperText={formInfo.password.isError ? formInfo.password.message : false}
             autoFocus={!!contextObj.userInfo}
-            InputProps={{
-              classes: {
-                root: "cut",
-              },
-              name: "password",
-              startAdornment: (
-                <InputAdornment position="start">
-                  <LockIcon />
-                </InputAdornment>
-              ),
-              endAdornment: formInfo.password.isError ? (
-                <InputAdornment position="end">
-                  <HighlightOffIcon color="error" />
-                </InputAdornment>
-              ) : null
+            slotProps={{
+              input: {
+                classes: {
+                  root: "cut",
+                },
+                name: "password",
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockIcon />
+                  </InputAdornment>
+                ),
+                endAdornment: formInfo.password.isError ? (
+                  <InputAdornment position="end">
+                    <HighlightOffIcon color="error" />
+                  </InputAdornment>
+                ) : null
+              }
             }}
           />
           <input type="hidden" id="csrfToken" value={formInfo.token} name="csrfToken" />
