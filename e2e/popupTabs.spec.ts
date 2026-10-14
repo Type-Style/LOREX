@@ -116,7 +116,7 @@ test('all popup tabs show exact real-entry values and aligned rows, including ze
 		];
 		if (entry.speed.path !== undefined) { speed.push(['Path', `${(entry.speed.path * 3.6).toFixed(1)} km/h`]); }
 		speed.push(['Vertical', `${(entry.speed.vertical! * 3.6).toFixed(1)} km/h`]);
-		if (entry.speed.maxSpeed !== undefined) { speed.push(['MaxSpeed', `${entry.speed.maxSpeed.toFixed(1)} km/h`]); }
+		if (entry.speed.maxSpeed !== undefined) { speed.push(['MaxSpeed', `${entry.speed.maxSpeed.value.toFixed(1)} km/h`]); }
 		await expectRows(await selectTab(page, 'speed', entry), speed);
 
 		const preceding = fullEntries.filter(item => !item.ignore && item.index <= entry.index);
@@ -162,7 +162,7 @@ test('zero time difference does not emit a stray zero or invent calculated speed
 	await expectPopupEntry(page, entry);
 	const speed: Row[] = [['GPS', '0.0 km/h']];
 	if (entry.speed.path !== undefined) { speed.push(['Path', `${(entry.speed.path * 3.6).toFixed(1)} km/h`]); }
-	if (entry.speed.maxSpeed !== undefined) { speed.push(['MaxSpeed', `${entry.speed.maxSpeed.toFixed(1)} km/h`]); }
+	if (entry.speed.maxSpeed !== undefined) { speed.push(['MaxSpeed', `${entry.speed.maxSpeed.value.toFixed(1)} km/h`]); }
 	await expectRows(await selectTab(page, 'speed', entry), speed);
 	const list = await selectTab(page, 'time', entry);
 	await expect(list.locator('dt').filter({ hasText: /^Diff$/ })).toHaveCount(0);

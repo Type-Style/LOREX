@@ -2,6 +2,7 @@ import { checkNumber, checkTime } from "../models/entry";
 import toFixedNumber from "../scripts/toFixedNumber";
 import { checkPreconditions, reorderCoordinates } from "../scripts/getPath";
 import { getIgnoreClose } from "../scripts/ignore";
+import { getMaxSpeedSeverity } from "../scripts/maxSpeed";
 
 
 describe("entry checkNumber", () => {
@@ -91,8 +92,7 @@ describe("getPath", () => {
         "gps": 0,
         "horizontal": 0,
         "vertical": 0,
-        "total": 1,
-        "maxSpeed": 0
+        "total": 1
       },
       "address": "nowhere"
     }
@@ -145,7 +145,7 @@ describe("getIgnoreClose", () => {
     time: { created: 0, recieved: 0, uploadDuration: 0, diff: 30, createdString: "00:00" },
     angle: 0,
     distance: { horizontal: 0, vertical: 0, total: 0 },
-    speed: { gps: 0, horizontal: 0, vertical: 0, total: 0, maxSpeed: 0 },
+    speed: { gps: 0, horizontal: 0, vertical: 0, total: 0 },
     address: ""
   };
 
@@ -181,5 +181,45 @@ describe("getIgnoreClose", () => {
   it("returns false when diagonal distance slightly exceeds threshold", () => {
     // dist1 ~22m, entry.hdop=2 gives a 22m threshold.
     expect(getIgnoreClose(at(0, 0), at(hdopOffset, hdopOffset), at(hdopOffset * 2, hdopOffset * 2, 2))).toBe(false);
+  });
+});
+
+describe("getMaxSpeedSeverity", () => {
+  // Rule: warning when speed > limit + hdop + 2 km/h, alert when speed > limit + hdop + 10 km/h.
+  // limit 100 km/h and hdop 2 -> warning above 104 km/h, alert above 112 km/h.
+  const limit = 100;
+  const hdop = 2;
+  const kmh = (value: number) => value / 3.6; // entries carry m/s
+  const speedEntry = (gps: number, total?: number) => ({ speed: { gps, total }, hdop });
+
+  it("flags nothing below the warning threshold", () => {
+    expect(getMaxSpeedSeverity(speedEntry(kmh(90)), limit)).toEqual({ value: limit, warning: false, alert: false });
+  });
+
+  it("flags nothing exactly at limit + hdop + 2", () => {
+    expect(getMaxSpeedSeverity(speedEntry(kmh(104.5)), limit)).toEqual({ value: limit, warning: false, alert: false });
+  });
+
+  it("warns only just above limit + hdop + 2", () => {
+    expect(getMaxSpeedSeverity(speedEntry(kmh(105.5)), limit)).toEqual({ value: limit, warning: true, alert: false });
+  });
+
+  it("warns only exactly at limit + hdop + 10", () => {
+    expect(getMaxSpeedSeverity(speedEntry(kmh(112.5)), limit)).toEqual({ value: limit, warning: true, alert: false });
+  });
+
+  it("warns and alerts above limit + hdop + 10", () => {
+    expect(getMaxSpeedSeverity(speedEntry(kmh(113.5)), limit)).toEqual({ value: limit, warning: true, alert: true });
+  });
+
+  it("raises the thresholds with a larger hdop", () => {
+    // 113 km/h is an alert with hdop 2, but only a warning with hdop 5 (alert above 115)
+    expect(getMaxSpeedSeverity({ speed: { gps: kmh(113.5) }, hdop: 5 }, limit)).toEqual({ value: limit, warning: true, alert: false });
+  });
+
+  it("uses the harmonic mean of gps and total speed when total is present", () => {
+    // gps 97.2 km/h, total 118.8 km/h -> harmonic mean 106.92 -> raw 106 (> 104, <= 112)
+    // (without the harmonic mean, raw would be 97 and nothing would be flagged)
+    expect(getMaxSpeedSeverity(speedEntry(27, 33), limit)).toEqual({ value: limit, warning: true, alert: false });
   });
 });

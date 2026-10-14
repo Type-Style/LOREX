@@ -1,6 +1,6 @@
 import { APIRequestContext, APIResponse, Page, expect } from '@playwright/test';
 
-// The dev server accepts the literal write key "test" while NODE_ENV=development (same convention as src/tests/integration.test.ts). 
+// The dev server accepts the literal write key "test" while NODE_ENV=development (same convention as src/tests/integration.test.ts).
 const writeKey = 'test';
 
 // Every param /write validates (src/models/entry.ts). checkExact() rejects
@@ -52,7 +52,7 @@ export function buildWriteUrl(params: WriteParams = {}): string {
 	return `/write?${query}`;
 }
 
-// Sends the entry and asserts the server accepted it; 
+// Sends the entry and asserts the server accepted it;
 // label distinguishes multiple writes in one test ("A", "B") in the failure message.
 export async function writeEntry(request: APIRequestContext, params: WriteParams = {}, label = ''): Promise<APIResponse> {
 	const response = await request.get(buildWriteUrl(params));
