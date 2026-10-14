@@ -41,6 +41,7 @@ export default function LinearBuffer({ msStart, msFinish, variant = "buffer" }: 
   }, []);
 
   return (
-    <LinearProgress variant={variant} value={progress} valueBuffer={variant == "buffer" ? buffer : undefined} />
+    // MUI 9 no longer rounds aria-valuenow itself; keep announcing whole percentages while the bar moves smoothly
+    <LinearProgress variant={variant} value={progress} valueBuffer={variant == "buffer" ? buffer : undefined} aria-valuenow={Math.round(progress)} />
   );
 }
