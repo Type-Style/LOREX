@@ -27,7 +27,8 @@ function IgnoreActions() {
 
 function Ignore({ initialEntries }: { initialEntries: Models.IEntry[] }) {
 	const [entries, setEntries] = useState(initialEntries);
-	const actionContext: client.ActionContext = { entries, setEntries };
+	const [showIgnored, setShowIgnored] = useState(false);
+	const actionContext: client.ActionContext = { entries, setEntries, showIgnored, setShowIgnored };
 
 	return (
 		<StatefulContext initialLoggedIn={true} probe={true}>

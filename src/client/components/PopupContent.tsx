@@ -49,7 +49,7 @@ return (
         index === value && (
           <React.Fragment key={index}>
             {tab.name === "info" && (
-              <PopupInfo entry={entry} />
+              <PopupInfo entry={entry} cleanEntries={cleanEntries} />
             )}
             {tab.name === "speed" && (
               <PopupSpeed entry={entry} />
