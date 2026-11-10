@@ -28,8 +28,19 @@ Open up a terminal or gitbash etc.
 Run the install command for example via npm
 `npm install`
 
+In Windows PowerShell, if script execution is disabled and `npm` fails to run,
+use `npm.cmd install` instead. Use `npm.cmd` in place of `npm` for the other
+commands below as well; this does not require changing PowerShell's execution policy.
+The build and dev scripts also require `rm` and `cp` on `PATH` on Windows;
+running them from Git Bash is one option.
+
 After completion without errors hit
 `npm run build`
+
+> [!WARNING]
+> `npm run build` and `npm run dev` remove the contents of `dist/`, including any
+> runtime data stored there. Back up or move data you need before using either
+> command on an existing installation.
 
 Once complete you can start the server using
 `npm run start`
