@@ -6,7 +6,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import Button from "@mui/material/Button";
 
-export default function PopupInfo({ entry }: { entry: Models.IEntry }) {
+export default function PopupInfo({ entry, cleanEntries }: { entry: Models.IEntry, cleanEntries: Models.IEntry[] }) {
   const hdopStatus = entry.hdop < 3.25 ? 'good' : entry.hdop < 6 ? 'ok' : 'bad';
   const { ignoreData, resetData } = useIgnoreData();
 
@@ -54,7 +54,7 @@ export default function PopupInfo({ entry }: { entry: Models.IEntry }) {
           <span className="button-label">Before</span>
         </Button>
 
-        <Button variant="outlined" size="small" startIcon={<VisibilityOffIcon />} onClick={() => ignoreData(entry.index)}>
+        <Button variant="outlined" size="small" startIcon={<VisibilityOffIcon />} disabled={cleanEntries.length <= 1} onClick={() => ignoreData(entry.index)}>
           <span className="button-label">Self</span>
         </Button>
 

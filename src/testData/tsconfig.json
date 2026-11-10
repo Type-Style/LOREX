@@ -1,0 +1,4 @@
+{
+  // Editor-only pointer, see src/tests/tsconfig.json.
+  "extends": "../../tsconfig.tests.json"
+}
