@@ -209,7 +209,7 @@ describe("GET /write", () => {
         done();
       }, 3500);
     })
-  }, 8000);
+  }, 7500);
 
   it('the time is correct', () => {
     const jsonData = getData(filePath);
@@ -218,7 +218,7 @@ describe("GET /write", () => {
     expect(entry.index).toBe(1);
     expect(entry.time.created).toBeGreaterThan(date.getTime());
     expect(entry.time.diff).toBeGreaterThan(3.5);
-    expect(entry.time.diff).toBeLessThan(7);
+    expect(entry.time.diff).toBeLessThan(6.75);
 
 
     const germanDayPattern = "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag)";
@@ -252,9 +252,9 @@ describe("GET /write", () => {
     const jsonData = getData(filePath);
     const entry = jsonData.entries.at(-1)
 
-    expect(isInRange(entry.speed.horizontal, 414.42, 156)).toBe(true);
-    expect(isInRange(entry.speed.vertical, -228.57, 86)).toBe(true);
-    expect(isInRange(entry.speed.total, 473, 178)).toBe(true);
+    expect(isInRange(entry.speed.horizontal, 414.42, 146)).toBe(true);
+    expect(isInRange(entry.speed.vertical, -228.57, 81)).toBe(true);
+    expect(isInRange(entry.speed.total, 473, 167)).toBe(true);
   });
 
   it('the heading is correct', () => {
