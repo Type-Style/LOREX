@@ -7,7 +7,7 @@ import { usePopup } from '../hooks/usePopup';
 import { makeEntry, renderWithContext } from './testUtils';
 
 function renderPopup(entry: Models.IEntry) {
-	const actionContext: client.ActionContext = { entries: [entry], setEntries: () => {} };
+	const actionContext: client.ActionContext = { entries: [entry], setEntries: () => {}, showIgnored: false, setShowIgnored: () => {} };
 	return renderWithContext(
 		<ActionContext value={[actionContext]}>
 			<PopupContent entry={entry} cleanEntries={[entry]} />
