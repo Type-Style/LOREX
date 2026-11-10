@@ -55,6 +55,53 @@
 		}
 	}
 
+	/* the data row toggles ignored entries on the map */
+	.dataRow {
+		position: relative;
+		user-select: none;
+	}
+
+	.ignoredToggle {
+		appearance: none;
+		border: 0;
+		padding: 0;
+		background: none;
+		color: inherit;
+		font: inherit;
+		letter-spacing: inherit;
+		cursor: pointer;
+
+		/* Keep the whole row clickable, including when labels are hidden on mobile. */
+		&::before {
+			content: "";
+			position: absolute;
+			inset: 0;
+		}
+
+		&:focus-visible::before {
+			outline: 2px solid currentColor;
+			outline-offset: 2px;
+		}
+	}
+
+	/* very subtle underline marks which number is the "active" one */
+	.dataRow .visibleCount,
+	.dataRow.showIgnored .ignoredCount {
+		text-decoration: underline;
+		text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+		text-underline-offset: 0.2em;
+	}
+
+	/* when ignored entries are shown the underline moves off the visible count */
+	.dataRow.showIgnored .visibleCount {
+		text-decoration: none;
+	}
+
+	/* showing ignored entries removes the strike-through from the ignored count */
+	.dataRow.showIgnored .ignoredCount.strike::after {
+		display: none;
+	}
+
 	span {
 		white-space: nowrap;
 	}
