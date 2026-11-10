@@ -57,10 +57,6 @@ function getData(filePath: string) {
   return JSON.parse(data.toString());
 }
 
-function isInRange(actual: string | number, expected: number, range: number) {
-  return Math.abs(Number(actual) - expected) <= range;
-}
-
 async function verifiedRequest(url: string, token: string) {
   const response = await axiosTestRequest(axios({
     method: 'get',
@@ -173,12 +169,11 @@ describe('/write', () => {
 
 
 describe("GET /write", () => {
-  const date = new Date();
-  const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-
+  let firstTimestamp: number;
 
   it('there should a file of the current date', async () => {
-    await callServer(undefined, "user=xx&lat=52.51451&lon=13.35105&timestamp=R3Pl4C3&hdop=2.0&altitude=5000&speed=150.000&heading=180.0&key=test", 200, "GET");
+    firstTimestamp = Date.now() - 5000;
+    await callServer(firstTimestamp, "user=xx&lat=52.51451&lon=13.35105&timestamp=R3Pl4C3&hdop=2.0&altitude=5000&speed=150.000&heading=180.0&key=test", 200, "GET");
 
     fs.access(filePath, fs.constants.F_OK, (err) => {
       expect(err).toBeFalsy();
@@ -196,29 +191,23 @@ describe("GET /write", () => {
     });
   });
 
-  it('after second call and the JSON entries length is 2', () => {
-    return new Promise<void>(done => {
-      setTimeout(async () => {
-        await callServer(undefined, "user=xx&lat=52.51627&lon=13.37770&timestamp=R3Pl4C3&hdop=50&altitude=4000&speed=150.000&heading=180.0&key=test", 200, "GET");
-        const jsonData = getData(filePath);
-        const entry = jsonData.entries.at(-1)
+  it('after second call and the JSON entries length is 2', async () => {
+    await new Promise<void>(resolve => setTimeout(resolve, 3500));
+    await callServer(firstTimestamp + 4000, "user=xx&lat=52.51627&lon=13.37770&timestamp=R3Pl4C3&hdop=50&altitude=4000&speed=150.000&heading=180.0&key=test", 200, "GET");
+    const jsonData = getData(filePath);
+    const entry = jsonData.entries.at(-1)
 
-        expect(jsonData.entries.length).toBe(2);
-        expect(entry.index).toBe(1);
-
-        done();
-      }, 3500);
-    })
-  });
+    expect(jsonData.entries.length).toBe(2);
+    expect(entry.index).toBe(1);
+  }, 8000);
 
   it('the time is correct', () => {
     const jsonData = getData(filePath);
     const entry = jsonData.entries.at(-1)
 
     expect(entry.index).toBe(1);
-    expect(entry.time.created).toBeGreaterThan(date.getTime());
-    expect(entry.time.diff).toBeGreaterThan(3.5);
-    expect(entry.time.diff).toBeLessThan(5.25);
+    expect(entry.time.created).toBe(firstTimestamp + 4000);
+    expect(entry.time.diff).toBe(4);
 
 
     const germanDayPattern = "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag)";
@@ -252,9 +241,9 @@ describe("GET /write", () => {
     const jsonData = getData(filePath);
     const entry = jsonData.entries.at(-1)
 
-    expect(isInRange(entry.speed.horizontal, 414.42, 118.41)).toBe(true);
-    expect(isInRange(entry.speed.vertical, -228.57, 65.31)).toBe(true);
-    expect(isInRange(entry.speed.total, 473, 135)).toBe(true);
+    expect(entry.speed.horizontal).toBeCloseTo(1813.926 / 4);
+    expect(entry.speed.vertical).toBe(-1000 / 4);
+    expect(entry.speed.total).toBeCloseTo(2071.311 / 4);
   });
 
   it('the heading is correct', () => {
@@ -271,10 +260,10 @@ describe("GET /write", () => {
     expect(entry.altitude).toBe(4000);
   })
 
-  it('the address is correct', () => {
+  it('the address is a string even when the lookup is unavailable', () => {
     const jsonData = getData(filePath);
     const entry = jsonData.entries.at(-2);
-    expect(entry.address.toLowerCase()).toContain("berlin");
+    expect(typeof entry.address).toBe("string");
   })
 
 

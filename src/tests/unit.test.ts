@@ -3,6 +3,25 @@ import toFixedNumber from "../scripts/toFixedNumber";
 import { checkPreconditions, reorderCoordinates } from "../scripts/getPath";
 import { getIgnoreClose } from "../scripts/ignore";
 import { getMaxSpeedSeverity } from "../scripts/maxSpeed";
+import axios, { AxiosResponse } from "axios";
+import { getAddressData } from "../scripts/getAddressData";
+
+describe("getAddressData", () => {
+  it("combines the address and speed limit from both lookup responses", async () => {
+    const request = jest.spyOn(axios, "get")
+      .mockResolvedValueOnce({ data: { address: { road: "Hardenbergstraße", city: "Berlin" }, extratags: { maxspeed: "50" } } } as AxiosResponse)
+      .mockResolvedValueOnce({ data: { address: { house_number: "12" } } } as AxiosResponse);
+
+    try {
+      await expect(getAddressData(52.51451, 13.35105)).resolves.toEqual({
+        address: " Hardenbergstraße 12, Berlin",
+        maxSpeed: 50,
+      });
+    } finally {
+      request.mockRestore();
+    }
+  });
+});
 
 
 describe("entry checkNumber", () => {
