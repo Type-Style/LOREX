@@ -139,9 +139,11 @@ test('polling recolors older segments when a new entry raises the maximum speed'
 	// Use a real dark map layer so the fastest white line contrasts with the map.
 	const layers = map.locator('.leaflet-control-layers');
 	const darkLayer = layers.getByLabel('Stadia AlidadeSmoothDark', { exact: true });
-	if (!await darkLayer.isVisible()) { await layers.locator('.leaflet-control-layers-toggle').press('Enter'); }
-	await darkLayer.press('Space');
-	await expect(darkLayer).toBeChecked();
+	await expect(async () => {
+		if (!await darkLayer.isVisible()) { await layers.locator('.leaflet-control-layers-toggle').press('Enter'); }
+		await darkLayer.press('Space');
+		await expect(darkLayer).toBeChecked({ timeout: 1000 });
+	}).toPass({ timeout: 5000 });
 
 	for (let zoom = 14; zoom <= 16; zoom++) {
 		await map.getByRole('button', { name: 'Zoom in', exact: true }).press('Enter');
