@@ -4,7 +4,6 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
 import react from 'eslint-plugin-react';
 import importPlugin from 'eslint-plugin-import';
-import reactCompiler from 'eslint-plugin-react-compiler';
 import ts from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import functional from 'eslint-plugin-functional';
@@ -43,7 +42,6 @@ export default [
             react,
             'react-hooks': reactHooks,
             'react-refresh': reactRefresh,
-            'react-compiler': reactCompiler,
             functional,
             '@typescript-eslint': ts,
             ts,
@@ -53,7 +51,8 @@ export default [
             ...react.configs.recommended.rules,
             ...react.configs['jsx-runtime'].rules,
             ...reactHooks.configs.recommended.rules,
-            'react-compiler/react-compiler': 'error',
+            'react-hooks/incompatible-library': 'error',
+            'react-hooks/unsupported-syntax': 'error',
             'no-else-return': 'error',
             '@typescript-eslint/no-unused-vars': [
                 'warn',
@@ -76,6 +75,16 @@ export default [
             '@typescript-eslint/no-empty-function': 'off',
             curly: ['error', 'all'],
         },
+    },
+
+    // Keep existing behavior visible as warnings while migrating to the newer compiler rules.
+    {
+        files: ['src/client/components/MultiColorPolyline.tsx'],
+        rules: { 'react-hooks/purity': 'warn' },
+    },
+    {
+        files: ['src/client/components/PopupContent.tsx'],
+        rules: { 'react-hooks/set-state-in-effect': 'warn' },
     },
 
     // Test helpers mix component and non-component exports; fast refresh does not apply to tests
