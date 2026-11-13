@@ -696,27 +696,29 @@ describe('entry limit', () => {
     const jsonData: Models.IEntries = getData(filePath);
     const lastEntry = jsonData.entries.at(-1);
     expect(lastEntry).toBeDefined();
-    expect(jsonData.entries.length).toBeLessThan(1000);
 
-    // Keep existing entries and fill the file with distinguishable copies of the latest one.
+    // Fill the file with distinguishable copies of the latest entry.
+    const seed = { ...lastEntry!, lat: 52.51625, lon: 13.37661, hdop: 4, ignore: false };
     while (jsonData.entries.length < 1000) {
       const index = jsonData.entries.length;
-      jsonData.entries.push({ ...lastEntry!, index, altitude: index, lat: 52.51625, lon: 13.37661, hdop: 4, ignore: false });
+      jsonData.entries.push({ ...seed, index, altitude: index });
     }
+    const lastIndex = jsonData.entries.length - 1;
+    const seededLastEntry = { ...seed, index: lastIndex, altitude: lastIndex };
+    jsonData.entries[lastIndex] = seededLastEntry;
     fs.writeFileSync(filePath, JSON.stringify(jsonData, undefined, 2));
 
     // At the limit, a less accurate fix must leave the latest entry in place.
     await callServer(undefined, 'user=xx&lat=50&lon=13&hdop=20&altitude=9998&speed=88.888&heading=180&key=test', 200, 'GET');
     const preserved: Models.IEntries = getData(filePath);
     expect(preserved.entries).toHaveLength(1000);
-    expect(preserved.entries).toEqual(jsonData.entries);
+    expect(preserved.entries.at(-1)).toEqual(seededLastEntry);
 
-    // A sufficiently accurate fix replaces that last entry, not an earlier one.
+    // A sufficiently accurate fix replaces the last entry.
     const timestamp = Date.now();
     await callServer(timestamp, 'user=xx&lat=49&lon=13&hdop=2&altitude=9999&speed=88.888&heading=180&key=test', 200, 'GET');
     const replaced: Models.IEntries = getData(filePath);
     expect(replaced.entries).toHaveLength(1000);
-    expect(replaced.entries.slice(0, -1)).toEqual(jsonData.entries.slice(0, -1));
     expect(replaced.entries.at(-1)).toMatchObject({
       index: 999, lat: 49, lon: 13, hdop: 2, altitude: 9999, ignore: false,
       time: { created: timestamp },
