@@ -10,8 +10,7 @@
 ## Safety
 - Never automatically start the dev server; expect it to be running externally and report if unavailable.
 - Never read or write `.env` files. Environment documentation changes belong in `.env_example` only.
-- `npm run build`, `npm run dev`, and `npm run test:postClear` invoke cleanup that DELETES runtime `dist/` data. Reset only intentionally disposable test data, never production data.
-- `NODE_ENV=development` disables Helmet and permits write key `test` (requires configured `KEY`); `TEST`/`test` login still requires a configured bcrypt hash in `USER_TEST`. Production blocks `TEST` login and has no dev write-key bypass.
+- `npm run build`, `npm run dev`, and `npm run test:postClear` invoke cleanup that DELETES runtime `dist/` data.
 
 ## Commands And Tests
 - Verify changes with `npm run lint`, `npm run typecheck`, and `npm run typecheck:tests`. Lint auto-fixes; use `npm run lint -- --no-fix` when unrelated concurrent edits must remain untouched.
@@ -20,7 +19,14 @@
 - `npm run test:e2e`: real-browser Playwright with preflight; seeds real entries. See [E2E guide](docs/e2e.md) for prerequisites, intentional cleanup, test design, and debugging.
 - `npm run test:data`: excluded from normal Jest; repeatedly WRITES entries every 30 seconds. `test:data:prod` targets `ROOT`; never run it as routine verification.
 - `npm run test:production`: isolated local production guards. `test:production:prod` targets the configured live `ROOT`; do not confuse it with local verification.
+
+## Testing
 - Prefer real, observable results over mocks or implementation-call assertions; detailed test boundaries are in the E2E guide.
+- Unit test avoid mocking
+
+
+## Code style
+Easy to read and understand code. As little as possible, surgical improvements.
 
 ## Analysis output
 Use root `temp/` for analysis Markdown.
