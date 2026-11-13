@@ -86,6 +86,12 @@ jobs:
         run: npm run test:app
       - name: Run login tests
         run: npm run test:login
+      # The server runs as root; create the day file as the runner so the
+      # integration test can seed it directly without elevated privileges.
+      - name: Prepare writable integration data file
+        run: |
+          mkdir -p dist/data
+          printf '{"entries": []}' > "dist/data/data-$(date +%F).json"
       - name: Run integration tests
         run: npm run test:integration
 
