@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
-import { closePopups, entryMarker, expectPopupEntry, openEntries, readEntries, seedKnownEntries, uiLogin } from './helpers';
+import { clearEntries, closePopups, entryMarker, expectPopupEntry, openEntries, readEntries, seedKnownEntries, uiLogin } from './helpers';
 
-test('live polling replaces the previous last entry and does not duplicate unchanged data', async ({ page, request }) => {
+test('live polling replaces the previous last entry and does not duplicate unchanged data', { tag: '@polling' }, async ({ page, request }) => {
+	clearEntries();
 	test.setTimeout(180000);
 	await uiLogin(page);
 	const existing = await readEntries(page, request);

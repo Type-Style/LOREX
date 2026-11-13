@@ -1,10 +1,11 @@
 import { expect, test } from '@playwright/test';
-import { openEntries, seedKnownEntries, uiLogin } from './helpers';
+import { clearEntries, openEntries, seedKnownEntries, uiLogin } from './helpers';
 
 test('the full status table shows calculated totals, pauses, ignored data and arrival estimates', async ({ page, request }) => {
+	clearEntries();
 	await uiLogin(page);
 	const now = Date.now();
-	// A same-time predecessor prevents older fixture timestamps inheriting a negative gap from shared data.
+	// A non-ignored predecessor gives the 3rd fixture relational distance/speed after the 2nd is auto-ignored.
 	const seeded = await seedKnownEntries(page, request, [
 		{ timestamp: now - 1200000, altitude: 100 },
 		{ timestamp: now - 1200000, altitude: 100, hdop: 30 },

@@ -1,5 +1,7 @@
 import { expect, test, Locator, Page } from '@playwright/test';
-import { ageEntries, expectPopupEntry, openEntries, seedKnownEntries, uiLogin } from './helpers';
+import { ageEntries, clearEntries, expectPopupEntry, openEntries, seedKnownEntries, uiLogin } from './helpers';
+
+test.beforeEach(() => { clearEntries(); });
 
 type Row = [label: string, value: string, detail?: string];
 
@@ -69,8 +71,8 @@ async function selectTab(page: Page, name: string, entry: Models.IEntry) {
 
 test('a non-info deep link and a selected tab survive browser reload', async ({ page, request }) => {
 	await uiLogin(page);
-	const entries = await seedKnownEntries(page, request, [{ speed: 7 }, {}]);
-	const entry = entries[0];
+	const entries = await seedKnownEntries(page, request, [{}, { speed: 7 }, {}]);
+	const entry = entries[1];
 	await ageEntries(page, entries);
 	await openEntries(page, `/?popup=${entry.index}&tab=speed`);
 	const popup = page.locator('.mapContainer .leaflet-popup');
