@@ -21,7 +21,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: 'npm'
-      - run: npm ci --legacy-peer-deps
+      - run: npm ci
       - uses: ./.github/actions/start-server
         with:
           node-env: ${{ vars.NODE_ENV }}

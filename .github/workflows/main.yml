@@ -24,7 +24,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: 'npm'
-      - run: npm ci --legacy-peer-deps
+      - run: npm ci
       - name: Lint (fail, don't auto-fix, in CI)
         run: npm run lint -- --no-fix
 
@@ -37,7 +37,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: 'npm'
-      - run: npm ci --legacy-peer-deps
+      - run: npm ci
       - name: Typecheck backend
         run: npm run typecheck:backend
       - name: Typecheck frontend
@@ -57,7 +57,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: 'npm'
-      - run: npm ci --legacy-peer-deps
+      - run: npm ci
       # No server needed: pure unit tests and the in-process production guard.
       - name: Run unit tests
         run: npm run test:unit
@@ -74,7 +74,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: 'npm'
-      - run: npm ci --legacy-peer-deps
+      - run: npm ci
       - uses: ./.github/actions/start-server
         with:
           node-env: ${{ vars.NODE_ENV }}
@@ -103,7 +103,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: 'npm'
-      - run: npm ci --legacy-peer-deps
+      - run: npm ci
       # test:react also covers a handful of specs that talk to the real dev
       # server (real login/HTTP from jsdom), so it still needs one running.
       - uses: ./.github/actions/start-server
@@ -127,7 +127,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: 'npm'
-      - run: npm ci --legacy-peer-deps
+      - run: npm ci
       - uses: ./.github/actions/start-server
         with:
           node-env: ${{ vars.NODE_ENV }}
