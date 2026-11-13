@@ -25,5 +25,8 @@
 - Unit test avoid mocking
 
 
+## Code style
+Easy to read and understand code. As little as possible, surgical improvements.
+
 ## Analysis output
 Use root `temp/` for analysis Markdown.
