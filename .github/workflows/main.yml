@@ -88,6 +88,18 @@ jobs:
         run: npm run test:login
       - name: Run integration tests
         run: npm run test:integration
+
+  backend-production:
+    name: backend production live
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: 'npm'
+      - run: npm ci
       - name: Run production live tests (against ROOT)
         env:
           ROOT: ${{ secrets.ROOT }} # only this step needs it

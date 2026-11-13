@@ -691,23 +691,37 @@ describe('entry.recalculate: maxSpeed severity happy path', () => {
   });
 });
 
-describe('API calls', () => {
-  test(`1000 api calls`, async () => {
-    for (let i = 0; i < 1000; i++) {
-      const url = `http://localhost:80/write?user=xx&lat=${(52 + Math.random()).toFixed(3)}&lon=${(13 + Math.random()).toFixed(3)}&timestamp=${new Date().getTime()}&hdop=${(10 * Math.random()).toFixed(3)}&altitude=${i}&speed=88.888&heading=${(360 * Math.random()).toFixed(3)}&key=test`;
-      const response = await axios.get(url);
-      expect(response.status).toBe(200);
-    }
-  }, 50000); // adjust this to to fit your setup
+describe('entry limit', () => {
+  test('preserves or replaces the last entry without exceeding 1000', async () => {
+    const jsonData: Models.IEntries = getData(filePath);
+    const lastEntry = jsonData.entries.at(-1);
+    expect(lastEntry).toBeDefined();
+    expect(jsonData.entries.length).toBeLessThan(1000);
 
-  test(`length of json should not exceed 1000`, async () => {
-    const date = new Date();
-    const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    const dirPath = path.resolve(__dirname, '../../dist/data/');
-    const filePath = path.resolve(dirPath, `data-${formattedDate}.json`);
-    const jsonData = getData(filePath);
-    expect(jsonData.entries.length).toBeLessThanOrEqual(1000);
-  });
+    // Keep existing entries and fill the file with distinguishable copies of the latest one.
+    while (jsonData.entries.length < 1000) {
+      const index = jsonData.entries.length;
+      jsonData.entries.push({ ...lastEntry!, index, altitude: index, lat: 52.51625, lon: 13.37661, hdop: 4, ignore: false });
+    }
+    fs.writeFileSync(filePath, JSON.stringify(jsonData, undefined, 2));
+
+    // At the limit, a less accurate fix must leave the latest entry in place.
+    await callServer(undefined, 'user=xx&lat=50&lon=13&hdop=20&altitude=9998&speed=88.888&heading=180&key=test', 200, 'GET');
+    const preserved: Models.IEntries = getData(filePath);
+    expect(preserved.entries).toHaveLength(1000);
+    expect(preserved.entries).toEqual(jsonData.entries);
+
+    // A sufficiently accurate fix replaces that last entry, not an earlier one.
+    const timestamp = Date.now();
+    await callServer(timestamp, 'user=xx&lat=49&lon=13&hdop=2&altitude=9999&speed=88.888&heading=180&key=test', 200, 'GET');
+    const replaced: Models.IEntries = getData(filePath);
+    expect(replaced.entries).toHaveLength(1000);
+    expect(replaced.entries.slice(0, -1)).toEqual(jsonData.entries.slice(0, -1));
+    expect(replaced.entries.at(-1)).toMatchObject({
+      index: 999, lat: 49, lon: 13, hdop: 2, altitude: 9999, ignore: false,
+      time: { created: timestamp },
+    });
+  }, 15000);
 });
 
 
