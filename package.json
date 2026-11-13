@@ -1,6 +1,6 @@
 {
   "name": "lorex",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Leaflet Osmand React ExpressJS Coordinates (X)\r > Remember an \"X\" marks the spot.",
   "main": "index.js",
   "engines": {
@@ -83,7 +83,7 @@
   },
   "sideEffects": false,
   "devDependencies": {
-    "@babel/core": "^8.0.10",
+    "@babel/core": "^7.29.13",
     "@eslint/js": "^9.27.0",
     "@jest/globals": "^30.5.2",
     "@playwright/test": "^1.65.0",
@@ -106,7 +106,6 @@
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@types/react-leaflet": "^3.0.0",
     "@types/toobusy-js": "^0.5.4",
     "@typescript-eslint/eslint-plugin": "^8.72.1",
     "@typescript-eslint/parser": "^8.72.1",
@@ -118,7 +117,7 @@
     "cross-env": "^7.0.3",
     "css-loader": "^7.1.5",
     "esbuild": "^0.28.2",
-    "eslint": "^10.13.0",
+    "eslint": "^9.39.5",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-import-resolver-typescript": "^4.4.5",
     "eslint-plugin-functional": "^9.0.1",
@@ -150,8 +149,22 @@
     "@istanbuljs/load-nyc-config": {
       "js-yaml": "4.3.2"
     },
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^11.0.8"
+    },
     "eslint-plugin-functional": {
       "deepmerge-ts": "^8.0.2"
+    },
+    "glob@^10": "^14.0.6",
+    "glob@^13": "^14.0.6",
+    "nodemon": {
+      "minimatch": "^11.0.8"
+    },
+    "readdir-glob": {
+      "minimatch": "^11.0.8"
+    },
+    "test-exclude": {
+      "minimatch": "^11.0.8"
     }
   }
 }
