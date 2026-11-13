@@ -1,6 +1,9 @@
 import { expect, test } from '@playwright/test';
 import { uiLogin } from './helpers';
 
+// Reset storage state so logout exercises a full UI login → logout cycle on desktop and mobile.
+test.use({ storageState: { cookies: [], origins: [] } });
+
 // the logged-in button clears the JWT from localStorage and flips the UI back to the logged-out page
 test('logging out clears the stored jwt and shows the logged-out state', async ({ page }) => {
 	await uiLogin(page);

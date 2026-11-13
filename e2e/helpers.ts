@@ -1,4 +1,16 @@
+import fs from 'fs';
+import path from 'path';
 import { APIRequestContext, APIResponse, Page, expect } from '@playwright/test';
+
+export const authStatePath = path.resolve('temp/e2e-auth.json');
+
+export function clearEntries(): void {
+	const date = new Date();
+	const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+	const dirPath = path.resolve('dist/data');
+	fs.mkdirSync(dirPath, { recursive: true });
+	fs.writeFileSync(path.resolve(dirPath, `data-${formattedDate}.json`), '{"entries": []}');
+}
 
 // The dev server accepts the literal write key "test" while NODE_ENV=development (same convention as src/tests/integration.test.ts).
 const writeKey = 'test';
@@ -61,8 +73,18 @@ export async function writeEntry(request: APIRequestContext, params: WriteParams
 }
 
 
-// Full UI login with the dev-only TEST
+// Reuse stored localStorage auth when valid, falling back to full UI login with the dev-only TEST user.
 export async function uiLogin(page: Page): Promise<void> {
+	if (page.url() === 'about:blank') {
+		const read = page.waitForResponse(res => new URL(res.url()).pathname === '/read').catch(() => null);
+		await page.goto('/');
+		if (await page.evaluate(() => Boolean(localStorage.getItem('jwt'))) && (await read)?.ok()) {
+			await expect(page.getByText('Logged In')).toBeVisible();
+			return;
+		}
+	} else if (await page.getByText('Logged In').isVisible()) {
+		return;
+	}
 	await page.goto('/login');
 	await page.getByLabel('Username').fill('TEST');
 	await page.getByLabel('Password').fill('test');
@@ -81,7 +103,7 @@ export async function readEntries(page: Page, request: APIRequestContext): Promi
 }
 
 // Seed and reload only when a data-dependent test finds no entries.
-// Empty-state tests stub their read instead; existing server data is never cleared.
+// Empty-state UI tests stub `/read?` instead of reading the daily file.
 export async function seedIfEmpty(page: Page, request: APIRequestContext): Promise<Models.IEntry[]> {
 	let entries = await readEntries(page, request);
 	if (entries.length === 0) {
