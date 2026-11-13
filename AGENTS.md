@@ -6,6 +6,7 @@
 - Backend imports use `@src/*`; runtime resolution depends on `module-alias/register` and `_moduleAliases` mapping `@src` to `dist`.
 - Static files live in `httpdocs/`; builds copy them into ignored `dist/httpdocs/`. Runtime data is written under ignored `dist/data/`.
 - React Compiler is enabled through Vite/Babel and enforced by ESLint.
+- React-Leaflet is used
 
 ## Safety
 - Never automatically start the dev server; expect it to be running externally and report if unavailable.
