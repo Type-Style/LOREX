@@ -51,6 +51,7 @@ export default [
             ...react.configs.recommended.rules,
             ...react.configs['jsx-runtime'].rules,
             ...reactHooks.configs.recommended.rules,
+            'react-hooks/hooks': 'error',
             'react-hooks/incompatible-library': 'error',
             'react-hooks/unsupported-syntax': 'error',
             'no-else-return': 'error',
@@ -75,16 +76,6 @@ export default [
             '@typescript-eslint/no-empty-function': 'off',
             curly: ['error', 'all'],
         },
-    },
-
-    // Keep existing behavior visible as warnings while migrating to the newer compiler rules.
-    {
-        files: ['src/client/components/MultiColorPolyline.tsx'],
-        rules: { 'react-hooks/purity': 'warn' },
-    },
-    {
-        files: ['src/client/components/PopupContent.tsx'],
-        rules: { 'react-hooks/set-state-in-effect': 'warn' },
     },
 
     // Test helpers mix component and non-component exports; fast refresh does not apply to tests
