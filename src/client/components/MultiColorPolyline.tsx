@@ -64,11 +64,13 @@ export const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Array<Model
 		if (entry.time.uploadDuration > 300 || entry.time.diff && (entry.time.diff > 100 || entry.time.diff < 25)) { strokeDashArray = "4 8"; }
 		// eslint-disable-next-line react-hooks/purity -- Check recency when the polyline renders.
 		const isRecent = index === cleanEntries.length - 1 && (Date.now() - entry.time.recieved) <= 60000;
+		// Leaflet applies className only on mount, so remount when the animation class changes.
+		// React-Leaflet updates colors and dashes on existing paths only through pathOptions.
 		return (<Polyline
+			key={`${entry.index}-${entry.time.created}-${isRecent}`}
 			positions={pathPositions}
-			color={formatCss(correctedColor)}
+			pathOptions={{ color: formatCss(correctedColor), dashArray: strokeDashArray }}
 			weight={5}
-			dashArray={strokeDashArray}
 			className={"customPolyline " + (isRecent ? "animate " : "")}
 			lineCap={"butt"}
 			 />);
