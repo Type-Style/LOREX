@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
-import { ageEntries, closePopups, openEntries, seedKnownEntries, uiLogin } from './helpers';
+import { ageEntries, clearEntries, closePopups, openEntries, seedKnownEntries, uiLogin } from './helpers';
 
 test('switching same-style basemaps updates tiles and applies then releases local zoom limits', async ({ page, request, isMobile }) => {
+	clearEntries();
 	test.setTimeout(90000);
 	await uiLogin(page);
 	const entries = await seedKnownEntries(page, request, [{ lat: 50, lon: 8 }]);

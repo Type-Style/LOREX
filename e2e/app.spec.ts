@@ -1,5 +1,8 @@
 import { expect, test } from '@playwright/test';
 
+// Start with empty localStorage (origins) for unauthenticated smoke tests.
+test.use({ storageState: { cookies: [], origins: [] } });
+
 // Basic smoke: the application is served, React mounts and both pages render.
 test('start page loads and shows the logged-out state', async ({ page, isMobile }) => {
 	await page.goto('/');

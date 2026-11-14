@@ -4,10 +4,10 @@ import { uiLogin } from './helpers';
 // Shared server data is not guaranteed empty; stub only the entries read.
 // Authentication and map/traffic token requests remain real.
 test('a logged-in user without entries sees the no-data state instead of the map', async ({ page, isMobile }) => {
+	await uiLogin(page);
 	await page.route(/\/read\?/, (route) => route.fulfill({ json: { entries: [] } }));
 	const read = page.waitForResponse(response => new URL(response.url()).pathname === '/read');
-
-	await uiLogin(page);
+	await page.goto('/');
 	const response = await read;
 	expect(response.ok()).toBeTruthy();
 	expect(await response.finished()).toBeNull();

@@ -1,5 +1,7 @@
 import { expect, test, Page } from '@playwright/test';
-import { ageEntries, closePopups, entryMarker, expectPopupEntry, openEntries, readEntries, seedKnownEntries, uiLogin } from './helpers';
+import { ageEntries, clearEntries, closePopups, entryMarker, expectPopupEntry, openEntries, readEntries, seedKnownEntries, uiLogin } from './helpers';
+
+test.beforeEach(() => { clearEntries(); });
 
 async function ignoreAction(page: Page, entry: Models.IEntry, action: 'Self' | 'Before' | 'After' | 'Reset') {
 	await entryMarker(page, entry).click();

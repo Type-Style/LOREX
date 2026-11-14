@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
-import { closePopups, entryMarker, expectPopupEntry, openEntries, readEntries, seedKnownEntries, uiLogin } from './helpers';
+import { clearEntries, closePopups, entryMarker, expectPopupEntry, openEntries, readEntries, seedKnownEntries, uiLogin } from './helpers';
 
-test('live polling replaces the previous last entry and does not duplicate unchanged data', async ({ page, request }) => {
+test('live polling replaces the previous last entry and does not duplicate unchanged data', { tag: '@polling' }, async ({ page, request }) => {
+	clearEntries();
 	test.setTimeout(180000);
 	await uiLogin(page);
 	const existing = await readEntries(page, request);
@@ -28,7 +29,9 @@ test('live polling replaces the previous last entry and does not duplicate uncha
 		await expect(entryMarker(page, latest)).toHaveCount(1);
 		await expect(entryMarker(page, latest)).toBeVisible();
 		await expect(entryMarker(page, latest).locator('.icon')).toHaveClass(/\bend\b/);
-		if (!await page.locator('.mapContainer .leaflet-popup').isVisible()) {
+		const popup = page.locator('.mapContainer .leaflet-popup');
+		const autoOpens = await entryMarker(page, latest).locator('.icon').evaluate(el => el.classList.contains('animate'));
+		if (!autoOpens && !await popup.isVisible()) {
 			await entryMarker(page, latest).click();
 		}
 		await expectPopupEntry(page, latest);
