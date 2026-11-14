@@ -29,14 +29,15 @@ Real writes use the literal key `test` only with `NODE_ENV=development`. A confi
 ## Data Lifecycle
 
 - Entries are stored per day in `dist/data/data-YYYY-MM-DD.json`, capped at 1000 entries. Backend integration tests mutate today's file, depend on its state/order, and fill it to the cap.
-- Tests that need entries own their setup through real `/write` and authenticated `/read` requests in `e2e/helpers.ts`, using the JWT from UI login, not a fabricated token.
+- `e2e/auth.setup.ts` performs one real UI login per Playwright run and saves `localStorage` `storageState` to `temp/e2e-auth.json`; `uiLogin` reuses that authenticated state while login/logout specs exercise the login flow directly. Tests that need entries own their setup through real `/write` and authenticated `/read` requests in `e2e/helpers.ts`, using the JWT from UI login, not a fabricated token.
+- Entry-writing scenarios call `clearEntries()` in `e2e/helpers.ts` to reset today's `dist/data/data-YYYY-MM-DD.json` to `{"entries": []}` before seeding, keeping entry indices deterministic and avoiding marker collisions or capacity exhaustion across specs and viewport projects.
 - Read today's entries to decide whether seeding is needed; the UI's temporary empty state is not evidence that the server has no data.
 - Read-only scenarios use `seedIfEmpty`: it writes one entry only if today's data is empty, reloads the browser page so the UI shows it, and returns the server's entries.
-- Scenarios that depend on particular coordinates, values, or relationships should write their own entries and assert their returned identities and values.
+- Scenarios that depend on particular coordinates, values, or relationships should reset via `clearEntries()`, write their own entries, and assert their returned identities and values.
 - Keep the write helper aligned with server validation: `checkExact()` rejects unknown query parameters, numeric inputs have a 12-character limit (round computed coordinates to avoid strings such as `50.245000000000005`), and timestamps must stay within the permitted one-day window. Label multiple writes so failures identify the failing operation.
 - **A successful HTTP write is not proof that an entry was appended.** At capacity, writes can be dropped or replace the last entry. Read back the result and verify identity, values, and enough remaining capacity for the entire scenario.
 - Incoming entries start non-ignored, but a subsequent write can automatically ignore the previous entry; do not assume earlier seeded entries remain visible.
-- Before browser tests after integration, intentionally reset disposable data:
+- To perform a full clean rebuild when explicitly resetting a disposable local environment:
 
 ```sh
 npm run test:postClear
@@ -44,9 +45,9 @@ npm run test:postClear
 
 **This DELETES runtime data, not just test reports.** `test:postClear` runs `npm run build`; its `prebuild` removes `dist/*`, including `dist/data/`, then rebuilds and copies static assets. Use it only when clearing that environment is explicitly intended. `npm run build` and `npm run dev` have the same destructive cleanup concern. As an Agent, coordinate any necessary server restart with its owner rather than starting it automatically.
 
-CI runs backend integration and E2E as separate jobs (`.github/workflows/main.yml`), each on its own fresh runner with its own freshly-started server, so E2E never sees integration's leftover data and no explicit reset step is needed between them. Within a single job's server lifetime, the same root-owned-data caveat as above still applies: the server starts under `sudo`, so clearing its data (e.g. `sudo rm -rf dist/data`) needs matching permissions. This is a disposable CI reset, not a general recommendation to delete production files or rebuild the running server.
+CI runs backend integration and E2E as separate jobs (`.github/workflows/main.yml`), with E2E split into 4 parallel matrix shards (`chromium` / `mobile-chromium` × `general` / `polling`), each on its own fresh runner with its own server. Because the CI server starts under `sudo`, each E2E shard pre-creates a runner-owned `dist/data/data-YYYY-MM-DD.json` before Playwright starts so `clearEntries()` can reset it between specs without elevated privileges.
 
-Keep one Playwright worker while specs share the daily data file. Desktop and mobile project runs both consume the same server data even though browser contexts are isolated. Setup must tolerate repeated runs, leave capacity for subsequent scenarios, and avoid depending on another spec having run first. One worker does not serialize separate test commands: do not run integration, cleanup, E2E, or the data generator concurrently against the same server.
+Keep one Playwright worker while specs in a run share the daily data file (`clearEntries()` resets the shared file at the start of entry-writing specs, so parallel workers against one server would overwrite each other's fixtures). One worker does not serialize separate test commands: do not run integration, cleanup, E2E, or the data generator concurrently against the same server.
 
 ## The Empty-Data Exception
 
@@ -69,7 +70,7 @@ Other specs write data and runs repeat, so an actually empty shared server canno
 npm run test:e2e
 ```
 
-Select a spec while preserving npm preflight with `npm run test:e2e -- e2e/popupTabs.spec.ts`. Select a viewport by its project name from `playwright.config.ts`: `npm run test:e2e -- --project=chromium` (desktop) or `npm run test:e2e -- --project=mobile-chromium` (mobile, Pixel 5). Keep the configured browser engine and the CI browser installation in sync.
+Select a spec while preserving npm preflight with `npm run test:e2e -- e2e/popupTabs.spec.ts`. Select a viewport by its project name from `playwright.config.ts` (each depends on the `setup` project in `e2e/auth.setup.ts`, which writes `temp/e2e-auth.json`): `npm run test:e2e -- --project=chromium` (desktop) or `npm run test:e2e -- --project=mobile-chromium` (mobile, Pixel 5). Slow real-timer polling specs are tagged `@polling` so CI and local runs can isolate or skip them with `--grep="@polling"` or `--grep-invert="@polling"`. Keep the configured browser engine and the CI browser installation in sync.
 
 The Playwright configuration retains traces on failure in `test-results/`. Open the failing test's actual archive locally:
 
@@ -77,4 +78,4 @@ The Playwright configuration retains traces on failure in `test-results/`. Open 
 npx playwright show-trace "test-results/<failing-test>/trace.zip"
 ```
 
-Inspect actions, DOM snapshots, and network requests to distinguish a prerequisite failure, a dropped write, an unfinished operation, an incorrect selector, or a genuine UI regression. CI uploads `test-results/` as the `playwright-results` artifact on failure. Traces can contain authentication and application data; treat them as sensitive rather than publishing them indiscriminately. See the [Playwright Trace Viewer documentation](https://playwright.dev/docs/trace-viewer).
+Inspect actions, DOM snapshots, and network requests to distinguish a prerequisite failure, a dropped write, an unfinished operation, an incorrect selector, or a genuine UI regression. CI uploads `test-results/` as `playwright-results-<project>-<suite>` on failure. Traces can contain authentication and application data; treat them as sensitive rather than publishing them indiscriminately. See the [Playwright Trace Viewer documentation](https://playwright.dev/docs/trace-viewer).

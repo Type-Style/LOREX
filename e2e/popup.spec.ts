@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { ageEntries, entryMarker, expectPopupEntry, openEntries, seedKnownEntries, uiLogin } from './helpers';
+import { ageEntries, clearEntries, entryMarker, expectPopupEntry, openEntries, seedKnownEntries, uiLogin } from './helpers';
+
+test.beforeEach(() => { clearEntries(); });
 
 test('a deep link opens the requested older entry, not the latest fresh popup', async ({ page, request }) => {
 	await uiLogin(page);

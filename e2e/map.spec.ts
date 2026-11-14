@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test';
-import { ageEntries, openEntries, seedIfEmpty, uiLogin } from './helpers';
+import { ageEntries, clearEntries, openEntries, seedKnownEntries, uiLogin } from './helpers';
 
 test('login shows the map with at least one marker', async ({ page, request }) => {
+	clearEntries();
 	await uiLogin(page);
 
-	// avoid empty data state
-	const entries = await seedIfEmpty(page, request);
+	const entries = await seedKnownEntries(page, request, [{}]);
 	await ageEntries(page, entries);
 	const entry = (await openEntries(page)).at(-1)!;
 

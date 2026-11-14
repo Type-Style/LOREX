@@ -1,14 +1,11 @@
 import { expect, test } from '@playwright/test';
-import { openEntries, seedIfEmpty, seedKnownEntries, uiLogin } from './helpers';
+import { clearEntries, openEntries, seedKnownEntries, uiLogin } from './helpers';
 
 test('subinfo shows actual latest GPS, available address and deterministic age/fetch timing', async ({ page, request }, testInfo) => {
+	clearEntries();
 	await uiLogin(page);
-	const entries = await seedIfEmpty(page, request);
-	let latest = entries.at(-1)!;
-	if (!latest.address) {
-		// One real road-coordinate write, not retries against the external geocoder.
-		[latest] = await seedKnownEntries(page, request, [{ lat: 50, lon: 8, timestamp: Date.now() - 60000 }]);
-	}
+	// One real road-coordinate write, not retries against the external geocoder.
+	const [latest] = await seedKnownEntries(page, request, [{ lat: 50, lon: 8, timestamp: Date.now() - 60000 }]);
 	const now = Math.max(latest.time.created, latest.time.recieved) + 120000;
 	await page.clock.setFixedTime(now);
 	const entry = (await openEntries(page)).at(-1)!;
