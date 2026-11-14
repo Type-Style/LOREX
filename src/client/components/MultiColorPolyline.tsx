@@ -67,7 +67,7 @@ export const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Array<Model
 		// Leaflet applies className only on mount, so remount when the animation class changes.
 		// React-Leaflet updates colors and dashes on existing paths only through pathOptions.
 		return (<Polyline
-			key={`${entry.index}-${entry.time.created}-${isRecent}`}
+			key={`${entry.index}-${entry.time.created}-${entry.time.recieved}-${isRecent}`}
 			positions={pathPositions}
 			pathOptions={{ color: formatCss(correctedColor), dashArray: strokeDashArray }}
 			weight={5}

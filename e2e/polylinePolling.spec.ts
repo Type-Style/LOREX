@@ -1,5 +1,5 @@
 import { expect, Page, test } from '@playwright/test';
-import { ageEntries, clearEntries, closePopups, entryMarker, expectPopupEntry, openEntries, readEntries, seedKnownEntries, uiLogin } from './helpers';
+import { clearEntries, closePopups, entryMarker, expectPopupEntry, openEntries, readEntries, seedKnownEntries, uiLogin } from './helpers';
 
 // Two real polling intervals, with room for a poll during a fixture write.
 test.describe.configure({ timeout: 330000 });
@@ -125,10 +125,13 @@ test('ignoring an earlier maximum-speed entry recolors a surviving mounted segme
 	expect(b.speed.horizontal!).toBeLessThan(b.speed.gps * 3.6);
 	expect(b.path?.coordinates).toBeUndefined();
 
-	await ageEntries(page, [a, b, c, d]);
+	// Keep the latest marker fresh without advancing the browser into the next day.
+	await page.clock.setFixedTime(d.time.recieved);
 	expect(await openEntries(page)).toEqual([a, b, c, d]);
 	const map = page.locator('.mapContainer');
 	await expect(entryMarker(page, d).locator('.icon')).toHaveClass(/\bend\b/);
+	await expect(map.locator('.leaflet-popup')).toBeVisible();
+	await closePopups(page);
 
 	// Make the white post-ignore line visible and expose the individual markers on mobile.
 	const layers = map.locator('.leaflet-control-layers');
@@ -164,6 +167,7 @@ test('ignoring an earlier maximum-speed entry recolors a surviving mounted segme
 	expect(entries.map(entry => entry.ignore)).toEqual([false, false, true, false]);
 	await expect(entryMarker(page, c)).toHaveCount(0);
 	await expect(entryMarker(page, d).locator('.icon')).toHaveClass(/\bend\b/);
+	await expectPopupEntry(page, d);
 	await closePopups(page);
 
 	// The unchanged last entry keeps the parent mounted; also verify the actual A → B path survived.
