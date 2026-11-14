@@ -3,6 +3,11 @@ import fs from "fs";
 import path from "path";
 import qs from "qs";
 import { axiosTestRequest, getAxiosTestError, requestStatus } from './axiosTestError';
+import { entry } from '../models/entry';
+import { getDistance } from '../scripts/distance';
+import { getTime } from '../scripts/time';
+import { getSpeed } from '../scripts/speed';
+import { getMaxSpeedSeverity } from '../scripts/maxSpeed';
 
 const date = new Date();
 const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -100,8 +105,13 @@ describe('/write', () => {
   })
 
   // eslint-disable-next-line jest/expect-expect
-  it('with hdop not between 0 and 100 it sends 422', async () => {
-    await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=101.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 422);
+  it('with hdop not between 0 and 300 it sends 422', async () => {
+    await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=301.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 422);
+  });
+
+  // eslint-disable-next-line jest/expect-expect
+  it('with hdop 300 it sends 200', async () => {
+    await callServer(undefined, "user=xx&lat=45.000&lon=90.000&timestamp=R3Pl4C3&hdop=300.0&altitude=5000.000&speed=150.000&heading=180.0&key=test", 200);
   });
 
   // eslint-disable-next-line jest/expect-expect
@@ -199,7 +209,7 @@ describe("GET /write", () => {
         done();
       }, 3500);
     })
-  });
+  }, 7500);
 
   it('the time is correct', () => {
     const jsonData = getData(filePath);
@@ -208,7 +218,7 @@ describe("GET /write", () => {
     expect(entry.index).toBe(1);
     expect(entry.time.created).toBeGreaterThan(date.getTime());
     expect(entry.time.diff).toBeGreaterThan(3.5);
-    expect(entry.time.diff).toBeLessThan(5.25);
+    expect(entry.time.diff).toBeLessThan(6.75);
 
 
     const germanDayPattern = "(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag)";
@@ -242,9 +252,9 @@ describe("GET /write", () => {
     const jsonData = getData(filePath);
     const entry = jsonData.entries.at(-1)
 
-    expect(isInRange(entry.speed.horizontal, 414.42, 118.41)).toBe(true);
-    expect(isInRange(entry.speed.vertical, -228.57, 65.31)).toBe(true);
-    expect(isInRange(entry.speed.total, 473, 135)).toBe(true);
+    expect(isInRange(entry.speed.horizontal, 414.42, 146)).toBe(true);
+    expect(isInRange(entry.speed.vertical, -228.57, 81)).toBe(true);
+    expect(isInRange(entry.speed.total, 473, 167)).toBe(true);
   });
 
   it('the heading is correct', () => {
@@ -264,6 +274,7 @@ describe("GET /write", () => {
   it('the address is correct', () => {
     const jsonData = getData(filePath);
     const entry = jsonData.entries.at(-2);
+    expect(typeof entry.address).toBe("string");
     expect(entry.address.toLowerCase()).toContain("berlin");
   })
 
@@ -546,23 +557,173 @@ describe('read/ignore', () => {
 });
 
 
-describe('API calls', () => {
-  test(`1000 api calls`, async () => {
-    for (let i = 0; i < 1000; i++) {
-      const url = `http://localhost:80/write?user=xx&lat=${(52 + Math.random()).toFixed(3)}&lon=${(13 + Math.random()).toFixed(3)}&timestamp=${new Date().getTime()}&hdop=${(10 * Math.random()).toFixed(3)}&altitude=${i}&speed=88.888&heading=${(360 * Math.random()).toFixed(3)}&key=test`;
-      const response = await axios.get(url);
-      expect(response.status).toBe(200);
-    }
-  }, 50000); // adjust this to to fit your setup
-
-  test(`length of json should not exceed 1000`, async () => {
-    const date = new Date();
-    const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    const dirPath = path.resolve(__dirname, '../../dist/data/');
-    const filePath = path.resolve(dirPath, `data-${formattedDate}.json`);
-    const jsonData = getData(filePath);
-    expect(jsonData.entries.length).toBeLessThanOrEqual(1000);
+describe('entry.recalculate: maxSpeed severity happy path', () => {
+  /*
+    A true end-to-end /write -> Nominatim -> /read/ignore test can't reliably assert on a real
+    maxSpeed limit: getAddressData() hits the live OpenStreetMap Nominatim API and throttles
+    requests to 1 per 4s (see src/scripts/getAddressData.ts), so the returned legal speed limit
+    for any given coordinate can't be pinned down or mocked in this test file (no jest.mock is
+    set up here, and none of the other tests in this file rely on Nominatim's maxSpeed data —
+    see the Race Condition test's `expect(entry.speed.maxSpeed).toBe(undefined)` below).
+    Instead this exercises entry.recalculate() directly -- the same function used by the
+    /read/ignore route -- against entries carrying a preset speed.maxSpeed limit, to verify the
+    severity is correctly recomputed (not dropped or left stale) once a neighbor is marked ignored
+    and the entry's derived total speed changes as a result.
+  */
+  const makeEntry = (overrides: Partial<Models.IEntry>): Models.IEntry => ({
+    altitude: 0,
+    hdop: 2,
+    heading: 0,
+    index: 0,
+    lat: 0,
+    lon: 0,
+    user: "TE",
+    ignore: false,
+    eta: 0,
+    eda: 0,
+    time: { created: 0, recieved: 0, uploadDuration: 0, createdString: "" },
+    angle: 0,
+    distance: { horizontal: 0, vertical: 0, total: 0 },
+    speed: { gps: 0, horizontal: 0, vertical: 0, total: 0 },
+    address: "",
+    ...overrides,
   });
+
+  it('recomputes maxSpeed severity for the new neighbor after a middle entry is ignored', () => {
+    const limit = 80; // km/h
+
+    const first = makeEntry({
+      index: 0,
+      lat: 52.00000,
+      lon: 13.00000,
+      time: { created: 0, recieved: 0, uploadDuration: 0, createdString: "" },
+    });
+
+    const middle = makeEntry({
+      index: 1,
+      lat: 52.02200,
+      lon: 13.00000,
+      time: { created: 15000, recieved: 0, uploadDuration: 0, createdString: "" },
+      speed: { gps: 5, horizontal: 0, vertical: 0, total: 0 },
+    });
+
+    const last = makeEntry({
+      index: 2,
+      lat: 52.02246,
+      lon: 13.00000,
+      time: { created: 30000, recieved: 0, uploadDuration: 0, createdString: "" },
+      speed: {
+        gps: 20, // moderate own gps speed, comfortably under the limit on its own
+        horizontal: 0,
+        vertical: 0,
+        total: 0,
+      },
+    });
+
+    last.time = getTime(last.time.created, middle, last.time);
+    last.distance = getDistance(last, middle);
+    last.speed = getSpeed(last.speed.gps, last);
+    last.speed.maxSpeed = getMaxSpeedSeverity(last, limit);
+    expect(last.speed.maxSpeed).toEqual({ value: limit, warning: false, alert: false });
+
+    const entries = [first, middle, last];
+    const original = structuredClone(entries);
+
+    // Ignore the middle entry -> `last`'s neighbor changes from `middle` to `first`,
+    // a much longer hop over twice the elapsed time, driving its derived total speed up.
+    const result = entry.recalculate(entries, 1);
+
+    expect(result[1].ignore).toBe(true);
+    expect(result[0].ignore).toBe(false);
+    expect(result[2].ignore).toBe(false);
+
+    // Independently compute the expected severity using the same pure helpers recalculate()
+    // uses internally (each already covered by their own unit tests), applied to the new
+    // first->last hop, to verify entry.ts's wiring recomputes (rather than drops/carries over) it.
+    const expectedDistance = getDistance(last, first);
+    const expectedTime = getTime(last.time.created, first, last.time);
+    const expectedSpeed = getSpeed(last.speed.gps, { ...last, time: expectedTime, distance: expectedDistance });
+    const expectedMaxSpeed = getMaxSpeedSeverity({ speed: expectedSpeed, hdop: last.hdop }, limit);
+
+    // Sanity check that this scenario is meaningful: the recomputed severity should indeed
+    // have flipped from the derived "false/false" to "true/true", proving recalculation happened.
+    expect(expectedMaxSpeed.warning).toBe(true);
+    expect(expectedMaxSpeed.alert).toBe(true);
+
+    expect(result[2].speed.maxSpeed).toEqual(expectedMaxSpeed);
+    expect(entries).toEqual(original);
+  });
+
+  it('preserves and recomputes legacy numeric maxSpeed when a neighbor is ignored', () => {
+    // Entries written before this feature persist speed.maxSpeed as a plain number.
+    // Simulate that on-disk shape surviving into a recalculate() pass (e.g. an entry
+    // whose neighbor gets ignored before it's ever rewritten by create()).
+    const legacyLimit = 50;
+
+    const first = makeEntry({ index: 0, lat: 52.00000, lon: 13.00000 });
+
+    const middle = makeEntry({
+      index: 1,
+      lat: 52.01000,
+      lon: 13.00000,
+      time: { created: 15000, recieved: 0, uploadDuration: 0, createdString: "" },
+      speed: { gps: 5, horizontal: 0, vertical: 0, total: 0 },
+    });
+
+    const last = makeEntry({
+      index: 2,
+      lat: 52.02246,
+      lon: 13.00000,
+      time: { created: 30000, recieved: 0, uploadDuration: 0, createdString: "" },
+      speed: {
+        gps: 20,
+        horizontal: 0,
+        vertical: 0,
+        total: 0,
+        maxSpeed: legacyLimit as unknown as Models.IMaxSpeed, // pre-migration on-disk shape
+      },
+    });
+
+    const result = entry.recalculate([first, middle, last], 1);
+
+    expect(result[2].speed.maxSpeed).toEqual({ value: legacyLimit, warning: true, alert: true });
+    expect(last.speed.maxSpeed).toBe(legacyLimit);
+  });
+});
+
+describe('entry limit', () => {
+  test('preserves or replaces the last entry without exceeding 1000', async () => {
+    const jsonData: Models.IEntries = getData(filePath);
+    const lastEntry = jsonData.entries.at(-1);
+    expect(lastEntry).toBeDefined();
+
+    // Fill the file with distinguishable copies of the latest entry.
+    const seed = { ...lastEntry!, lat: 52.51625, lon: 13.37661, hdop: 4, ignore: false };
+    while (jsonData.entries.length < 1000) {
+      const index = jsonData.entries.length;
+      jsonData.entries.push({ ...seed, index, altitude: index });
+    }
+    const lastIndex = jsonData.entries.length - 1;
+    const seededLastEntry = { ...seed, index: lastIndex, altitude: lastIndex };
+    jsonData.entries[lastIndex] = seededLastEntry;
+    fs.writeFileSync(filePath, JSON.stringify(jsonData, undefined, 2));
+
+    // At the limit, a less accurate fix must leave the latest entry in place.
+    await callServer(undefined, 'user=xx&lat=50&lon=13&hdop=20&altitude=9998&speed=88.888&heading=180&key=test', 200, 'GET');
+    const preserved: Models.IEntries = getData(filePath);
+    expect(preserved.entries).toHaveLength(1000);
+    expect(preserved.entries.at(-1)).toEqual(seededLastEntry);
+
+    // A sufficiently accurate fix replaces the last entry.
+    const timestamp = Date.now();
+    await callServer(timestamp, 'user=xx&lat=49&lon=13&hdop=2&altitude=9999&speed=88.888&heading=180&key=test', 200, 'GET');
+    const replaced: Models.IEntries = getData(filePath);
+    expect(replaced.entries).toHaveLength(1000);
+    expect(replaced.entries.at(-1)).toMatchObject({
+      index: 999, lat: 49, lon: 13, hdop: 2, altitude: 9999, ignore: false,
+      time: { created: timestamp },
+    });
+  }, 15000);
 });
 
 

@@ -10,7 +10,8 @@ import { Context } from "../context";
 
 const Login = React.lazy(() => import('../pages/Login'));
 
-function loginDefault(userInfo) {
+// eslint-disable-next-line react-refresh/only-export-components -- exported for tests; dev builds use vite build --watch, no fast refresh
+export function loginDefault(userInfo) {
   if (!userInfo) { return false; }
 
   const date = new Date();

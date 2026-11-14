@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import ModeSwitcher from '../components/ModeSwitcher';
 import { useGetData } from "../hooks/useData";
 import { layers } from "../scripts/layers";
-import { timeAgo } from "../scripts/timeAgo";
+import Subinfo from '../components/Subinfo';
 import "../css/start.css";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Message } from "../components/Message";
@@ -15,13 +15,13 @@ import { Message } from "../components/Message";
 
 // Lazy load the components
 const Status = lazy(() => import('../components/Status'));
-const LinearBuffer = lazy(() => import('../components/LinearBuffer'));
 const MiniMap = lazy(() => import('../components/MiniMap'));
 const Map = lazy(() => import('../components/Map'));
 
 const fetchIntervalMs = 1000 * 55;
 
-const getIndex = (entries: Array<Models.IEntry>): number => {
+// eslint-disable-next-line react-refresh/only-export-components -- exported for tests; dev builds use vite build --watch, no fast refresh
+export const getIndex = (entries: Array<Models.IEntry>): number => {
   if (!entries.length) { return 0; }
   const lastEntry = entries[entries.length - 1];
   const now = new Date();
@@ -41,9 +41,10 @@ function Start() {
   const [contextObj] = useContext(Context);
   const [messageObj, setMessageObj] = useState<Omit<client.entryData, 'fetchTimeData'>>({ isError: false, status: 200, message: "" });
   const [entries, setEntries] = useState<Array<Models.IEntry>>([]);
+  const [showIgnored, setShowIgnored] = useState(false);
   const [fetchTimes, setFetchTimes] = useState<{ last: number | undefined, next: number | undefined }>({ last: undefined, next: undefined });
 
-  const actionContext: client.ActionContext = { entries, setEntries };
+  const actionContext: client.ActionContext = { entries, setEntries, showIgnored, setShowIgnored };
 
   const index = getIndex(entries);
 
@@ -144,22 +145,7 @@ function Start() {
         }
 
         <div className="grid-item subinfo">
-          {contextObj.isLoggedIn && intervalID && fetchTimes.last && fetchTimes.next &&
-            <Suspense fallback={<div className="loading line"></div>}>
-              <LinearBuffer msStart={fetchTimes.last} msFinish={fetchTimes.next} variant="determinate" />
-            </Suspense>
-          }
-
-          {entries.length > 0 &&
-            <>
-              <strong className="info noDivider">GPS:</strong>
-              <a href={`https://www.openstreetmap.org/?mlat=${entries.at(-1)!.lat}&mlon=${entries.at(-1)!.lon}&zoom=12&marker=${entries.at(-1)!.lat}/${entries.at(-1)!.lon}#map=13/${entries.at(-1)!.lat}/${entries.at(-1)!.lon}`} className="info">{entries.at(-1)!.lat} / {entries.at(-1)!.lon}</a>
-              {entries.at(-1)!.address &&
-                <span className="info">{entries.at(-1)!.address}</span>
-              }
-              <span className="info">{contextObj.isLoggedIn ? timeAgo(entries.at(-1)!.time.created) : entries.at(-1)!.time.createdString}</span>
-            </>
-          }
+          <Subinfo entries={entries} isLoggedIn={contextObj.isLoggedIn} fetchTimes={fetchTimes} />
         </div>
       </div>
       <svg className="bg-pattern" xmlns="http://www.w3.org/2000/svg">

@@ -29,9 +29,10 @@ export const PopupContent = ({ entry, cleanEntries }: { entry: Models.IEntry, cl
   };
 
   useEffect(() => { // initial value
-    let tabValue = getUrlParameterValue("popup", (value) => tabs.some(tab => tab.name === value) ? value : null);
+    let tabValue = getUrlParameterValue("tab", (value) => tabs.some(tab => tab.name === value) ? value : null);
     if (!tabValue) { tabValue = "info" };
     const newValue = tabs.findIndex(tab => tab.name === tabValue);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Restore the selected tab from the URL on mount.
     setValue(newValue);
     updateUrlParams("tab", tabValue);
   }, [getUrlParameterValue, updateUrlParams]);
@@ -49,7 +50,7 @@ return (
         index === value && (
           <React.Fragment key={index}>
             {tab.name === "info" && (
-              <PopupInfo entry={entry} />
+              <PopupInfo entry={entry} cleanEntries={cleanEntries} />
             )}
             {tab.name === "speed" && (
               <PopupSpeed entry={entry} />
