@@ -1,4 +1,4 @@
-import { expect, Page, test } from '@playwright/test';
+import { expect, Page, Response, test } from '@playwright/test';
 import { clearEntries, closePopups, entryMarker, expectPopupEntry, openEntries, readEntries, seedKnownEntries, uiLogin } from './helpers';
 
 // Two real polling intervals, with room for a poll during a fixture write.
@@ -183,8 +183,16 @@ test('ignoring an earlier maximum-speed entry recolors a surviving mounted segme
 	// Recency expires without a new entry or an unrelated render.
 	const animatedLine = map.locator('.leaflet-overlay-pane path.customPolyline.animate');
 	await expect(animatedLine).toHaveCount(1);
+	let polls = 0;
+	const countPoll = (response: Response) => {
+		if (new URL(response.url()).pathname === '/read') { polls++; }
+	};
+	page.on('response', countPoll);
 	await page.clock.setFixedTime(d.time.recieved + 61000);
-	await expect(animatedLine).toHaveCount(0);
+	await expect(animatedLine).toHaveCount(0, { timeout: 5000 });
+	await expect.poll(async () => (await segments(page, b, d)).length, { timeout: 5000 }).toBe(1);
+	page.off('response', countPoll);
+	expect(polls).toBe(0);
 });
 
 test('polling recolors older segments when a new entry raises the maximum speed', { tag: '@polling' }, async ({ page, request }) => {
