@@ -1,12 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { parse, Oklch, toGamut, formatCss } from "culori";
 import { Polyline } from "react-leaflet";
 import { getMaxSpeed } from "../scripts/maxSpeed";
 import { LatLngTuple } from "leaflet";
 
+function isRecent(received: number, now: number) {
+	return now - received <= 60000;
+}
+
 export const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Array<Models.IEntry>; }) => {
 	const [useRelativeColors] = useState<boolean>(true); // TODO Change candidate; Use color in range to maximum speed, like from 0 to max, rather than fixed range
+	const [now, setNow] = useState(() => Date.now());
+	const lastEntry = cleanEntries.at(-1);
+	const lastIsRecent = lastEntry !== undefined && isRecent(lastEntry.time.recieved, now);
 	let maxSpeed = 0;
+
+	useEffect(() => {
+		const timer = setInterval(() => setNow(Date.now()), 1000);
+		return () => clearInterval(timer);
+	}, []);
+
 	const startColor = parse('oklch(62.8% 0.2577 10)') as Oklch;
 	const calculateHue = (currentSpeed:number, maxSpeed:number, calcSpeed:number) => {
 		let speed = currentSpeed;0
@@ -62,16 +75,15 @@ export const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Array<Model
 		}
 
 		if (entry.time.uploadDuration > 300 || entry.time.diff && (entry.time.diff > 100 || entry.time.diff < 25)) { strokeDashArray = "4 8"; }
-		// eslint-disable-next-line react-hooks/purity -- Check recency when the polyline renders.
-		const isRecent = index === cleanEntries.length - 1 && (Date.now() - entry.time.recieved) <= 60000;
+		const isLastRecent = index === cleanEntries.length - 1 && lastIsRecent;
 		// Leaflet applies className only on mount, so remount when the animation class changes.
 		// React-Leaflet updates colors and dashes on existing paths only through pathOptions.
 		return (<Polyline
-			key={`${entry.index}-${entry.time.created}-${entry.time.recieved}-${isRecent}`}
+			key={`line-${entry.index}-${entry.time.recieved}-${isLastRecent}`}
 			positions={pathPositions}
 			pathOptions={{ color: formatCss(correctedColor), dashArray: strokeDashArray }}
 			weight={5}
-			className={"customPolyline " + (isRecent ? "animate " : "")}
+			className={"customPolyline " + (isLastRecent ? "animate " : "")}
 			lineCap={"butt"}
 			 />);
 			

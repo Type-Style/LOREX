@@ -2,7 +2,7 @@
 
 ## Purpose And Boundaries
 
-End-to-end tests verify observable results through the real application: log in, write/read entries, interact with the UI, and check the resulting content and behavior. Prefer these over mocks or assertions that merely prove an implementation function was called. Unit tests remain useful for isolated calculations and hook state transitions. Never seed a logged-out or empty-data scenario.
+End-to-end tests verify observable behavior in the real application: log in, write/read entries, and interact with the UI. Prefer them to mocks or call assertions; unit tests suit isolated calculations and hook state transitions. Never seed a logged-out or empty-data scenario.
 
 - `npm run test` runs backend Jest tests in `src/tests/`. App, login, and integration tests use the main dev server at `http://localhost:80`.
 - `npm run test:react` runs frontend unit/integration-style tests (Vitest, jsdom) in `src/client/tests/`. Some call the dev server; none mutate its data.
@@ -10,11 +10,11 @@ End-to-end tests verify observable results through the real application: log in,
 - `npm run test:data` deliberately sends repeated writes about every 30 seconds and is excluded from ordinary Jest runs. Its `test:data:prod` counterpart targets `ROOT`; neither is a harmless substitute for E2E setup. As an Agent, never run `test:data:prod`!
 - Local production guard tests (`test:production`) exercise isolated routers; `test:production:prod` instead targets the configured live server. Neither is part of E2E verification.
 
-Desktop and mobile runs exercise mode switching and status behavior. Check actual visible responsive content and layout; status labels can be hidden by container queries while their values remain visible. Mobile emulation does not imply testing a physical device or another browser engine.
+Desktop and mobile runs exercise mode switching and status behavior. Check visible responsive content and layout; container queries can hide status labels while values remain visible. Mobile emulation does not test a physical device or another browser engine.
 
 ## Hook Tests Versus Browser Tests
 
-Keep hook logic tests separate from browser integration checks. A test component can verify hook results; it cannot prove that popup controls are wired correctly, a marker represents the right entry, or responsive rows align. jsdom does not perform browser layout, so row geometry assertions belong in Playwright.
+Keep hook logic tests separate from browser checks. A test component can verify hook results, not popup wiring, marker identity, or responsive row alignment. jsdom does not perform layout, so row geometry assertions belong in Playwright.
 
 ## Prerequisites And Safety
 
@@ -57,12 +57,13 @@ Other specs write data and runs repeat, so an actually empty shared server canno
 
 ## Reliable Assertions
 
-- Await the operation being tested, then assert its result. Register response waits before the triggering action and wait for the corresponding rendered update; a response arriving does not itself prove React has applied it.
-- In hook tests, await the returned operation or expose a completion counter/state that changes for each invocation. An initial count of zero can already match an empty response, and a previous `200` can already match the next fetch. Neither proves the new operation completed.
-- Prefer retrying assertions on meaningful content over fixed sleeps. Login, API work, map animation, and rendering can finish at different times. Broad timeouts should not substitute for a correct completion signal.
-- Assert entry identity, not just marker totals. Clustering, viewport culling, fly-to animation, minimaps, and overlapping markers can change counts without changing ignore behavior. Scope selectors to the main map or intended popup and verify the selected entry's index/content.
-- For automatic ignore, verify the server marks the specific previous entry ignored after the next write, then verify that entry's browser representation. A net-zero marker-count delta could hide the wrong marker disappearing.
-- Compare popup/status values with deliberately seeded inputs or the relevant real API result, including units and formatting. Generic assertions such as "some km/h text exists" can accidentally match another component.
+- Await the operation and assert its result. Register response waits before the action, then wait for the rendered update; a response alone does not prove React applied it.
+- In hook tests, await the operation or expose a completion counter/state that changes each invocation. An initial zero can match an empty response, and a previous `200` can match the next fetch; neither proves completion.
+- Prefer retrying assertions on meaningful content over fixed sleeps. Login, API work, map animation, and rendering finish at different times. Broad timeouts cannot replace a completion signal.
+- Assert entry identity, not just marker totals. Clustering, viewport culling, fly-to animation, minimaps, and overlapping markers can change counts without changing ignore behavior. Scope selectors to the main map or intended popup and check the entry's index/content.
+- For automatic ignore, verify the server marks the specific previous entry ignored after the next write, then check its browser representation. A net-zero marker-count delta could hide the wrong marker disappearing.
+- Polyline polling adds entries with increasing latest indices, remounting `MultiColorPolyline`, so it cannot establish that an existing path updates. The ignore scenario keeps the latest index and same segment mounted, then verifies its visible path style changes. Both guard against stale colors; assert rendered results rather than React internals.
+- Compare popup/status values with seeded inputs or the real API result, including units and formatting. Generic assertions such as "some km/h text exists" can match another component.
 
 ## Running And Debugging
 
@@ -70,7 +71,7 @@ Other specs write data and runs repeat, so an actually empty shared server canno
 npm run test:e2e
 ```
 
-Select a spec while preserving npm preflight with `npm run test:e2e -- e2e/popupTabs.spec.ts`. Select a viewport by its project name from `playwright.config.ts` (each depends on the `setup` project in `e2e/auth.setup.ts`, which writes `temp/e2e-auth.json`): `npm run test:e2e -- --project=chromium` (desktop) or `npm run test:e2e -- --project=mobile-chromium` (mobile, Pixel 5). Slow real-timer polling specs are tagged `@polling` so CI and local runs can isolate or skip them with `--grep="@polling"` or `--grep-invert="@polling"`. Keep the configured browser engine and the CI browser installation in sync.
+Select a spec with preflight: `npm run test:e2e -- e2e/popupTabs.spec.ts`. Select a viewport with `--project=chromium` (desktop) or `--project=mobile-chromium` (mobile, Pixel 5); both depend on the `setup` project in `e2e/auth.setup.ts`, which writes `temp/e2e-auth.json`. Isolate or skip slow real-timer polling specs with `--grep="@polling"` or `--grep-invert="@polling"`. Keep the configured browser engine and CI installation in sync.
 
 The Playwright configuration retains traces on failure in `test-results/`. Open the failing test's actual archive locally:
 
@@ -78,4 +79,4 @@ The Playwright configuration retains traces on failure in `test-results/`. Open 
 npx playwright show-trace "test-results/<failing-test>/trace.zip"
 ```
 
-Inspect actions, DOM snapshots, and network requests to distinguish a prerequisite failure, a dropped write, an unfinished operation, an incorrect selector, or a genuine UI regression. CI uploads `test-results/` as `playwright-results-<project>-<suite>` on failure. Traces can contain authentication and application data; treat them as sensitive rather than publishing them indiscriminately. See the [Playwright Trace Viewer documentation](https://playwright.dev/docs/trace-viewer).
+Inspect actions, DOM snapshots, and network requests to distinguish prerequisite failures, dropped writes, unfinished operations, incorrect selectors, and UI regressions. CI uploads `test-results/` as `playwright-results-<project>-<suite>` on failure. Traces can contain authentication and application data; treat them as sensitive rather than publishing them indiscriminately. See the [Playwright Trace Viewer documentation](https://playwright.dev/docs/trace-viewer).

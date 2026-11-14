@@ -102,6 +102,7 @@ async function expectSegmentColor(page: Page, from: Models.IEntry, to: Models.IE
 	}, { message: `segment ${from.index} → ${to.index} should be visible in the expected color` }).toBe(true);
 }
 
+// Polling changes the last-entry key and remounts the polylines, so it cannot prove an in-place color update.
 test('ignoring an earlier maximum-speed entry recolors a surviving mounted segment', async ({ page, request }) => {
 	clearEntries();
 	await uiLogin(page);
@@ -111,6 +112,7 @@ test('ignoring an earlier maximum-speed entry recolors a surviving mounted segme
 		today.setHours(0, 0, 0, 0);
 		return Math.max(now - 180000, today.getTime() + 1000);
 	});
+	// Ignoring fastest C lowers the maximum from 20 to 2 while D remains the last entry.
 	const [a, b, c, d] = await seedKnownEntries(page, request, [
 		{ user: 'LA', lat: 50, lon: 8, speed: 1, timestamp: start },
 		{ user: 'LB', lat: 50.0009, lon: 8.0011, speed: 2, timestamp: start + 40000 },
@@ -170,13 +172,19 @@ test('ignoring an earlier maximum-speed entry recolors a surviving mounted segme
 	await expectPopupEntry(page, d);
 	await closePopups(page);
 
-	// The unchanged last entry keeps the parent mounted; also verify the actual A → B path survived.
+	// D keeps the parent key stable; the same SVG node proves A → B was recolored, not replaced.
 	await expect.poll(async () => (await segments(page, a, b)).length).toBe(1);
 	const [after] = await segments(page, a, b);
 	expect(await originalPath.evaluate((path, child) =>
 		path.isConnected && path.parentElement?.children[child - 1] === path, after.child)).toBe(true);
 	await expectSegmentColor(page, a, b, [255, 255, 255]);
 	await originalPath.dispose();
+
+	// Recency expires without a new entry or an unrelated render.
+	const animatedLine = map.locator('.leaflet-overlay-pane path.customPolyline.animate');
+	await expect(animatedLine).toHaveCount(1);
+	await page.clock.setFixedTime(d.time.recieved + 61000);
+	await expect(animatedLine).toHaveCount(0);
 });
 
 test('polling recolors older segments when a new entry raises the maximum speed', { tag: '@polling' }, async ({ page, request }) => {
