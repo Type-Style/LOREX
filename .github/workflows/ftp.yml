@@ -25,11 +25,9 @@ jobs:
       run: |
         cp -R views/ dist/
     - name: Upload ftp
-      uses: airvzxf/ftp-deployment-action@v4.0.1
+      uses: airvzxf/ftp-deployment-action@latest
       with:
         server: ${{ secrets.FTP_SERVER }}
         user: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local_dir: "dist"
-        ssl_check_hostname: "false" # Temporary until the server certificate matches the hostname
-        max_retries: "2"
