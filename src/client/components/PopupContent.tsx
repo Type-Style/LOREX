@@ -32,6 +32,7 @@ export const PopupContent = ({ entry, cleanEntries }: { entry: Models.IEntry, cl
     let tabValue = getUrlParameterValue("tab", (value) => tabs.some(tab => tab.name === value) ? value : null);
     if (!tabValue) { tabValue = "info" };
     const newValue = tabs.findIndex(tab => tab.name === tabValue);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Restore the selected tab from the URL on mount.
     setValue(newValue);
     updateUrlParams("tab", tabValue);
   }, [getUrlParameterValue, updateUrlParams]);

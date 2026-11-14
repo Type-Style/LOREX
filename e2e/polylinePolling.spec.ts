@@ -1,5 +1,5 @@
 import { expect, Page, test } from '@playwright/test';
-import { clearEntries, closePopups, entryMarker, openEntries, readEntries, seedKnownEntries, uiLogin } from './helpers';
+import { clearEntries, closePopups, entryMarker, expectPopupEntry, openEntries, readEntries, seedKnownEntries, uiLogin } from './helpers';
 
 // Two real polling intervals, with room for a poll during a fixture write.
 test.describe.configure({ timeout: 330000 });
@@ -101,6 +101,85 @@ async function expectSegmentColor(page: Page, from: Models.IEntry, to: Models.IE
 		});
 	}, { message: `segment ${from.index} → ${to.index} should be visible in the expected color` }).toBe(true);
 }
+
+// Polling changes the last-entry key and remounts the polylines, so it cannot prove an in-place color update.
+test('ignoring an earlier maximum-speed entry recolors a surviving mounted segment', async ({ page, request }) => {
+	clearEntries();
+	await uiLogin(page);
+	const start = await page.evaluate(() => {
+		const now = Date.now();
+		const today = new Date(now);
+		today.setHours(0, 0, 0, 0);
+		return Math.max(now - 180000, today.getTime() + 1000);
+	});
+	// Ignoring fastest C lowers the maximum from 20 to 2 while D remains the last entry.
+	const [a, b, c, d] = await seedKnownEntries(page, request, [
+		{ user: 'LA', lat: 50, lon: 8, speed: 1, timestamp: start },
+		{ user: 'LB', lat: 50.0009, lon: 8.0011, speed: 2, timestamp: start + 40000 },
+		{ user: 'LC', lat: 50.0018, lon: 8.0022, speed: 20, timestamp: start + 80000 },
+		{ user: 'LD', lat: 50.0009, lon: 8.0022, speed: 1, timestamp: start + 120000 },
+	]);
+	expect([a.index, b.index, c.index, d.index]).toEqual([0, 1, 2, 3]);
+	expect([a.ignore, b.ignore, c.ignore, d.ignore]).toEqual([false, false, false, false]);
+	expect([a.speed.gps, b.speed.gps, c.speed.gps, d.speed.gps]).toEqual([1, 2, 20, 1]);
+	expect(b.time.diff).toBe(40);
+	expect(b.distance.horizontal).toBeGreaterThan(22);
+	expect(b.speed.horizontal!).toBeLessThan(b.speed.gps * 3.6);
+	expect(b.path?.coordinates).toBeUndefined();
+
+	// Keep the latest marker fresh without advancing the browser into the next day.
+	await page.clock.setFixedTime(d.time.recieved);
+	expect(await openEntries(page)).toEqual([a, b, c, d]);
+	const map = page.locator('.mapContainer');
+	await expect(entryMarker(page, d).locator('.icon')).toHaveClass(/\bend\b/);
+	await expect(map.locator('.leaflet-popup')).toBeVisible();
+	await closePopups(page);
+
+	// Make the white post-ignore line visible and expose the individual markers on mobile.
+	const layers = map.locator('.leaflet-control-layers');
+	const darkLayer = layers.getByLabel('Stadia AlidadeSmoothDark', { exact: true });
+	await expect(async () => {
+		if (!await darkLayer.isVisible()) { await layers.locator('.leaflet-control-layers-toggle').press('Enter'); }
+		await darkLayer.press('Space');
+		await expect(darkLayer).toBeChecked({ timeout: 1000 });
+	}).toPass({ timeout: 5000 });
+	for (let zoom = 14; zoom <= 16; zoom++) {
+		await map.getByRole('button', { name: 'Zoom in', exact: true }).press('Enter');
+		await expect(map.locator(`.leaflet-tile-container[style*="z-index: 19"] img.leaflet-tile[src*="/${zoom}/"]`).first()).toBeAttached();
+		await expect(map.locator('.leaflet-map-pane')).not.toHaveClass(/leaflet-zoom-anim/);
+	}
+
+	await expectSegmentColor(page, a, b, [238, 0, 62]);
+	const [before] = await segments(page, a, b);
+	const originalPath = await map.locator(`.leaflet-overlay-pane path.customPolyline:nth-child(${before.child})`).elementHandle();
+	if (!originalPath) { throw new Error('Expected the A → B SVG path'); }
+
+	await entryMarker(page, c).click();
+	await expectPopupEntry(page, c);
+	const pending = page.waitForResponse(response => {
+		const url = new URL(response.url());
+		return url.pathname === '/read/ignore' && url.searchParams.get('index') === String(c.index)
+			&& !url.searchParams.has('direction');
+	});
+	await map.locator('.leaflet-popup button').filter({ hasText: /^Self$/ }).click();
+	const response = await pending;
+	expect(response.ok()).toBeTruthy();
+	const { entries } = await response.json() as Models.IEntries;
+	expect(entries.map(entry => entry.index)).toEqual([a.index, b.index, c.index, d.index]);
+	expect(entries.map(entry => entry.ignore)).toEqual([false, false, true, false]);
+	await expect(entryMarker(page, c)).toHaveCount(0);
+	await expect(entryMarker(page, d).locator('.icon')).toHaveClass(/\bend\b/);
+	await expectPopupEntry(page, d);
+	await closePopups(page);
+
+	// D keeps the parent key stable; the same SVG node proves A → B was recolored, not replaced.
+	await expect.poll(async () => (await segments(page, a, b)).length).toBe(1);
+	const [after] = await segments(page, a, b);
+	expect(await originalPath.evaluate((path, child) =>
+		path.isConnected && path.parentElement?.children[child - 1] === path, after.child)).toBe(true);
+	await expectSegmentColor(page, a, b, [255, 255, 255]);
+	await originalPath.dispose();
+});
 
 test('polling recolors older segments when a new entry raises the maximum speed', { tag: '@polling' }, async ({ page, request }) => {
 	clearEntries();

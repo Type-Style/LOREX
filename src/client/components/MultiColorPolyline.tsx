@@ -4,6 +4,11 @@ import { Polyline } from "react-leaflet";
 import { getMaxSpeed } from "../scripts/maxSpeed";
 import { LatLngTuple } from "leaflet";
 
+// Sample recency when polylines are recalculated; this does not schedule an update.
+function isRecent(received: number) {
+	return Date.now() - received <= 60000;
+}
+
 export const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Array<Models.IEntry>; }) => {
 	const [useRelativeColors] = useState<boolean>(true); // TODO Change candidate; Use color in range to maximum speed, like from 0 to max, rather than fixed range
 	let maxSpeed = 0;
@@ -62,13 +67,16 @@ export const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Array<Model
 		}
 
 		if (entry.time.uploadDuration > 300 || entry.time.diff && (entry.time.diff > 100 || entry.time.diff < 25)) { strokeDashArray = "4 8"; }
+		const isLastRecent = index === cleanEntries.length - 1 && isRecent(entry.time.recieved);
+		// Leaflet applies className only on mount, so remount when the animation class changes.
+		// React-Leaflet updates colors and dashes on existing paths only through pathOptions.
+		// The index can be reused at the entry cap, so the key includes both timestamps to help distinguish replacements.
 		return (<Polyline
-			key={entry.time.created * 1.1 + Math.random()} // random to force rerender while new data is incoming (maxSpeed might have changed)
+			key={`line-${entry.index}-${entry.time.created}-${entry.time.recieved}-${isLastRecent}`}
 			positions={pathPositions}
-			color={formatCss(correctedColor)}
+			pathOptions={{ color: formatCss(correctedColor), dashArray: strokeDashArray }}
 			weight={5}
-			dashArray={strokeDashArray}
-			className={"customPolyline " + (index === cleanEntries.length - 1 && (Date.now() - entry.time.recieved) <= 60000  ? "animate " : "")}
+			className={"customPolyline " + (isLastRecent ? "animate " : "")}
 			lineCap={"butt"}
 			 />);
 			
