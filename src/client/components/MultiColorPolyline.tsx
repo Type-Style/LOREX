@@ -62,13 +62,9 @@ export const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Array<Model
 		}
 
 		if (entry.time.uploadDuration > 300 || entry.time.diff && (entry.time.diff > 100 || entry.time.diff < 25)) { strokeDashArray = "4 8"; }
-		// Preserve remounting so Leaflet applies the latest non-mutable options.
-		// eslint-disable-next-line react-hooks/purity -- This existing behavior intentionally forces a remount.
-		const polylineKey = entry.time.created * 1.1 + Math.random();
 		// eslint-disable-next-line react-hooks/purity -- Check recency when the polyline renders.
 		const isRecent = index === cleanEntries.length - 1 && (Date.now() - entry.time.recieved) <= 60000;
 		return (<Polyline
-			key={polylineKey}
 			positions={pathPositions}
 			color={formatCss(correctedColor)}
 			weight={5}
