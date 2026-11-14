@@ -70,7 +70,7 @@ export const MultiColorPolyline = ({ cleanEntries }: { cleanEntries: Array<Model
 		const isLastRecent = index === cleanEntries.length - 1 && isRecent(entry.time.recieved);
 		// Leaflet applies className only on mount, so remount when the animation class changes.
 		// React-Leaflet updates colors and dashes on existing paths only through pathOptions.
-		// The index can be reused at the entry cap, so include both timestamps for replacements.
+		// The index can be reused at the entry cap, so the key includes both timestamps to help distinguish replacements.
 		return (<Polyline
 			key={`line-${entry.index}-${entry.time.created}-${entry.time.recieved}-${isLastRecent}`}
 			positions={pathPositions}
